@@ -3,9 +3,9 @@
  * of the class can be seen quickly, without knowing the implementation details
  */
 
-goog.provide(views.AbstractView);
+goog.provide(view.AbstractView);
 
-var views.AbstractView = function(abstractModel){
+var view.AbstractView = function(abstractModel){
   this._fb = {};
   this._abstractModel = abstractModel;
   // attach listeners
@@ -15,25 +15,25 @@ var views.AbstractView = function(abstractModel){
 }
 
 // TODO: We should probably move this to a common area
-views.AbstractView.errorFn = function(){
+view.AbstractView.errorFn = function(){
   throw Error('Calling a virtual function not allowed\n');
 }
 
-views.AbstractView.prototype.initialize = views.AbstractView.errorFn;
+view.AbstractView.prototype.initialize = view.AbstractView.errorFn;
 
 /**
- * views.openFolderEventHandler()
+ * view.openFolderEventHandler()
  * Invoked on an openFolder notification from the model. Makes suitable API 
  * API calls to model to get the required info abouth the event.
  */ 
-views.AbstractView.prototype.openFolderEventHandler =
-    views.AbstractView.errorFn;
+view.AbstractView.prototype.openFolderEventHandler =
+    view.AbstractView.errorFn;
 
 /**
- * views.openPhotoEventHandler()
+ * view.openPhotoEventHandler()
  * Invoked on an openPhoto notification from the model. Makes suitable API 
  * API calls to model to get the required info abouth the event.
  */ 
-views.AbstractView.prototype.openPhotoEventHandler =
-    views.AbstractView.errorFn;
+view.AbstractView.prototype.openPhotoEventHandler =
+    view.AbstractView.errorFn;
  

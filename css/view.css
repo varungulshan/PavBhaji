@@ -1,0 +1,36 @@
+div {
+  font-family:"lucida grande",tahoma,verdana,arial,sans-serif;
+}
+
+div.top_bar {
+  background-color: #3B5998;
+  color: #FFFFFF;
+  width: 48%;
+  height: 20px;
+  float: left;
+  margin: 2px 2px;
+  padding: 2px;
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+}
+
+div.navigation_button {
+  background-color: #3B5998;
+  color: #FFFFFF;
+  width: 23.5%;
+  height: 16px;
+  margin: 1px 1px;
+  padding: 1px;
+  float: left;
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+}
+
+div.navigation_button:hover {
+  background-color: #627AAD;
+  cursor: pointer;
+}
