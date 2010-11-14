@@ -41,6 +41,7 @@ if ($session) {
   </head>
   <body>
     <div id="fb-root"></div>
+    <link rel="stylesheet" type="text/css" href="../css/view.css" />
     <script type="text/javascript" 
             src="http://connect.facebook.net/en_US/all.js"></script>
     <script type="text/javascript" 
@@ -74,7 +75,14 @@ if ($session) {
   <?php } ?>
   
   <?php if ($session): ?>
-  Found active session. 
+  <div class ="top_bar" id="navigation_bar">
+    <div class="navigation_button">Home</div>
+    <div class="navigation_button"></div>
+    <div class="navigation_button"></div>
+    <div class="navigation_button"></div>
+  </div>
+  <div class="top_bar" id="tool_bar">You have 4 albums and 32 friends</div>
+    Found active session.
   <?php endif ?>
 
   </body>
