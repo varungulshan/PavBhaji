@@ -3,17 +3,17 @@
  * of the class can be seen quickly, without knowing the implementation details
  */
 
-goog.provide(models.AbstractModel);
+goog.provide('models.AbstractModel');
 
 var models.AbstractModel = function(){
   this._fb = {};
   this._openFolderEvent = new common.Event(this);
   this._openPhotoEvent = new common.Event(this);
-}
+};
 
 models.AbstractModel.errorFn = function(){
   throw Error('Calling a virtual function not allowed\n');
-}
+};
 
 // model.initialize(FB,userId);
 models.AbstractModel.prototype.initialize = models.AbstractModel.errorFn;
