@@ -5,12 +5,12 @@
 
 goog.provide('models.Model1');
 
-goog.require('helpers');
+goog.require('common.helpers');
 goog.require('models.AbstractModel');
 goog.require('goog.asserts');
 
 // ---- Begin implementation of Model1 ---------
-var models.Model1 = function(){
+models.Model1 = function(){
   models.AbstractModel.call(this);
   this._uuid='';
 };
@@ -28,7 +28,7 @@ models.Model1.prototype.initialize = function(fbObj,userId){
 // ----- End implementation of Model1 ------------
 
 // ---- Begin implementation of supporting objects ---
-var models.Model1.TreeNode = function(iconNode,depth,isLeaf){
+models.Model1.TreeNode = function(iconNode,depth,isLeaf){
   goog.asserts.assert(iconNode instanceof common.iconNode);
   this.isLeaf=isLeaf;
   this.iconNode=iconNode;

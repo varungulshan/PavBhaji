@@ -6,7 +6,7 @@
 
 goog.provide(common.Event);
 
-var common.Event = function (sender) {
+common.Event = function (sender) {
     this._sender = sender;
     this._listeners = [];
 };

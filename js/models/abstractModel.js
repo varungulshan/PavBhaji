@@ -5,7 +5,7 @@
 
 goog.provide('models.AbstractModel');
 
-var models.AbstractModel = function(){
+models.AbstractModel = function(){
   this._fb = {};
   this._openFolderEvent = new common.Event(this);
   this._openPhotoEvent = new common.Event(this);
