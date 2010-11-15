@@ -31,15 +31,28 @@ $session = $facebook->getSession();
 if ($session) {
   $logoutUrl = $facebook->getLogoutUrl();
 } else {
-  $loginUrl = $facebook->getLoginUrl();
+  $loginUrl = $facebook->getLoginUrl(array('req_perms' => 
+      'user_photos,friends_photos,user_photo_video_tags,friends_photo_video_tags'
+      ,'canvas' => 1, 'fbconnect' => 0, 'display' => 'page'
+      ));
+  // In the above, the canvas => 1 option might not be supported later on
+  // in that case, if the session exists you just need to play with the next
+  // parameter and do some redirections 
 }
 
 ?>
 <html xmlns:fb="http://www.facebook.com/2008/fbml">
   <head>
     <title>Photo browser</title>
-  </head>
+ </head>
   <body>
+
+    <?php if (!$session): ?>
+    <script type="text/javascript">
+    top.location.href='<?php echo $loginUrl; ?>';
+    </script>
+    <?php endif ?>
+ 
     <div id="fb-root"></div>
     <link rel="stylesheet" type="text/css" href="../css/view.css" />
     <script type="text/javascript" 
@@ -50,11 +63,9 @@ if ($session) {
       FB.init({
         appId   : '<?php echo $facebook->getAppId(); ?>',
         session : <?php echo json_encode($session); ?>,
-        // don't refetch the session when PHP already has it
         status  : true, // check login status
-        cookie  : true, // enable cookies to allow the server to access
-                        // the session
-        xfbml   : true // parse XFBML
+        cookie  : true, 
+        xfbml   : true 
       });
 
       // whenever the user logs in, we refresh the page
@@ -63,18 +74,9 @@ if ($session) {
       });
     </script>
 
-  <?php if (!$session){
-    $redirectUri='https://graph.facebook.com/oauth/authorize?client_id='
-    .$facebook->getAppId().
-    '&scope=user_photos,friends_photos,user_photo_video_tags,friends_photo_video_tags';
-  ?>
-  <script type="text/javascript">
-  window.location='<?php echo $redirectUri; ?>'+'&redirect_uri='+
-                  window.location;
-  </script>
-  <?php } ?>
-  
   <?php if ($session): ?>
+  <?php //print_r($_REQUEST), // the access token can be seen in this
+        //array when the first login happens ?>
   <div class ="top_bar" id="navigation_bar">
     <div class="navigation_button">Home</div>
     <div class="navigation_button"></div>
