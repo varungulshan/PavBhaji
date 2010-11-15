@@ -64,14 +64,10 @@ if ($session) {
     </script>
 
   <?php if (!$session){
-    $redirectUri='https://graph.facebook.com/oauth/authorize?client_id='
+     $redirectUri='https://graph.facebook.com/oauth/authorize?client_id='
     .$facebook->getAppId().
     '&scope=user_photos,friends_photos,user_photo_video_tags,friends_photo_video_tags';
   ?>
-  <script type="text/javascript">
-  window.location='<?php echo $redirectUri; ?>'+'&redirect_uri='+
-                  window.location;
-  </script>
   <?php } ?>
   
   <?php if ($session): ?>
@@ -82,7 +78,25 @@ if ($session) {
     <div class="navigation_button"></div>
   </div>
   <div class="top_bar" id="tool_bar">You have 4 albums and 32 friends</div>
-    Found active session.
+  <div id="icon_table">
+  <table>
+    <tr>
+    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder"></div></td>
+    </tr>
+    <tr>
+    </tr>
+    <tr>
+    </tr>
+    <tr>
+    </tr>
+    <tr>
+    </tr>
+  </table>
+  </div>
   <?php endif ?>
 
   </body>

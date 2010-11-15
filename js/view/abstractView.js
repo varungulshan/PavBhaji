@@ -5,6 +5,8 @@
 
 goog.provide(view.AbstractView);
 
+good.requires(models.AbstractModel);
+
 var view.AbstractView = function(abstractModel){
   this._fb = {};
   this._abstractModel = abstractModel;
