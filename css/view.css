@@ -30,11 +30,18 @@ div.navigation_button {
   text-align: center;
 }
 
+div#selected_navigation_button {
+  background-color: #627AAD;
+}
+
 div.navigation_button:hover {
   background-color: #627AAD;
   cursor: pointer;
 }
 
+div#icon_table {
+  text-align: center;
+}
 
 #icon_table table {
   width: 98%;
@@ -44,16 +51,22 @@ div.navigation_button:hover {
 }
 
 #icon_table div.image_holder {
+  position: fixed;
   width: 130px;
   height: 100px;
   text-align: center;
   padding: 2px 2px;
-}
-
-#icon_table div:hover {
-  cursor: pointer;
+  background-repeat: no-repeat;
+  background-position: center center;
   border-top: 1px solid;
   border-bottom: 1px solid;
   border-right: 1px solid;
   border-left: 1px solid;
+  border-color: #ffffff;
+  overflow: hidden;
+}
+
+#icon_table div:hover {
+  cursor: pointer;
+  border-color: #000000;
 }

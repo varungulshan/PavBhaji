@@ -31,30 +31,57 @@ $session = $facebook->getSession();
 if ($session) {
   $logoutUrl = $facebook->getLogoutUrl();
 } else {
-  $loginUrl = $facebook->getLoginUrl();
+  $loginUrl = $facebook->getLoginUrl(array('req_perms' => 
+      'user_photos,friends_photos,user_photo_video_tags,friends_photo_video_tags'
+      ,'canvas' => 1, 'fbconnect' => 0, 'display' => 'page'
+      ));
+  // In the above, the canvas => 1 option might not be supported later on
+  // in that case, if the session exists you just need to play with the next
+  // parameter and do some redirections 
 }
 
 ?>
 <html xmlns:fb="http://www.facebook.com/2008/fbml">
   <head>
     <title>Photo browser</title>
-  </head>
+ </head>
   <body>
+
+    <?php if (!$session): ?>
+    <script type="text/javascript">
+    top.location.href='<?php echo $loginUrl; ?>';
+    </script>
+    <?php endif ?>
+ 
     <div id="fb-root"></div>
     <link rel="stylesheet" type="text/css" href="../css/view.css" />
     <script type="text/javascript" 
             src="http://connect.facebook.net/en_US/all.js"></script>
     <script type="text/javascript" 
             src="../closure-library/closure/goog/base.js"></script>
+    <script type="text/javascript" 
+            src="../js/common/helpers.js"></script>
+    <script type="text/javascript" 
+            src="../js/common/iconNodes.js"></script>
+    <script type="text/javascript" 
+            src="../js/models/abstractModel.js"></script>
+    <script type="text/javascript" 
+            src="../js/models/model1.js"></script>
+    <script type="text/javascript" 
+            src="../js/view/MainView.js"></script>
+    <script type="text/javascript" 
+            src="../js/view/MainViewImpl.js"></script>
+    <script type="text/javascript" 
+            src="../js/view/NavbarView.js"></script>
+    <script type="text/javascript" 
+            src="../js/view/ImageArrayView.js"></script>
     <script>
       FB.init({
         appId   : '<?php echo $facebook->getAppId(); ?>',
         session : <?php echo json_encode($session); ?>,
-        // don't refetch the session when PHP already has it
         status  : true, // check login status
-        cookie  : true, // enable cookies to allow the server to access
-                        // the session
-        xfbml   : true // parse XFBML
+        cookie  : true, 
+        xfbml   : true 
       });
 
       // whenever the user logs in, we refresh the page
@@ -71,6 +98,8 @@ if ($session) {
   <?php } ?>
   
   <?php if ($session): ?>
+  <?php //print_r($_REQUEST), // the access token can be seen in this
+        //array when the first login happens ?>
   <div class ="top_bar" id="navigation_bar">
     <div class="navigation_button">Home</div>
     <div class="navigation_button"></div>
@@ -88,15 +117,40 @@ if ($session) {
     <td><div class="image_holder"></div></td>
     </tr>
     <tr>
+    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder"></div></td>
     </tr>
     <tr>
+    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder"></div></td>
     </tr>
     <tr>
+    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder"></div></td>
     </tr>
     <tr>
+    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder"></div></td>
     </tr>
   </table>
   </div>
+  <script>
+    var model = 1;
+    var view = new view.MainViewImpl(model);
+    view.initialize();
+  </script>
   <?php endif ?>
 
   </body>
