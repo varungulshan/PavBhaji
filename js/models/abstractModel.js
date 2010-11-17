@@ -57,3 +57,18 @@ models.AbstractModel.prototype.getCurrentPhoto = models.AbstractModel.errorFn;
  * _openFolderEvent, or a _openPhotoEvent to be notified.
  */
 models.AbstractModel.prototype.gotoIcon = models.AbstractModel.errorFn;
+
+/**
+ * model.getNumberOfFriends()
+ * Gets the number of friends of the current user. Model  probably should store
+ * this when it initializes
+ */
+models.AbstractModel.prototype.getNumberOfFriends
+     = models.AbstractModel.errorFn;
+
+/**
+ * model.getNumberOfAlbums()
+ * Gets the number of albums of the user (not friends).
+ */
+models.AbstractModel.prototype.getNumberOfAlbums
+     = models.AbstractModel.errorFn;
