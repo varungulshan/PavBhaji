@@ -14,20 +14,14 @@ view.MainViewImpl.prototype.imageArrayViewUpdate = function () {
                                                                 'image_holder');
   var numImageHolders = 25;
   goog.asserts.assert( imageHolders.length == numImageHolders);
-  //this._childIconNodes = model.getcurrentIcons();
-  this._childIconNodes[0] = new common.IconNode('Me',
-                                                '../resources/loading.gif',
-                                                 0,0);
-  this._childIconNodes[1] = new common.IconNode('Friends',
-                                                '../resources/buddies.jpg',
-                                                0,0);
+  this._childIconNodes = this._model.getCurrentIcons();
   for (var i = 0; i < numImageHolders; ++i) {
     if ( i < this._childIconNodes.length) {
-      imageHolders[i].style.display = 'box';
+      imageHolders[i].style.visibility = 'visible';
       imageHolders[i].style.backgroundImage = "url(" +
           this._childIconNodes[i].iconImgUrl + ")";
     } else {
-      imageHolders[i].style.display = 'none';
+      imageHolders[i].style.visibility = 'hidden';
     }
   }
 }

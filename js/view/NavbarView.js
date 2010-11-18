@@ -19,15 +19,15 @@ view.MainViewImpl.prototype.navbarViewUpdate = function() {
   for(i = 0; i < numButtons; ++i) {
     if (i < this._currentIconNode.fileDepth) {
       // visible but unselected
-      buttons[i].style.display = 'inline';
+      buttons[i].style.visibility = 'visible';
       buttons[i].id = "";
     } else if ( i == this._currentIconNode.fileDepth) {
       // visible and selected
-      buttons[i].style.display = 'inline';
+      buttons[i].style.visibility = 'visible';
       buttons[i].id = "selected_navigation_button";
     } else {
       // make invisible
-      buttons[i].style.display = 'none';
+      buttons[i].style.visibility = 'hidden';
     }
   }
 }

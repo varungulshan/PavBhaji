@@ -62,6 +62,8 @@ if ($session) {
     <script type="text/javascript" 
             src="../js/common/helpers.js"></script>
     <script type="text/javascript" 
+            src="../js/common/Event.js"></script>
+    <script type="text/javascript" 
             src="../js/common/iconNodes.js"></script>
     <script type="text/javascript" 
             src="../js/models/abstractModel.js"></script>
@@ -140,7 +142,6 @@ if ($session) {
   </table>
   </div>
   <script>
-    //var model = 1;
     var model = new models.Model1();
     model.initialize(FB,'<?php echo $facebook->getUser(); ?>');
     var view = new view.MainViewImpl(model);
