@@ -105,39 +105,89 @@ if ($session) {
   <div id="icon_table">
   <table>
     <tr>
-    <td><div class="image_holder"></div></td>
-    <td><div class="image_holder"></div></td>
-    <td><div class="image_holder"></div></td>
-    <td><div class="image_holder"></div></td>
-    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
     </tr>
     <tr>
-    <td><div class="image_holder"></div></td>
-    <td><div class="image_holder"></div></td>
-    <td><div class="image_holder"></div></td>
-    <td><div class="image_holder"></div></td>
-    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
     </tr>
     <tr>
-    <td><div class="image_holder"></div></td>
-    <td><div class="image_holder"></div></td>
-    <td><div class="image_holder"></div></td>
-    <td><div class="image_holder"></div></td>
-    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
     </tr>
     <tr>
-    <td><div class="image_holder"></div></td>
-    <td><div class="image_holder"></div></td>
-    <td><div class="image_holder"></div></td>
-    <td><div class="image_holder"></div></td>
-    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
     </tr>
     <tr>
-    <td><div class="image_holder"></div></td>
-    <td><div class="image_holder"></div></td>
-    <td><div class="image_holder"></div></td>
-    <td><div class="image_holder"></div></td>
-    <td><div class="image_holder"></div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
+    <td><div class="image_holder">
+      <img></img><p></p>
+    </div></td>
     </tr>
   </table>
   </div>

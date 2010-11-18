@@ -56,6 +56,7 @@ div#icon_table {
   height: 100px;
   text-align: center;
   padding: 2px 2px;
+  background-image: url('../resources/loading.gif');
   background-repeat: no-repeat;
   background-position: center center;
   border-top: 1px solid;
@@ -69,4 +70,12 @@ div#icon_table {
 #icon_table div:hover {
   cursor: pointer;
   border-color: #000000;
+}
+
+#icon_table div.image_holder img {
+  height: 70px;
+}
+
+#icon_table div.image_holder p {
+  font-size: 11px;
 }
