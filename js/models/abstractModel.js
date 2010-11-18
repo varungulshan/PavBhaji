@@ -5,15 +5,16 @@
 
 goog.provide('models.AbstractModel');
 
+goog.require('common.helpers');
+goog.require('common.Event');
+
 models.AbstractModel = function(){
-  this._fb = {};
+  this.fb = {};
   this._openFolderEvent = new common.Event(this);
   this._openPhotoEvent = new common.Event(this);
 };
 
-models.AbstractModel.errorFn = function(){
-  throw Error('Calling a virtual function not allowed\n');
-};
+models.AbstractModel.errorFn = common.helpers.virtualErrorFn;
 
 // model.initialize(FB,userId);
 models.AbstractModel.prototype.initialize = models.AbstractModel.errorFn;

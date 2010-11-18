@@ -21,3 +21,7 @@ common.helpers.getElementByTagAndClassName = function(tagName, className) {
   }
   return retnode;
 }
+
+common.helpers.virtualErrorFn = function(){
+  throw Error('Calling a virtual function not allowed\n');
+};

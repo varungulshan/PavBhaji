@@ -4,7 +4,7 @@
  * http://www.alexatnet.com/content/model-view-controller-mvc-javascript
  */
 
-goog.provide(common.Event);
+goog.provide('common.Event');
 
 common.Event = function (sender) {
     this._sender = sender;

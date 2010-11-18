@@ -90,13 +90,6 @@ if ($session) {
       });
     </script>
 
-  <?php if (!$session){
-     $redirectUri='https://graph.facebook.com/oauth/authorize?client_id='
-    .$facebook->getAppId().
-    '&scope=user_photos,friends_photos,user_photo_video_tags,friends_photo_video_tags';
-  ?>
-  <?php } ?>
-  
   <?php if ($session): ?>
   <?php //print_r($_REQUEST), // the access token can be seen in this
         //array when the first login happens ?>
@@ -147,7 +140,9 @@ if ($session) {
   </table>
   </div>
   <script>
-    var model = 1;
+    //var model = 1;
+    var model = new models.Model1();
+    model.initialize(FB,'<?php echo $facebook->getUser(); ?>');
     var view = new view.MainViewImpl(model);
     view.initialize();
   </script>
