@@ -14,13 +14,17 @@ goog.require('common.PhotoIcon');
 goog.require('common.PhotosOfPersonIcon');
 goog.require('models.AbstractModel');
 goog.require('goog.asserts');
-goog.require('goog.Timer');
 
 // ---- Begin implementation of Model1 ---------
 models.Model1 = function(){
   models.AbstractModel.call(this);
   this.userId='';
   this.currentState=models.Model1.State.folderView;
+  this._openNodeList=[];
+  this._openNodeIdx=-1;
+  this.currentState=models.Model1.State.folderView;
+  this.userNode=null;
+  this.friendsNode=null;
 };
 goog.inherits(models.Model1,models.AbstractModel);
 
@@ -77,7 +81,6 @@ models.Model1.prototype._openNode = function(nodeToOpen){
     else{
       // Node's parent is already open, and another child of that parent
       // is open. 
-      goog.asserts.assert(!nodeToOpen.isOpen(),'Expected node to be closed\n');
       goog.asserts.assert(nodeDepth>=1,'Expected node depth >=1');
       this._openNodeList[nodeDepth].closeNode();
       this._openNodeList=this._openNodeList.slice(0,nodeDepth);
@@ -87,7 +90,6 @@ models.Model1.prototype._openNode = function(nodeToOpen){
   }
   else{
     // Node is the bottomost (uptil now) node in the tree
-    goog.asserts.assert(!nodeToOpen.isOpen());
     goog.asserts.assert(nodeDepth===this._openNodeList.length);
     this._openNodeList.push(nodeToOpen);
     nodeToOpen.exploreNode(this);
@@ -99,15 +101,9 @@ models.Model1.prototype._openNode = function(nodeToOpen){
 };
 
 models.Model1.prototype.raiseOpenFolderEvent = function(){
-  // This function raises the open folder event asynchronously
-  // making use of the library function in goog
-  var _model=this;
   goog.asserts.assert(this._openNodeList[this._openNodeIdx].isOpen(),
       'Expected node to be opened on the openFolder notification');
-  var raiseEventFn = function(){
-    _model._openFolderEvent.notify();
-  };
-  goog.Timer.callOnce(raiseEventFn,0);
+  this._openFolderEvent.notify();
 };
 
 models.Model1.prototype.attachToOpenFolderEvent = function(eventHandler){
@@ -125,7 +121,7 @@ models.Model1.prototype.attachToOpenPhotoEvent = function(eventHandler){
 models.Model1.prototype.getCurrentIcons = function(){
   if(this.currentState!==models.Model1.State.folderView){
     throw Error(
-        'Expected model to be in folder view state on model.getCurrenIcons()'
+        'Expected model to be in folder view state on model.getCurrentIcons()'
         );
   }
   var curNode=this._openNodeList[this._openNodeIdx];
@@ -141,7 +137,7 @@ models.Model1.prototype.getCurrentIcons = function(){
   // them
 };
 
-//  --- Static values of Model1 ------------
+//  --- Static values/methods of Model1 ------------
 
 // implementing a Enum type
 models.Model1.State = {'folderView': 0, 'photoView': 1};
@@ -150,17 +146,22 @@ models.Model1.resourceDir = '../resources/'; // This path needs to be
     // relative to the document which is loaded, need to be more
     // smarter on how to set it
 
+models.Model1.getProfilePicUrl = function(userId,fbSession){
+  var userPic = 'https://graph.facebook.com/'+userId+'/picture'+
+                '?access_token='+fbSession['access_token'];
+  return userPic;
+};
+
+models.Model1.getAlbumPicUrl = function(albumId,fbSession){
+  // the fbSession is needed because need to pass access token
+  var albumPic = 'https://graph.facebook.com/'+albumId+'/picture'+
+                '?access_token='+fbSession['access_token'];
+  return albumPic;
+};
+
 // ----- End implementation of Model1 ------------
 
 // ---- Begin implementation of supporting objects ---
-
-// Enum type object for indexing various nodes
-//models.Model1.NodeType = {'root':0,'person':1,'album':2,'friends':3,
-//                          'photo':4,'photosOfPerson':5,'home':6};
-
-//models.Model1.invalidOpenFn = function(){
-  //throw Error('Invalid open node function called, should not happen\n');
-//}
 
 models.Model1.TreeNode = function(iconNode,isLeaf){
   goog.asserts.assert(iconNode instanceof common.IconNode);
@@ -168,6 +169,7 @@ models.Model1.TreeNode = function(iconNode,isLeaf){
   this.iconNode=iconNode;
   this._isOpen=false;
   this._children=[]; // Array of TreeNodes
+  this._alwaysCache=false; 
 };
 
 /**
@@ -179,9 +181,27 @@ models.Model1.TreeNode.prototype.exploreNode = common.helpers.virtualErrorFn;
  * closeNode(), function to close a node
  */
 models.Model1.TreeNode.prototype.closeNode = function(){
-  this._children=[];
-  this._isOpen=false;
+  // Dont close nodes for which alwaysCache flag is set
+  if(!this._alwaysCache){
+    this._children=[];
+    this._isOpen=false;
+  }
 };
+
+/**
+ * Function to set the alwaysCache flag, use this for nodes you
+ * think are always accessed fequently, hence should be always on
+ * Note that all the parents of this node might also need to have this flag
+ * set for it to be useful (depends on node access pattern)
+ */
+
+models.Model1.TreeNode.prototype.setAlwaysCache = function(){
+  this._alwaysCache=true;
+};
+
+models.Model1.TreeNode.prototype.clearAlwaysCache = function(){
+  this._alwaysCache=false;
+}
 
 /**
  * Function to add more children, can either pass a single child
@@ -221,6 +241,7 @@ models.Model1.TreeNode.prototype.isOpen = function(){
 models.Model1.HomeNode = function(iconNode){
   goog.asserts.assert(iconNode instanceof common.IconNode);
   models.Model1.TreeNode.call(this,iconNode,false);
+  this._alwaysCache=true; // always cached
 };
 goog.inherits(models.Model1.HomeNode,models.Model1.TreeNode);
 
@@ -230,15 +251,19 @@ models.Model1.HomeNode.prototype.exploreNode = function(model){
     return;
   }
 
-  var userPic = 'https://graph.facebook.com/'+model.userId+'/picture';
+  var fbSession=model.fb.getSession();
+  var userPic = models.Model1.getProfilePicUrl(model.userId,fbSession);
   var userIcon = new common.PersonIcon('Your photos',userPic,0,
-                                       0,model.userId);
+                                       0,model.userId,'You');
   var userNode = new models.Model1.PersonNode(userIcon);
+  userNode.setAlwaysCache();
+  model.userNode=userNode;
 
   var friendsPic = models.Model1.resourceDir+'buddies.jpg';
   var friendsIcon = new common.FriendsIcon('Friends photos',friendsPic,
                                            0,0);
   var friendsNode = new models.Model1.FriendsNode(friendsIcon);
+  model.friendsNode=friendsNode;
 
   this.addChildren([userNode,friendsNode]);
   this._isOpen=true;
@@ -252,19 +277,41 @@ models.Model1.HomeNode.prototype.exploreNode = function(model){
 models.Model1.FriendsNode = function(iconNode){
   goog.asserts.assert(iconNode instanceof common.FriendsIcon);
   models.Model1.TreeNode.call(this,iconNode,false);
+  this._alwaysCache=true;
 };
 goog.inherits(models.Model1.FriendsNode,models.Model1.TreeNode);
 
 models.Model1.FriendsNode.prototype.exploreNode = function(model){
   if(this.isOpen()){
-    models.raiseOpenFolderEvent();
+    model.raiseOpenFolderEvent();
     return;
   }
   // Else need to make a FB api call
   var fbObj=model.fb;
-  // TODO
-  common.helpers.virtualErrorFn();
+  var _node=this;
+  var fbOpenFriendsCB = function(apiResponse){
+    _node.addFriendsFromFBresponse(apiResponse,fbObj);
+    model.raiseOpenFolderEvent();
+  };
+  fbObj.api('/me/friends',fbOpenFriendsCB);
 };
+
+models.Model1.FriendsNode.prototype.addFriendsFromFBresponse = 
+    function(apiResp,fbObj){
+      var friends=apiResp['data'];
+      var fbSession=fbObj.getSession();
+      goog.asserts.assert(common.helpers.isArray(friends),
+          'Expected API call for friend list to return array');
+      for(var i=0;i<friends.length;i++){
+        var friendObj=friends[i];
+        var friendIcon = new common.PersonIcon(friendObj['name'],
+            models.Model1.getProfilePicUrl(friendObj['id'],fbSession),
+            0,0,friendObj['id'],friendObj['name']);
+        var friendNode = new models.Model1.PersonNode(friendIcon);
+        this.addChildren(friendNode);
+      }
+      this._isOpen=true;
+    };
 
 // --- End implementation of FriendsNode ---------
 
@@ -274,6 +321,69 @@ models.Model1.PersonNode = function(iconNode){
   models.Model1.TreeNode.call(this,iconNode,false);
 };
 goog.inherits(models.Model1.PersonNode,models.Model1.TreeNode);
+
+models.Model1.PersonNode.prototype.exploreNode = function(model){
+  if(this.isOpen()){
+    model.raiseOpenFolderEvent();
+    return;
+  }
+  var curIcon=this.iconNode;
+  var fbSession=model.fb.getSession();
+  var photoOfPersonIcon = new common.PhotosOfPersonIcon('Photos of '+
+      common.helpers.getFirstName(curIcon.name),
+      models.Model1.getProfilePicUrl(curIcon.fbId,fbSession),0,0);
+  var photoOfPersonNode = new models.Model1.PhotosOfPersonNode(
+      photoOfPersonIcon);
+
+  this.addChildren(photoOfPersonNode);
+
+  // Now get the albums of the person
+  var fbId=curIcon.fbId;
+  var fbObj=model.fb;
+  var _node=this;
+  var fbGetAlbumsCB = function(apiResp){
+    _node.addAlbumsFromFBresponse(apiResp,fbObj);
+    model.raiseOpenFolderEvent();
+  };
+  fbObj.api('/'+fbId+'/albums',fbGetAlbumsCB);
+};
+
+models.Model1.PersonNode.prototype.addAlbumsFromFBresponse = 
+function(apiResp,fbObj){
+  var albums=apiResp['data'];
+  var fbSession=fbObj.getSession();
+  goog.asserts.assert(common.helpers.isArray(albums),
+      'Expected API call for albums to return array');
+  for(var i=0;i<albums.length;i++){
+    var albumObj=albums[i];
+    var albumIcon = new common.AlbumIcon(albumObj['name'],
+        models.Model1.getAlbumPicUrl(albumObj['id'],fbSession),
+        0,0,albumObj['id']);
+    var albumNode = new models.Model1.AlbumNode(albumIcon);
+    this.addChildren(albumNode);
+  }
+  this._isOpen=true;
+};
+
 // --- End implementation of PersonNode ---------
+
+// --- Begin implementation of AlbumNode -------
+models.Model1.AlbumNode = function(iconNode){
+  goog.asserts.assert(iconNode instanceof common.AlbumIcon);
+  models.Model1.TreeNode.call(this,iconNode,false);
+};
+goog.inherits(models.Model1.AlbumNode,models.Model1.TreeNode);
+
+// --- End implementation of AlbumNode -------
+
+
+// --- Begin implementation of PhotosOfPersonNode -------
+models.Model1.PhotosOfPersonNode = function(iconNode){
+  goog.asserts.assert(iconNode instanceof common.PhotosOfPersonIcon);
+  models.Model1.TreeNode.call(this,iconNode,false);
+};
+goog.inherits(models.Model1.PhotosOfPersonNode,models.Model1.TreeNode);
+
+// --- End implementation of PhotosOfPersonNode -------
 
 // ---- End implementation of supporting objects -----

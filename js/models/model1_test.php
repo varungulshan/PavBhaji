@@ -86,10 +86,32 @@ if ($session) {
 
   function testInitialize_1(){
     var model=new models.Model1();
+    var cb = function(){
+      var homeIcons=model.getCurrentIcons();
+      assertEquals(2,homeIcons.length);
+    };
+    model.attachToOpenFolderEvent(cb);
     model.initialize(FB,'<?php echo $facebook->getUser(); ?>');
-    homeIcons=model.getCurrentIcons();
-    assertEquals(2,homeIcons.length);
   }
+
+  function testInitialize_custom(){
+    var model=new models.Model1();
+    var depth=0;
+    var depthToIdx=[0,3];
+    var cb = function(){
+      var homeIcons=model.getCurrentIcons();
+      var iconIdx=depthToIdx[depth];
+      console.log('Depth = '+depth+' Icon number = '+iconIdx+
+          ' Icon text = '+homeIcons[iconIdx].iconText); 
+      if(depth<depthToIdx.length-1){
+        model.gotoIcon(homeIcons[iconIdx]);
+        depth++;
+      }
+    };
+    model.attachToOpenFolderEvent(cb);
+    model.initialize(FB,'<?php echo $facebook->getUser(); ?>');
+  }
+ 
 </script>
 
 </head>

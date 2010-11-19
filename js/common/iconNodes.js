@@ -20,14 +20,13 @@ common.IconNode = function(iconText,iconImgUrl,fileDepth,fileIdx){
 };
 
 common.PersonIcon = function(iconText,iconImgUrl,fileDepth,fileIdx, 
-                                 fbId){
+                                 fbId,name){
   common.IconNode.call(this,iconText,iconImgUrl,fileDepth,fileIdx);
   this.fbId=fbId; // Facebook UID of the person, type string
+  this.name=name;
 };
 goog.inherits(common.PersonIcon,common.IconNode); // This call simulates
 // inheritance, and needs to be made after the class declaration.
-
-common.PersonIcon.prototype.newMethod=function(){};
 
 common.AlbumIcon = function(iconText,iconImgUrl,fileDepth,fileIdx,
                          fbId){
