@@ -22,6 +22,12 @@ common.helpers.getElementByTagAndClassName = function(tagName, className) {
   return retnode;
 }
 
+common.helpers.getFirstName = function(fullName){
+  var spaceIdx=fullName.indexOf(' ');
+  if(spaceIdx===0){spaceIdx=fullName.length;};
+  return fullName.slice(0,spaceIdx);
+};
+
 common.helpers.virtualErrorFn = function(){
   throw Error('Calling a virtual function not allowed\n');
 };
