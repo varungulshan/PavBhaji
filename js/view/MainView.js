@@ -25,8 +25,8 @@ view.MainView = function(model){
   this._parentIconNodes = new Array(); // iconNodes leading to current IconNode
   this._childIconNodes = new Array(); // child nodes of curren node
   // attach listeners
-  //this._model.attachToOpenFolderEvent(this.openFolderEventHandler());
-  //this._model.attachToOpenPhotoEvent(this.openPhotoEventHandler());
+  this._model.attachToOpenFolderEvent(this.openFolderEventHandler,this);
+  this._model.attachToOpenPhotoEvent(this.openPhotoEventHandler,this);
 }
 
 // TODO: We should probably move this to a common area

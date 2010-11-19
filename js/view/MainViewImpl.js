@@ -20,6 +20,10 @@ view.MainViewImpl.prototype.initialize = function() {
   this.updateView(); 
 }
 
+view.MainViewImpl.prototype.openFolderEventHandler = function(obj) {
+  obj.updateView();
+}
+
 view.MainViewImpl.prototype.updateView = function() {
   // update navigation bar
   this.navbarViewUpdate();

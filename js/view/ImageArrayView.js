@@ -19,6 +19,9 @@ view.MainViewImpl.prototype.imageArrayViewUpdate = function () {
     if ( i < this._childIconNodes.length) {
       imageHolders[i].style.visibility = 'visible';
       imageHolders[i].children[0].src = this._childIconNodes[i].iconImgUrl;
+      //TODO: Below is hacky way, can probably go in php
+      imageHolders[i].onclick = new Function(
+          'view.imageArrayViewClickHandler('+i+')');
       // set caption in browser compliant way
       if (imageHolders[i].children[1].innerText != undefined) {
         imageHolders[i].children[1].innerText = 
@@ -33,4 +36,9 @@ view.MainViewImpl.prototype.imageArrayViewUpdate = function () {
       imageHolders[i].style.visibility = 'hidden';
     }
   }
+}
+
+view.MainViewImpl.prototype.imageArrayViewClickHandler = function (idx) {
+        this._currentIconNode = this._childIconNodes[idx];
+        this._model.gotoIcon(this._childIconNodes[idx]);
 }
