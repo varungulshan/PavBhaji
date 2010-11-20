@@ -58,3 +58,15 @@ common.helpers.shortenText = function(text,maxLen){
   maxLen=Math.min(text.length,maxLen);
   return text.slice(0,maxLen); // this is a very dumb summary right now
 };
+
+/**
+ * Sets the text of DOM element in browser independent way
+ */
+
+common.helpers.setText = function (element,text) {
+    if (element.innerText != undefined) {
+        element.innerText = text
+      } else {
+        element.textContent = text;
+      }
+}

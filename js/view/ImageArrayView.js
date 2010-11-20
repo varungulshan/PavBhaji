@@ -27,16 +27,8 @@ view.MainViewImpl.prototype.imageArrayViewUpdatePage = function () {
       var iNew = new Number(idx);
       imageHolders[i].onclick = new Function(
           'view.imageArrayViewClickHandler('+idx+')');
-      // set caption in browser compliant way
-      if (imageHolders[i].children[1].innerText != undefined) {
-        imageHolders[i].children[1].innerText = 
-          this._childIconNodes[idx].iconText; 
-      } else {
-        imageHolders[i].children[1].textContent = 
-          this._childIconNodes[idx].iconText; 
-      }
-      //imageHolders[i].style.backgroundImage = "url(" +
-      //    this._childIconNodes[i].iconImgUrl + ")";
+      common.helpers.setText(imageHolders[i].children[1],
+          this._childIconNodes[idx].iconText);
     } else {
       imageHolders[i].style.visibility = 'hidden';
     }

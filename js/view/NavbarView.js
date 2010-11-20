@@ -21,13 +21,23 @@ view.MainViewImpl.prototype.navbarViewUpdate = function() {
       // visible but unselected
       buttons[i].style.visibility = 'visible';
       buttons[i].id = "";
+      buttons[i].onclick = new Function(
+        'view.navbarViewClickHandler('+i+')');
     } else if ( i+1 == this._currentIconNode.fileDepth) {
       // visible and selected
       buttons[i].style.visibility = 'visible';
       buttons[i].id = "selected_navigation_button";
+      common.helpers.setText(buttons[i],this._currentIconNode.navText);
     } else {
       // make invisible
       buttons[i].style.visibility = 'hidden';
     }
   }
+}
+
+
+view.MainViewImpl.prototype.navbarViewClickHandler = function(idx) {
+  var parentNodes = this._model.getParentIcons();
+  goog.asserts.assert(idx  < parentNodes.length);
+  this._model.gotoIcon(parentNodes[idx]);
 }
