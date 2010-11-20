@@ -26,8 +26,15 @@ view.MainView = function(model){
   this._childIconNodes = new Array(); // child nodes of curren node
   this._currentPage = 0; // current page index; display 25 at a time
   // attach listeners
-  this._model.attachToOpenFolderEvent(this.openFolderEventHandler,this);
-  this._model.attachToOpenPhotoEvent(this.openPhotoEventHandler,this);
+  _view = this;
+  var openFolderEventHandlerClosure = function () {
+    _view.openFolderEventHandler();
+  }
+  var openPhotoEventHandlerClosure = function () {
+    _view.openPhotEventHandler();
+  }
+  this._model.attachToOpenFolderEvent(openFolderEventHandlerClosure);
+  this._model.attachToOpenPhotoEvent(openPhotoEventHandlerClosure);
   //attach click handlers
   document.getElementById('prev_button').onclick = new Function(
     'view.imageArrayViewPrevClickHandler()');

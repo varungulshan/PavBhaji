@@ -128,16 +128,16 @@ models.Model1.prototype.raiseOpenFolderEvent = function(){
   this._openFolderEvent.notify();
 };
 
-models.Model1.prototype.attachToOpenFolderEvent = function(eventHandler,obj){
+models.Model1.prototype.attachToOpenFolderEvent = function(eventHandler){
   goog.asserts.assert(typeof eventHandler === 'function',
       'Event handler expected to be a function');
-  this._openFolderEvent.attach(eventHandler,obj);
+  this._openFolderEvent.attach(eventHandler);
 };
 
-models.Model1.prototype.attachToOpenPhotoEvent = function(eventHandler,obj){
+models.Model1.prototype.attachToOpenPhotoEvent = function(eventHandler){
   goog.asserts.assert(typeof eventHandler === 'function',
       'Event handler expected to be a function');
-  this._openPhotoEvent.attach(eventHandler,obj);
+  this._openPhotoEvent.attach(eventHandler);
 };
 
 models.Model1.prototype.getCurrentPhoto = function(){
