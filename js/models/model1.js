@@ -19,7 +19,6 @@ goog.require('goog.asserts');
 models.Model1 = function(){
   models.AbstractModel.call(this);
   this.userId='';
-  this.currentState=models.Model1.State.folderView;
   this._openNodeList=[];
   this._openNodeIdx=-1;
   this.currentState=models.Model1.State.folderView;
@@ -37,6 +36,7 @@ models.Model1.prototype.initialize = function(fbObj,userId){
   var rootNode=new models.Model1.TreeNode(rootIcon,false);
 
   var homeIcon=new common.IconNode('home','',0,0);
+  homeIcon.navText='P:/'; // Setting it manually right now
   var homeNode=new models.Model1.HomeNode(homeIcon); 
 
   rootNode.addChildren(homeNode);
@@ -46,6 +46,24 @@ models.Model1.prototype.initialize = function(fbObj,userId){
   this._openNodeIdx=0; // Index of currently open node
   this.currentState=models.Model1.State.folderView;
   this.gotoIcon(homeIcon);
+};
+
+models.Model1.prototype.getOpenIcon = function(){
+  goog.asserts.assert(this._openNodeList.length>0); // to make sure model has
+      // been initialized
+  var openNode=this._openNodeList[this._openNodeIdx];
+  return openNode.iconNode;
+};
+
+models.Model1.prototype.getParentIcons = function(){
+  goog.asserts.assert(this._openNodeList.length>=2); // 'root' and 'home'
+      // nodes should always be open
+  var parentIcons=[];
+  var openNodeList=this._openNodeList;
+  for(var i=1;i<openNodeList.length;i++){
+    parentIcons.push(openNodeList[i].iconNode);
+  }
+  return parentIcons;
 };
 
 models.Model1.prototype.gotoIcon = function(targetIcon){
@@ -100,6 +118,10 @@ models.Model1.prototype._openNode = function(nodeToOpen){
       'Inconsistent open node idx');
 };
 
+models.Model1.prototype.raiseOpenPhotoEvent = function(){
+  this._openPhotoEvent.notify();
+};
+
 models.Model1.prototype.raiseOpenFolderEvent = function(){
   goog.asserts.assert(this._openNodeList[this._openNodeIdx].isOpen(),
       'Expected node to be opened on the openFolder notification');
@@ -118,6 +140,20 @@ models.Model1.prototype.attachToOpenPhotoEvent = function(eventHandler,obj){
   this._openPhotoEvent.attach(eventHandler,obj);
 };
 
+models.Model1.prototype.getCurrentPhoto = function(){
+  if(this.currentState!=models.Model1.State.photoView){
+    throw Error(
+        'Expected model to be in photo view state on model.getCurrentPhoto');
+  }
+  var photoNode=this._openNodeList[this._openNodeIdx];
+  goog.asserts.assert(photoNode instanceof models.Model1.PhotoNode);
+  var photoIcon=photoNode.iconNode;
+  var photoObj = new common.PhotoObj(photoIcon.fullImgUrl,
+      photoIcon.photoCaption,photoNode.comments);
+
+  return photoObj;
+};
+
 models.Model1.prototype.getCurrentIcons = function(){
   if(this.currentState!==models.Model1.State.folderView){
     throw Error(
@@ -132,7 +168,7 @@ models.Model1.prototype.getCurrentIcons = function(){
     iconArray.push(curChildren[i].iconNode);
   }
   return iconArray;
-  // Note we are not creating copy of icons, passing the icons
+  // Note we are not creating copy of icons, instead just passing the icons
   // that the model uses to the view, assumption is that view will not alter
   // them
 };
@@ -331,7 +367,8 @@ models.Model1.PersonNode.prototype.exploreNode = function(model){
   var fbSession=model.fb.getSession();
   var photoOfPersonIcon = new common.PhotosOfPersonIcon('Photos of '+
       common.helpers.getFirstName(curIcon.name),
-      models.Model1.getProfilePicUrl(curIcon.fbId,fbSession),0,0);
+      models.Model1.getProfilePicUrl(curIcon.fbId,fbSession),0,0,
+      curIcon.name,curIcon.fbId);
   var photoOfPersonNode = new models.Model1.PhotosOfPersonNode(
       photoOfPersonIcon);
 
@@ -346,6 +383,7 @@ models.Model1.PersonNode.prototype.exploreNode = function(model){
     model.raiseOpenFolderEvent();
   };
   fbObj.api('/'+fbId+'/albums',fbGetAlbumsCB);
+  // TODO(varun): Implement the paging for albums for >25 albums
 };
 
 models.Model1.PersonNode.prototype.addAlbumsFromFBresponse = 
@@ -356,7 +394,9 @@ function(apiResp,fbObj){
       'Expected API call for albums to return array');
   for(var i=0;i<albums.length;i++){
     var albumObj=albums[i];
-    var albumIcon = new common.AlbumIcon(albumObj['name'],
+    var albumName='';
+    if(albumObj['name']){albumName=albumObj['name'];}
+    var albumIcon = new common.AlbumIcon(albumName,
         models.Model1.getAlbumPicUrl(albumObj['id'],fbSession),
         0,0,albumObj['id']);
     var albumNode = new models.Model1.AlbumNode(albumIcon);
@@ -374,16 +414,147 @@ models.Model1.AlbumNode = function(iconNode){
 };
 goog.inherits(models.Model1.AlbumNode,models.Model1.TreeNode);
 
+models.Model1.AlbumNode.prototype.exploreNode = function(model){
+  if(this.isOpen()){
+    model.raiseOpenFolderEvent();
+    return;
+  }
+
+  // Prepare for API call to get photos
+  var curIcon=this.iconNode;
+  var fbObj=model.fb;
+  var _node=this;
+  var fbId=curIcon.fbId;
+ 
+  var fbGetPhotosCB = function(apiResp){
+    _node.addPhotosFromFBresponse(apiResp);
+    model.raiseOpenFolderEvent();
+  };
+  fbObj.api('/'+fbId+'/photos',fbGetPhotosCB);
+  // TODO(varun): Implement paging for albums > 25 photos
+
+};
+
+models.Model1.AlbumNode.prototype.addPhotosFromFBresponse = function(apiResp){
+  var photos=apiResp['data'];
+  goog.asserts.assert(common.helpers.isArray(photos));
+  for(var i=0;i<photos.length;i++){
+    var photoObj=photos[i];
+    var photoCaption='';
+    if(photoObj['name']){photoCaption=photoObj['name'];}
+    var photoIcon = new common.PhotoIcon(photoCaption,photoObj['picture'],0,0,
+        photoObj['id'],photoObj['source'],photoCaption);
+
+    var photoNode = new models.Model1.PhotoNode(photoIcon);
+    this.addChildren(photoNode);
+  }
+  this._isOpen=true;
+};
+
 // --- End implementation of AlbumNode -------
 
 
 // --- Begin implementation of PhotosOfPersonNode -------
 models.Model1.PhotosOfPersonNode = function(iconNode){
-  goog.asserts.assert(iconNode instanceof common.PhotosOfPersonIcon);
+  goog.asserts.assert(iconNode instanceof common.PhotosOfPersonIcon,
+      'Expected Photos of person icon in photos of person node');
   models.Model1.TreeNode.call(this,iconNode,false);
 };
 goog.inherits(models.Model1.PhotosOfPersonNode,models.Model1.TreeNode);
 
+models.Model1.PhotosOfPersonNode.prototype.exploreNode = function(model){
+   if(this.isOpen()){
+    model.raiseOpenFolderEvent();
+    return;
+  }
+  
+  // Prepare for API call to get photos
+  var curIcon=this.iconNode;
+  var fbObj=model.fb;
+  var _node=this;
+  var fbId=curIcon.fbId;
+ 
+  var fbGetPhotosCB = function(apiResp){
+    _node.addPhotosFromFBresponse(apiResp);
+    model.raiseOpenFolderEvent();
+  };
+  fbObj.api('/'+fbId+'/photos',fbGetPhotosCB);
+  // Note: all this code is same as in albumNode, actually one
+  // can think of photos of person as an album, the connections used
+  // are the same
+  // TODO(varun): Implement paging when > 25 photos
+ 
+};
+
+models.Model1.PhotosOfPersonNode.prototype.addPhotosFromFBresponse =
+function(apiResp){
+  var photos=apiResp['data'];
+  goog.asserts.assert(common.helpers.isArray(photos),
+      'Expect FB api call for photos of person to return an array');
+  for(var i=0;i<photos.length;i++){
+    var photoObj=photos[i];
+    var photoCaption='';
+    if(photoObj['name']){photoCaption=photoObj['name'];}
+    var photoIcon = new common.PhotoIcon(photoCaption,photoObj['picture'],0,0,
+        photoObj['id'],photoObj['source'],photoCaption);
+
+    var photoNode = new models.Model1.PhotoNode(photoIcon);
+    this.addChildren(photoNode);
+  }
+  this._isOpen=true;
+};
+
+
 // --- End implementation of PhotosOfPersonNode -------
+
+// --- Begin implementation of PhotoNode -------
+models.Model1.PhotoNode = function(iconNode){
+  goog.asserts.assert(iconNode instanceof common.PhotoIcon);
+  models.Model1.TreeNode.call(this,iconNode,false);
+  this._alwaysCache=true; // is useful because often a photo will be viewed
+      // in an album, and user will go back and forth
+  this.comments=[]; // Not storing this in the icon yet
+};
+goog.inherits(models.Model1.PhotoNode,models.Model1.TreeNode);
+
+models.Model1.PhotoNode.prototype.exploreNode = function(model){
+   if(this.isOpen()){
+    model.raiseOpenPhotoEvent();
+    return;
+  }
+  
+  // Prepare for API call to get info of photo (like comments on it)
+  var curIcon=this.iconNode;
+  var fbObj=model.fb;
+  var _node=this;
+  var fbId=curIcon.fbId;
+ 
+  var fbGetCommentsCB = function(apiResp){
+    _node.addCommentsFromFBresponse(apiResp);
+    model.raiseOpenPhotoEvent();
+  };
+  fbObj.api('/'+fbId+'/comments',fbGetCommentsCB);
+  // TODO(varun): Implement paging when > 25 comments. Maybe paging is not
+  // for comments (as FB might return all in one go), but check that.
+ 
+};
+
+models.Model1.PhotoNode.prototype.addCommentsFromFBresponse = 
+function (apiResp){
+  var commentArray=apiResp['data'];
+  goog.asserts.assert(common.helpers.isArray(commentArray),
+      'Expected comments to be in an array');
+  this.comments=commentArray;
+  // Each element of commentArray is an object with the following fields:
+  // created_time: time of post
+  //id: of the message, not of the person who posted
+  // message: this field is the string that has the comment.
+  // from={id,name} : the from field tells who posted the comment
+
+  this._isOpen=true;
+};
+
+// --- End implementation of PhotoNode -------
+
 
 // ---- End implementation of supporting objects -----

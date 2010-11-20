@@ -64,7 +64,7 @@ models.AbstractModel.prototype.getParentIcons = models.AbstractModel.errorFn;
 models.AbstractModel.prototype.getCurrentIcons = models.AbstractModel.errorFn;
 
 /**
- * photo=model.getCurrentPhoto(), photo is object of type common.PhotoNode
+ * photo=model.getCurrentPhoto(), photo is object of type common.PhotoObj
  * returns a photo object, if the model is pointing to a photo
  * else if it is pointing to a directory, then it errors
  */

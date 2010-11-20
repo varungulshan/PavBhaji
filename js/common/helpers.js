@@ -22,12 +22,39 @@ common.helpers.getElementByTagAndClassName = function(tagName, className) {
   return retnode;
 }
 
+/**
+ * Returns the initials, given the full name of a person
+ */
+common.helpers.getInitials = function(fullName){
+  var firstChar='';
+  if(fullName.length>0){
+    firstChar=fullName.charAt(0);
+  }
+  var spaceIdx=fullName.indexOf(' ');
+  var secondChar='';
+  if(spaceIdx!==-1 && (spaceIdx+1)<fullName.length){
+    secondChar=fullName.charAt(spaceIdx+1);
+  }
+  return firstChar.concat(secondChar);
+};
+
 common.helpers.getFirstName = function(fullName){
   var spaceIdx=fullName.indexOf(' ');
-  if(spaceIdx===0){spaceIdx=fullName.length;};
+  if(spaceIdx===-1){spaceIdx=fullName.length;};
   return fullName.slice(0,spaceIdx);
 };
 
 common.helpers.virtualErrorFn = function(){
   throw Error('Calling a virtual function not allowed\n');
+};
+
+/**
+ * This function is supposed to take a string and return a summary
+ * of it so that it can fit in a smaller space.
+ * TODO: Check if goog library has a function for this.
+ */
+common.helpers.shortenText = function(text,maxLen){
+  goog.asserts.assert(typeof maxLen === 'number');
+  maxLen=Math.min(text.length,maxLen);
+  return text.slice(0,maxLen); // this is a very dumb summary right now
 };
