@@ -16,11 +16,13 @@ view.MainViewImpl = function(model) {
 goog.inherits(view.MainViewImpl,view.MainView);
 
 view.MainViewImpl.prototype.initialize = function() {
-  this._currentIconNode = new common.IconNode('root','',0,0);
+  this._currentIconNode = new common.IconNode('root','photos',0,0);
+  //this._currentIconNode = this._model.getOpenIcon();
   this.updateView(); 
 }
 
 view.MainViewImpl.prototype.openFolderEventHandler = function(obj) {
+  //this._currentIconNode = this._model.getOpenIcon();
   obj.updateView();
 }
 

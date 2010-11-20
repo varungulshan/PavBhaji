@@ -24,9 +24,15 @@ view.MainView = function(model){
   this._currentIconNode = {};
   this._parentIconNodes = new Array(); // iconNodes leading to current IconNode
   this._childIconNodes = new Array(); // child nodes of curren node
+  this._currentPage = 0; // current page index; display 25 at a time
   // attach listeners
   this._model.attachToOpenFolderEvent(this.openFolderEventHandler,this);
   this._model.attachToOpenPhotoEvent(this.openPhotoEventHandler,this);
+  //attach click handlers
+  document.getElementById('prev_button').onclick = new Function(
+    'view.imageArrayViewPrevClickHandler()');
+  document.getElementById('next_button').onclick = new Function(
+    'view.imageArrayViewNextClickHandler()');
 }
 
 // TODO: We should probably move this to a common area
@@ -103,4 +109,15 @@ view.MainView.prototype.imageArrayViewUpdate = view.MainView.errorFn;
  */
 view.MainView.prototype.imageArrayViewClickHandler = view.MainView.errorFn;
 
+/**
+ * view.MainView.imageArrayViewNextClickHandler()
+ * handles click on the next page button
+ */
+view.MainView.prototype.imageArrayViewNextClickHandler = view.MainView.errorFn;
+
+/**
+ * view.MainView.imageArrayViewPrevClickHandler()
+ * handles click on the prevt page button
+ */
+view.MainView.prototype.imageArrayViewPrevClickHandler = view.MainView.errorFn;
 

@@ -8,27 +8,31 @@ goog.require('view.MainView');
 goog.require('view.MainViewImpl');
 
 view.MainViewImpl.prototype.imageArrayViewUpdate = function () {
-  // TODO(Rahul): Handle the root node case separately
-  // TODO(Rahul): Handle the case when there are more than 25 children
+  this._childIconNodes = this._model.getCurrentIcons();
+  this._curentPage = 0;
+  this.imageArrayViewUpdatePage();
+}
+
+view.MainViewImpl.prototype.imageArrayViewUpdatePage = function () {
   var imageHolders = common.helpers.getElementByTagAndClassName('div',
                                                                 'image_holder');
   var numImageHolders = 25;
+  var idx = this._currentPage * numImageHolders;
   goog.asserts.assert( imageHolders.length == numImageHolders);
-  this._childIconNodes = this._model.getCurrentIcons();
-  for (var i = 0; i < numImageHolders; ++i) {
-    if ( i < this._childIconNodes.length) {
+  for (var i = 0; i < numImageHolders; ++i, ++idx) {
+    if ( idx < this._childIconNodes.length) {
       imageHolders[i].style.visibility = 'visible';
-      imageHolders[i].children[0].src = this._childIconNodes[i].iconImgUrl;
+      imageHolders[i].children[0].src = this._childIconNodes[idx].iconImgUrl;
       //TODO: Below is hacky way, can probably go in php
       imageHolders[i].onclick = new Function(
-          'view.imageArrayViewClickHandler('+i+')');
+          'view.imageArrayViewClickHandler('+idx+')');
       // set caption in browser compliant way
       if (imageHolders[i].children[1].innerText != undefined) {
         imageHolders[i].children[1].innerText = 
-          this._childIconNodes[i].iconText; 
+          this._childIconNodes[idx].iconText; 
       } else {
         imageHolders[i].children[1].textContent = 
-          this._childIconNodes[i].iconText; 
+          this._childIconNodes[idx].iconText; 
       }
       //imageHolders[i].style.backgroundImage = "url(" +
       //    this._childIconNodes[i].iconImgUrl + ")";
@@ -36,9 +40,29 @@ view.MainViewImpl.prototype.imageArrayViewUpdate = function () {
       imageHolders[i].style.visibility = 'hidden';
     }
   }
-}
+  if (this._currentPage > 0)
+    document.getElementById('prev_button').style.visibility = 'visible';
+  else
+    document.getElementById('prev_button').style.visibility = 'hidden';
+  if (this._childIconNodes.length >= idx)
+    document.getElementById('next_button').style.visibility = 'visible';
+  else
+    document.getElementById('next_button').style.visibility = 'hidden';
+} 
 
 view.MainViewImpl.prototype.imageArrayViewClickHandler = function (idx) {
+        goog.asserts.assert(idx < this._childIconNodes.length);
         this._currentIconNode = this._childIconNodes[idx];
         this._model.gotoIcon(this._childIconNodes[idx]);
+}
+
+view.MainViewImpl.prototype.imageArrayViewNextClickHandler = function () {
+  this._currentPage++;
+  this.imageArrayViewUpdatePage();
+}
+
+view.MainViewImpl.prototype.imageArrayViewPrevClickHandler = function () {
+  this._currentPage--;
+  goog.asserts.assert(this._currentPage >= 0);
+  this.imageArrayViewUpdatePage();
 }
