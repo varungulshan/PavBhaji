@@ -17,6 +17,8 @@ common.IconNode = function(iconText,iconImgUrl,fileDepth,fileIdx){
   this.iconImgUrl=iconImgUrl;
   this.fileDepth=fileDepth; // Used by model to locate node in tree
   this.fileIdx=fileIdx;     // Used by model to locate node in tree
+  this.navText=''; // text to be used in the navigation bar, the subclasses
+                   // will fill this out appropriately
 };
 
 common.PersonIcon = function(iconText,iconImgUrl,fileDepth,fileIdx, 

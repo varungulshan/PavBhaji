@@ -36,6 +36,25 @@ models.AbstractModel.prototype.attachToOpenFolderEvent =
  */ 
 models.AbstractModel.prototype.attachToOpenPhotoEvent =
     models.AbstractModel.errorFn;
+
+/**
+ * icon=model.getOpenIcon(), icon is of type common.IconNode
+ * returns the currently open icon (not its children but the icon
+ * which is currently open)
+ */ 
+models.AbstractModel.prototype.getOpenIcon = models.AbstractModel.errorFn;
+
+/**
+ * iconArray=model.getParentIcons(), iconArray is array of type common.IconNode
+ * returns an array of icons, tracing the path from the 'home' icon, down
+ * to the current icon. This function is useful for the navigation bar
+ * as the contents of the returned array are exactly the ones to be put
+ * in iconArray
+ * Can also assert(iconArray[iconArray.length-1]=model.getOpenIcon();
+ * i.e, the last entry in this iconArray is the currently open icon.
+ */ 
+models.AbstractModel.prototype.getParentIcons = models.AbstractModel.errorFn;
+
  
 /**
  * iconArray=model.getCurrentIcons(), iconArray is array of common.IconNode
