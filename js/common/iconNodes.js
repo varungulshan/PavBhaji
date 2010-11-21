@@ -24,13 +24,6 @@ common.IconNode = function(iconText,iconImgUrl,fileDepth,fileIdx){
   this.nextAvailable=true;
 };
 
-/**
- * iconNode.shiftPage(delta :integer)
- * increment or decrement the page number for an icon by the specified
- * amount.
- */
-common.IconNode.prototype.shiftPage = common.helpers.virtualErrorFn;
-
 common.PersonIcon = function(iconText,iconImgUrl,fileDepth,fileIdx, 
                                  fbId,name){
   common.IconNode.call(this,iconText,iconImgUrl,fileDepth,fileIdx);
