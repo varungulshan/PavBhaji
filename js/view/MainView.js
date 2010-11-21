@@ -31,15 +31,18 @@ view.MainView = function(model){
     _view.openFolderEventHandler();
   }
   var openPhotoEventHandlerClosure = function () {
-    _view.openPhotEventHandler();
+    _view.openPhotoEventHandler();
   }
   this._model.attachToOpenFolderEvent(openFolderEventHandlerClosure);
   this._model.attachToOpenPhotoEvent(openPhotoEventHandlerClosure);
   //attach click handlers
+  //TODO(Rahul): Implement these via closures
   document.getElementById('prev_button').onclick = new Function(
     'view.imageArrayViewPrevClickHandler()');
   document.getElementById('next_button').onclick = new Function(
     'view.imageArrayViewNextClickHandler()');
+  document.getElementById('fullres_photo_close_button').onclick = new Function(
+    'view.closePhotoButtonClickHandler()');
 }
 
 // TODO: We should probably move this to a common area
@@ -63,6 +66,13 @@ view.MainView.prototype.openFolderEventHandler =
  * API calls to model to get the required info abouth the event.
  */ 
 view.MainView.prototype.openPhotoEventHandler =
+    view.MainView.errorFn;
+
+/**
+ * view.closePhotoButtonClickHandler
+ * Invoked when a user closes an open photo
+ */ 
+view.MainView.prototype.closePhotoButtonClickHandler =
     view.MainView.errorFn;
 
 /**

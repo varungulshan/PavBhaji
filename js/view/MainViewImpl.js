@@ -25,6 +25,23 @@ view.MainViewImpl.prototype.openFolderEventHandler = function() {
   this.updateView();
 }
 
+view.MainViewImpl.prototype.openPhotoEventHandler = function() {
+  var photoDiv = document.getElementById('fullres_photo_div');
+  var photoImg = document.getElementById('fullres_photo_img');
+  photoDiv.style.visibility = 'visible';
+  var photoObj = this._model.getCurrentPhoto();
+  photoImg.src = photoObj.imgUrl;
+}
+
+view.MainViewImpl.prototype.closePhotoButtonClickHandler = function () {
+  var photoDiv = document.getElementById('fullres_photo_div');
+  var photoImg = document.getElementById('fullres_photo_img');
+  photoDiv.style.visibility = 'hidden';
+  photoImg.src = '';
+  var parentNodes = this._model.getParentIcons();
+  this._model.gotoIcon(parentNodes[parentNodes.length-2]);  
+}
+
 view.MainViewImpl.prototype.updateView = function() {
   // update navigation bar
   this.navbarViewUpdate();

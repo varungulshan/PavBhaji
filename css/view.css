@@ -98,3 +98,36 @@ img#prev_button {
 img#next_button {
   visibility: hidden;
 }
+
+div#fullres_photo_div {
+  position: absolute;
+  top: 34px;
+  left: 0px;
+  text-align: center;
+  width: 98%;
+  height: 540px;
+  background-color: #eeeeee;
+  background-image: url('../resources/loading.gif');
+  background-repeat: no-repeat;
+  background-position: center center;
+  visibility: hidden;
+  padding: 3px;
+}
+
+img#fullres_photo_img {
+  height: 540px;
+}
+
+div#fullres_photo_container {
+  position: relative;
+}
+
+img#fullres_photo_close_button {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
+img#fullres_photo_close_button:hover {
+  cursor: pointer;
+}

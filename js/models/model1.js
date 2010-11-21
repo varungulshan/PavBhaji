@@ -510,7 +510,7 @@ function(apiResp){
 // --- Begin implementation of PhotoNode -------
 models.Model1.PhotoNode = function(iconNode){
   goog.asserts.assert(iconNode instanceof common.PhotoIcon);
-  models.Model1.TreeNode.call(this,iconNode,false);
+  models.Model1.TreeNode.call(this,iconNode,true);
   this._alwaysCache=true; // is useful because often a photo will be viewed
       // in an album, and user will go back and forth
   this.comments=[]; // Not storing this in the icon yet
