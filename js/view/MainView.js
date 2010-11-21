@@ -37,12 +37,21 @@ view.MainView = function(model){
   this._model.attachToOpenPhotoEvent(openPhotoEventHandlerClosure);
   //attach click handlers
   //TODO(Rahul): Implement these via closures
-  document.getElementById('prev_button').onclick = new Function(
-    'view.imageArrayViewPrevClickHandler()');
-  document.getElementById('next_button').onclick = new Function(
-    'view.imageArrayViewNextClickHandler()');
-  document.getElementById('fullres_photo_close_button').onclick = new Function(
-    'view.closePhotoButtonClickHandler()');
+  var imageArrayViewPrevClickHandlerClosure = function () {
+    _view.imageArrayViewPrevClickHandler(); 
+  }
+  var imageArrayViewNextClickHandlerClosure = function () {
+    _view.imageArrayViewNextClickHandler(); 
+  }
+  var closePhotoButtonClickHandlerClosure = function () {
+    _view.closePhotoButtonClickHandler(); 
+  }
+  document.getElementById('prev_button').onclick = 
+    imageArrayViewPrevClickHandlerClosure;
+  document.getElementById('next_button').onclick = 
+    imageArrayViewNextClickHandlerClosure;
+  document.getElementById('fullres_photo_close_button').onclick =
+    closePhotoButtonClickHandlerClosure;
 }
 
 // TODO: We should probably move this to a common area
