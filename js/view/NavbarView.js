@@ -3,9 +3,10 @@
  * interface view.MainView
  */
 
+goog.provide('view.MainViewImpl2');
+
 goog.require('view.MainView');
 goog.require('common.helpers');
-goog.require('view.MainViewImpl');
 goog.require('goog.asserts');
 
 view.MainViewImpl.prototype.navbarViewUpdate = function() {
