@@ -64,12 +64,18 @@ if ($session) {
 <script>
   goog.require('models.Model1');
   goog.require('goog.testing.jsunit');
+  goog.require('goog.testing.AsyncTestCase');
 </script>
 <div id="fb-root"></div>
 </head>
 <script>
 
-  function setUp(){
+  var testCase = new goog.testing.AsyncTestCase(document.title);
+  testCase.stepTimeout = 4 * 1000; // = 4000ms=4sec
+
+  // setUpPage is used for setting up once for the entire page of tests
+  testCase.setUpPage = function(){
+    this.waitForAsync('setUpPage');
     FB.init({
       appId   : '<?php echo $facebook->getAppId(); ?>',
       session : <?php echo json_encode($session); ?>,
@@ -82,34 +88,33 @@ if ($session) {
     FB.Event.subscribe('auth.login', function() {
       window.location.reload();
     });
-  }
 
-  function testInitialize_1(){
     var model=new models.Model1();
+    this.model = model;
+    this.homeIcons = [];
+    var _this=this;
     var cb = function(){
-      var homeIcons=model.getCurrentIcons();
-      assertEquals(2,homeIcons.length);
+      _this.homeIcons=model.getCurrentIcons();
+      _this.continueTesting();
     };
     model.attachToOpenFolderEvent(cb);
     model.initialize(FB,'<?php echo $facebook->getUser(); ?>');
+
+    this.add(new goog.testing.TestCase.Test('Test home icons',
+            this.testHomeIcons,this));
+  };
+
+  testCase.testHomeIcons = function(){
+    assertEquals(2,this.homeIcons.length);
+  };
+
+  function setUpPage(){
+    testCase.runTests();
   }
 
-  function testInitialize_custom(){
-    var model=new models.Model1();
-    var depth=0;
-    var depthToIdx=[0,3];
-    var cb = function(){
-      var homeIcons=model.getCurrentIcons();
-      var iconIdx=depthToIdx[depth];
-      console.log('Depth = '+depth+' Icon number = '+iconIdx+
-          ' Icon text = '+homeIcons[iconIdx].iconText); 
-      if(depth<depthToIdx.length-1){
-        model.gotoIcon(homeIcons[iconIdx]);
-        depth++;
-      }
-    };
-    model.attachToOpenFolderEvent(cb);
-    model.initialize(FB,'<?php echo $facebook->getUser(); ?>');
+  // Standalone Closure Test Runner.
+  if (typeof G_testRunner != 'undefined') {
+    G_testRunner.initialize(testCase);
   }
  
 </script>
