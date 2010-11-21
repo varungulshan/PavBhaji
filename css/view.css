@@ -121,6 +121,7 @@ img#fullres_photo_img {
 
 div#fullres_photo_container {
   position: relative;
+  padding: 3px;
 }
 
 img#fullres_photo_close_button {
