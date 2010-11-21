@@ -55,28 +55,7 @@ if ($session) {
  
     <div id="fb-root"></div>
     <link rel="stylesheet" type="text/css" href="../css/view.css" />
-    <script type="text/javascript" 
-            src="http://connect.facebook.net/en_US/all.js"></script>
-    <script type="text/javascript" 
-            src="../closure-library/closure/goog/base.js"></script>
-    <script type="text/javascript" 
-            src="../js/common/helpers.js"></script>
-    <script type="text/javascript" 
-            src="../js/common/Event.js"></script>
-    <script type="text/javascript" 
-            src="../js/common/iconNodes.js"></script>
-    <script type="text/javascript" 
-            src="../js/models/abstractModel.js"></script>
-    <script type="text/javascript" 
-            src="../js/models/model1.js"></script>
-    <script type="text/javascript" 
-            src="../js/view/MainView.js"></script>
-    <script type="text/javascript" 
-            src="../js/view/MainViewImpl.js"></script>
-    <script type="text/javascript" 
-            src="../js/view/NavbarView.js"></script>
-    <script type="text/javascript" 
-            src="../js/view/ImageArrayView.js"></script>
+    <?php include("scripts.php")?>
     <script>
       FB.init({
         appId   : '<?php echo $facebook->getAppId(); ?>',
