@@ -20,7 +20,16 @@ common.IconNode = function(iconText,iconImgUrl,fileDepth,fileIdx){
   this.fileIdx=fileIdx;     // Used by model to locate node in tree
   this.navText=''; // text to be used in the navigation bar, the subclasses
                    // will fill this out appropriately
+  this.curPageNum=-1;
+  this.nextAvailable=true;
 };
+
+/**
+ * iconNode.shiftPage(delta :integer)
+ * increment or decrement the page number for an icon by the specified
+ * amount.
+ */
+common.IconNode.prototype.shiftPage = common.helpers.virtualErrorFn;
 
 common.PersonIcon = function(iconText,iconImgUrl,fileDepth,fileIdx, 
                                  fbId,name){

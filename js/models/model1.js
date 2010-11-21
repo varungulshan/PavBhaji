@@ -60,7 +60,11 @@ models.Model1.prototype.getOpenIcon = function(){
   return openNode.iconNode;
 };
 
-models.Model1.prototype.getParentIcons = function(){
+// TODO(varun): implement close photo event
+
+models.Model1.prototype.getCurrentPathIcons = function(){
+  // TODO(varun): correct variable naming in here
+  // also fix if the last node is a photo then not return it
   goog.asserts.assert(this._openNodeList.length>=2); // 'root' and 'home'
       // nodes should always be open
   var parentIcons=[];
