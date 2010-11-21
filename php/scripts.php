@@ -8,10 +8,10 @@
   // 'closureOptimized': same as 'closureBuilt', but also compiled with advanced
   //                     optimizations of the closure compiler
 
-  //$scriptMethod='manual';
+  $scriptMethod='manual';
   //$scriptMethod='closureBuilt';
   //$scriptMethod='closureCompiled';
-  $scriptMethod='closureOptimized';
+  //$scriptMethod='closureOptimized';
 ?>
 
 <?php if($scriptMethod==='manual'): ?>
@@ -34,6 +34,10 @@
             src="../js/view/MainView.js"></script>
     <script type="text/javascript" 
             src="../js/view/MainViewImpl.js"></script>
+    <script type="text/javascript" 
+            src="../js/view/NavbarView.js"></script>
+    <script type="text/javascript" 
+            src="../js/view/ImageArrayView.js"></script>
 
 <?php elseif($scriptMethod==='closureBuilt'): ?>
     <script type="text/javascript" 

@@ -3,10 +3,12 @@
  * interface view.MainView
  */
 
+goog.provide('view.MainViewImplPart1');
+
+goog.require('view.MainViewImpl');
 goog.require('common.helpers');
 goog.require('view.MainView');
 
-goog.provide('view.MainViewImpl1');
 
 view.MainViewImpl.prototype.imageArrayViewUpdate = function () {
   this._childIconNodes = this._model.getCurrentIcons();
@@ -26,8 +28,11 @@ view.MainViewImpl.prototype.imageArrayViewUpdatePage = function () {
       imageHolders[i].style.visibility = 'visible';
       imageHolders[i].children[0].src = this._childIconNodes[idx].iconImgUrl;
       var iNew = new Number(idx);
-      imageHolders[i].onclick = new Function(
-          'view.imageArrayViewClickHandler('+idx+')');
+      imageHolders[i].onclick = function(value) {
+        return function() {
+          view.imageArrayViewClickHandler(value);
+        }
+      }(idx);
       common.helpers.setText(imageHolders[i].children[1],
           this._childIconNodes[idx].iconText);
     } else {
