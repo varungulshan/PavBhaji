@@ -3,9 +3,10 @@
  * interface view.MainView
  */
 
-goog.provide('view.MainViewImpl2');
+goog.provide('view.MainViewImplPart2');
 
 goog.require('view.MainView');
+goog.require('view.MainViewImpl');
 goog.require('common.helpers');
 goog.require('goog.asserts');
 

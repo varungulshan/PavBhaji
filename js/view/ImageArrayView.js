@@ -3,10 +3,12 @@
  * interface view.MainView
  */
 
+goog.provide('view.MainViewImplPart1');
+
+goog.require('view.MainViewImpl');
 goog.require('common.helpers');
 goog.require('view.MainView');
 
-goog.provide('view.MainViewImpl1');
 
 view.MainViewImpl.prototype.imageArrayViewUpdate = function () {
   this._childIconNodes = this._model.getCurrentIcons();
