@@ -115,7 +115,8 @@ div#fullres_photo_div {
 }
 
 img#fullres_photo_img {
-  height: 540px;
+  max-height: 540px; /* will not work in IE */
+  max-width: 740px;
 }
 
 div#fullres_photo_container {
