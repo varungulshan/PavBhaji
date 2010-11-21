@@ -26,6 +26,7 @@ models.Model1 = function(){
   this.friendsNode=null;
 };
 goog.inherits(models.Model1,models.AbstractModel);
+goog.exportSymbol('models.Model1',models.Model1);
 
 models.Model1.prototype.initialize = function(fbObj,userId){
   goog.asserts.assert(typeof userId === 'string');
@@ -47,6 +48,10 @@ models.Model1.prototype.initialize = function(fbObj,userId){
   this.currentState=models.Model1.State.folderView;
   this.gotoIcon(homeIcon);
 };
+//goog.exportProperty(models.Model1,'initialize',
+    //models.Model1.prototype.initialize);
+goog.exportSymbol('models.Model1.prototype.initialize',
+    models.Model1.prototype.initialize);
 
 models.Model1.prototype.getOpenIcon = function(){
   goog.asserts.assert(this._openNodeList.length>0); // to make sure model has
