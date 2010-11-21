@@ -17,14 +17,18 @@ view.MainViewImpl.prototype.navbarViewUpdate = function() {
   var numButtons = 4; 
   var buttons = common.helpers.getElementByTagAndClassName('div',
                                                            'navigation_button');
+  var view = this;
   goog.asserts.assert(buttons.length == numButtons);  
   for(i = 0; i < numButtons; ++i) {
     if (i+1 < this._currentIconNode.fileDepth) {
       // visible but unselected
       buttons[i].style.visibility = 'visible';
       buttons[i].id = "";
-      buttons[i].onclick = new Function(
-        'view.navbarViewClickHandler('+i+')');
+      buttons[i].onclick = function(value) {
+        return function() {
+          view.navbarViewClickHandler(value);
+        }
+      }(i);
     } else if ( i+1 == this._currentIconNode.fileDepth) {
       // visible and selected
       buttons[i].style.visibility = 'visible';

@@ -8,9 +8,9 @@
   // 'closureOptimized': same as 'closureBuilt', but also compiled with advanced
   //                     optimizations of the closure compiler
 
-  //$scriptMethod='manual';
+  $scriptMethod='manual';
   //$scriptMethod='closureBuilt';
-  $scriptMethod='closureCompiled';
+  //$scriptMethod='closureCompiled';
   //$scriptMethod='closureOptimized';
 ?>
 
