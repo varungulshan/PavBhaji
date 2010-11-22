@@ -15,6 +15,10 @@ goog.provide('view.MainView');
 
 goog.require('models.AbstractModel');
 goog.require('common.IconNode');
+goog.require('goog.ui.Popup');
+goog.require('goog.positioning.ClientPosition');
+goog.require('goog.positioning.Corner');
+goog.require('goog.positioning.AnchoredViewportPosition');
 
 view.MainView = function(model){
   this._model = model;
@@ -25,6 +29,8 @@ view.MainView = function(model){
   this._parentIconNodes = new Array(); // iconNodes leading to current IconNode
   this._childIconNodes = new Array(); // child nodes of curren node
   this._currentPage = 0; // current page index; display 25 at a time
+  this._maxImageWidth = 700;
+  this._maxImageHeight = 540;
   // attach listeners
   _view = this;
   var openFolderEventHandlerClosure = function () {

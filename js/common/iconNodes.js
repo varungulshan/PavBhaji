@@ -49,13 +49,15 @@ common.FriendsIcon = function(iconText,iconImgUrl,fileDepth,fileIdx){
 goog.inherits(common.FriendsIcon,common.IconNode);
 
 common.PhotoIcon = function(iconText,iconImgUrl,fileDepth,fileIdx,
-                         fbId,fullImgUrl,photoCaption){
+                         fbId,fullImgUrl,photoCaption,width,height){
   common.IconNode.call(this,iconText,iconImgUrl,fileDepth,fileIdx);
   this.fbId=fbId; // Facebook UID of the photo, type string
   this.navText=''; // dont need any navText for this icon as it never
       // goes to the nav bar
   this.fullImgUrl=fullImgUrl; // link to full view of image
   this.photoCaption=photoCaption;
+  this.width = width;
+  this.height = height;
 };
 goog.inherits(common.PhotoIcon,common.IconNode);
 
@@ -72,7 +74,7 @@ goog.inherits(common.PhotosOfPersonIcon,common.IconNode);
  * Class for representing a photo. Stores the photo url, comments, tags etc.
  * that are needed for displaying the photo
  */
-common.PhotoObj = function(imgUrl,caption,commentArray){
+common.PhotoObj = function(imgUrl,caption,commentArray,width,height){
   this.imgUrl=imgUrl;
   this.caption=caption;
   this.commentArray=commentArray; 
@@ -84,6 +86,8 @@ common.PhotoObj = function(imgUrl,caption,commentArray){
   //                      it tells who posted the comment
   // The above format is actually what FB returns on an API call
   // so just used the same format
+  this.width = width;
+  this.height = height;
 };
 
 
