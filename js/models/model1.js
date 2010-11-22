@@ -212,9 +212,11 @@ models.Model1.TreeNode = function(iconNode,isLeaf){
   goog.asserts.assert(iconNode instanceof common.IconNode);
   this.isLeaf=isLeaf;
   this.iconNode=iconNode;
-  this._isOpen=false;
+  //this._isOpen=false;
   this._children=[]; // Array of TreeNodes
   this._alwaysCache=false; 
+  this._numOpenedPages=0;
+  this._allPagesOpened=false;
 };
 
 /**
@@ -229,7 +231,9 @@ models.Model1.TreeNode.prototype.closeNode = function(){
   // Dont close nodes for which alwaysCache flag is set
   if(!this._alwaysCache){
     this._children=[];
-    this._isOpen=false;
+    this._numOpenedPages=0;
+    this._allPagesOpened=false;
+    //this._isOpen=false;
   }
 };
 
@@ -279,18 +283,23 @@ models.Model1.TreeNode.prototype.getChild= function(childIdx){
 };
 
 models.Model1.TreeNode.prototype.isOpen = function(){
-  return this._isOpen;
+  //return this._isOpen;
+  var iconNode=this.iconNode;
+  return (iconNode.curPageNum<this._numOpenedPages);
 };
 
 // ---- Begin implementation of HomeNode ---
 models.Model1.HomeNode = function(iconNode){
   goog.asserts.assert(iconNode instanceof common.IconNode);
+  goog.asserts.assert(iconNode.curPageNum===0);
+  goog.asserts.assert(iconNode.nextAvailable===false);
   models.Model1.TreeNode.call(this,iconNode,false);
   this._alwaysCache=true; // always cached
 };
 goog.inherits(models.Model1.HomeNode,models.Model1.TreeNode);
 
 models.Model1.HomeNode.prototype.exploreNode = function(model){
+  // TODO (varun): currently stopped coding in this function, brain down
   if(this.isOpen()){
     model.raiseOpenFolderEvent();
     return;
@@ -311,7 +320,8 @@ models.Model1.HomeNode.prototype.exploreNode = function(model){
   model.friendsNode=friendsNode;
 
   this.addChildren([userNode,friendsNode]);
-  this._isOpen=true;
+  this._numOpenedPages=1;
+  this._allPagesOpened=true;
   model.raiseOpenFolderEvent();
 
 };
