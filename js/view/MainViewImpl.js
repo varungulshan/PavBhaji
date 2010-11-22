@@ -33,9 +33,16 @@ view.MainViewImpl.prototype.openFolderEventHandler = function() {
 view.MainViewImpl.prototype.openPhotoEventHandler = function() {
   var photoDiv = document.getElementById('fullres_photo_div');
   var photoImg = document.getElementById('fullres_photo_img');
-  photoDiv.style.visibility = 'visible';
   var photoObj = this._model.getCurrentPhoto();
   photoImg.src = photoObj.imgUrl;
+  var x_scaling = this._maxImageWidth/photoObj.width;
+  var y_scaling = this._maxImageHeight/photoObj.height;
+  var scaling = Math.min(x_scaling,y_scaling);
+  var scaledWidth = Math.floor(scaling * photoObj.width);
+  var scaledHeight = Math.floor(scaling * photoObj.height);
+  photoDiv.style.width = scaledWidth.toString()+"px";
+  photoDiv.style.height = scaledHeight.toString()+"px";
+  photoDiv.style.visibility = 'visible';
 }
 
 view.MainViewImpl.prototype.closePhotoButtonClickHandler = function () {

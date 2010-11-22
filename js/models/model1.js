@@ -154,7 +154,8 @@ models.Model1.prototype.getCurrentPhoto = function(){
   goog.asserts.assert(photoNode instanceof models.Model1.PhotoNode);
   var photoIcon=photoNode.iconNode;
   var photoObj = new common.PhotoObj(photoIcon.fullImgUrl,
-      photoIcon.photoCaption,photoNode.comments);
+      photoIcon.photoCaption,photoNode.comments,photoIcon.width,
+      photoIcon.height);
 
   return photoObj;
 };
@@ -448,7 +449,8 @@ models.Model1.AlbumNode.prototype.addPhotosFromFBresponse = function(apiResp){
     var photoCaption='';
     if(photoObj['name']){photoCaption=photoObj['name'];}
     var photoIcon = new common.PhotoIcon(photoCaption,photoObj['picture'],0,0,
-        photoObj['id'],photoObj['source'],photoCaption);
+        photoObj['id'],photoObj['source'],photoCaption,photoObj['width'],
+        photoObj['height']);
 
     var photoNode = new models.Model1.PhotoNode(photoIcon);
     this.addChildren(photoNode);
@@ -501,7 +503,8 @@ function(apiResp){
     var photoCaption='';
     if(photoObj['name']){photoCaption=photoObj['name'];}
     var photoIcon = new common.PhotoIcon(photoCaption,photoObj['picture'],0,0,
-        photoObj['id'],photoObj['source'],photoCaption);
+        photoObj['id'],photoObj['source'],photoCaption,photoObj['width'],
+        photoObj['height']);
 
     var photoNode = new models.Model1.PhotoNode(photoIcon);
     this.addChildren(photoNode);

@@ -176,13 +176,11 @@ if ($session) {
   <img src = "../resources/Button-Fast-Forward-icon.png" id="next_button"></img>
   </div>
   <div id="fullres_photo_div">
-    <div id="fullres_photo_container">
+        <img id="fullres_photo_img">
+        </img>
         <img src="../resources/Button-Close-icon.png" 
             id="fullres_photo_close_button">
         </img>
-        <img id="fullres_photo_img">
-        </img>
-    </div>
   </div>
   <script>
     var model = new models.Model1();

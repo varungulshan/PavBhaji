@@ -100,36 +100,38 @@ img#next_button {
 }
 
 div#fullres_photo_div {
-  position: absolute;
+  position: relative;
   top: 34px;
   left: 0px;
-  text-align: center;
-  width: 98%;
-  height: 540px;
+  width: 50%;
   background-color: #eeeeee;
   background-image: url('../resources/loading.gif');
   background-repeat: no-repeat;
   background-position: center center;
   visibility: hidden;
-  padding: 3px;
+  border: 10px solid;
+  border-color: #3B5998;
+  padding: 0px;
+  margin-left: auto;
+  margin-right: auto;
+  padding:0px;
 }
 
 img#fullres_photo_img {
-  max-height: 540px; /* will not work in IE */
-  max-width: 740px;
-}
-
-div#fullres_photo_container {
-  position: relative;
-  padding: 3px;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  max-height: 540px;  /*will not work in IE*/ 
+  max-width: 700px; /* UGLY: MainView.js needs to know these*/
 }
 
 img#fullres_photo_close_button {
   position: absolute;
-  top: 0px;
-  right: 0px;
+  top: -20px;
+  right: -20px;
 }
 
 img#fullres_photo_close_button:hover {
   cursor: pointer;
 }
+
