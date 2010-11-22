@@ -38,6 +38,7 @@ view.MainViewImpl.prototype.openPhotoEventHandler = function() {
   var x_scaling = this._maxImageWidth/photoObj.width;
   var y_scaling = this._maxImageHeight/photoObj.height;
   var scaling = Math.min(x_scaling,y_scaling);
+  scaling = Math.min(1.0,scaling);
   var scaledWidth = Math.floor(scaling * photoObj.width);
   var scaledHeight = Math.floor(scaling * photoObj.height);
   photoDiv.style.width = scaledWidth.toString()+"px";
