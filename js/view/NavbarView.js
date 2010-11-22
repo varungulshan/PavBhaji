@@ -44,7 +44,7 @@ view.MainViewImpl.prototype.navbarViewUpdate = function() {
 
 view.MainViewImpl.prototype.navbarViewClickHandler = function(idx) {
   this.closePhoto();
-  var parentNodes = this._model.getParentIcons();
+  var parentNodes = this._model.getCurrentPathIcons();
   goog.asserts.assert(idx  < parentNodes.length);
   this._model.gotoIcon(parentNodes[idx]);
 }

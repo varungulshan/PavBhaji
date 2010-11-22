@@ -48,7 +48,7 @@ view.MainViewImpl.prototype.openPhotoEventHandler = function() {
 
 view.MainViewImpl.prototype.closePhotoButtonClickHandler = function () {
   this.closePhoto();
-  var parentNodes = this._model.getParentIcons();
+  var parentNodes = this._model.getCurrentPathIcons();
   this._model.gotoIcon(parentNodes[parentNodes.length-2]);  
 }
 
