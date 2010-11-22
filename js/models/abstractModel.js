@@ -20,6 +20,14 @@ models.AbstractModel.errorFn = common.helpers.virtualErrorFn;
 models.AbstractModel.prototype.initialize = models.AbstractModel.errorFn;
 
 /**
+ * model.shiftPage(delta :integer)
+ * increment or decrement the page number for an icon by the specified
+ * amount. Also raises appropriate event to refresh folder
+ */
+models.AbstractModel.prototype.shiftPage =
+    models.AbstractModel.errorFn;
+
+/**
  * model.attachToOpenFolderEvent(eventHandlerFn :function)
  * Causes eventHandlerFn to be called whenever a notification happens
  * on the _openFolderEvent. No parameters are passed to the eventHandlerFn
@@ -53,7 +61,8 @@ models.AbstractModel.prototype.getOpenIcon = models.AbstractModel.errorFn;
  * Can also assert(iconArray[iconArray.length-1]=model.getOpenIcon();
  * i.e, the last entry in this iconArray is the currently open icon.
  */ 
-models.AbstractModel.prototype.getParentIcons = models.AbstractModel.errorFn;
+models.AbstractModel.prototype.getCurrentPathIcons =
+    models.AbstractModel.errorFn;
 
  
 /**
@@ -69,6 +78,11 @@ models.AbstractModel.prototype.getCurrentIcons = models.AbstractModel.errorFn;
  * else if it is pointing to a directory, then it errors
  */
 models.AbstractModel.prototype.getCurrentPhoto = models.AbstractModel.errorFn;
+
+/**
+ * Function to close the photo, will not raise any open folder event
+ */
+models.AbstractModel.prototype.closeCurrentPhoto = models.AbstractModel.errorFn;
 
 /**
  * model.gotoIcon(targetIcon :common.IconNode)
