@@ -7,7 +7,8 @@ OUTDIR          =$(TOPDIR)/php/js-compiled
 
 # ------ Flags -----------------
 NAMESPACE_FLAGS       = --namespace=view.MainViewImpl --namespace=models.Model1 \
-  --namespace=view.MainViewImplPart1 --namespace=view.MainViewImplPart2
+  --namespace=view.MainViewImplPart1 --namespace=view.MainViewImplPart2 \
+  --namespace=view.MainViewImplPart3
 NOCOMPILE_FLAGS       = -o script 
 SHOWDEP_FLAGS         = -o list
 COMPILE_SIMPLE_FLAGS  = -o compiled \

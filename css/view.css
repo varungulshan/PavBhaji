@@ -39,6 +39,56 @@ div.navigation_button:hover {
   cursor: pointer;
 }
 
+div#console_wrapper_div {
+  position:absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  color: #ffffff;
+  font-size: 11px; 
+  z-index: 11; /* should be at the top */
+}
+
+div#console_header_div {
+  text-align: center;
+  position: absolute;
+  top: 0px;
+  left: 40%;
+  width: 20%;
+  height: 13px;
+  margin-left:auto;
+  margin-right:auto;
+  background-color: #000000;
+  font-weight: bold;
+}
+
+div#console_header_div:hover {
+  cursor: pointer;
+}
+
+div#console_content_div {
+  position: absolute:
+  top: 13px;
+  left: 0px;
+  width: 100%;
+  background-image: url('../resources/translucent.png');
+  margin-left:auto;
+  margin-right:auto;
+  overflow: auto;
+  max-height: 250px;
+}
+
+div#comment_div {
+  text-align: left;
+  margin: 3px;
+  padding: 2px;
+  border: 1px solid white;
+}
+
+.commenter_name {
+  font-weight: bold;
+}
+
 div#icon_table {
   text-align: center;
 }
@@ -117,6 +167,7 @@ div#fullres_photo_div {
   -moz-box-shadow: 3px 3px 8px #000;
   -webkit-box-shadow: 3px 3px 8px #000;
   box-shadow: 3px 3px 8px #000;
+  z-index: 1;
 }
 
 img#fullres_photo_img {

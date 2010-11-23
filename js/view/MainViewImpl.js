@@ -52,10 +52,19 @@ view.MainViewImpl.prototype.openPhotoEventHandler = function() {
     photoCaption.style.visibility = 'visible';
     common.helpers.setText(photoCaption, photoObj.caption);
   }
+  // set photo comments
+  for (var i = 0; i < photoObj.commentArray.length; ++i) {
+    var HTMLstring = 
+      photoObj.commentArray[i].from.name + ': ' +
+      photoObj.commentArray[i].message;
+    this.consoleViewAdd(HTMLstring);
+  }
 }
 
 view.MainViewImpl.prototype.closePhotoButtonClickHandler = function () {
   this.closePhoto();
+  this.consoleViewClose();
+  this.consoleViewClear();
   var parentNodes = this._model.getCurrentPathIcons();
   this._model.gotoIcon(parentNodes[parentNodes.length-2]);  
 }
@@ -72,6 +81,8 @@ view.MainViewImpl.prototype.closePhoto = function () {
 }
 
 view.MainViewImpl.prototype.updateView = function() {
+  this.consoleViewClose();
+  this.consoleViewClear();
   // update navigation bar
   this.navbarViewUpdate();
   // update contextbar
