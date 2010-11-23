@@ -181,6 +181,7 @@ if ($session) {
         <img src="../resources/Button-Close-icon.png" 
             id="fullres_photo_close_button">
         </img>
+        <div id="caption_div"></div>
   </div>
   <script>
     var model = new models.Model1();

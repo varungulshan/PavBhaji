@@ -39,7 +39,7 @@ noCompile:
 # aggresive optimization from the closure compiler
 optiCompile:
 	$(BUILDER_FILE_) $(ROOT_FLAGS_) $(NAMESPACE_FLAGS) $(COMPILE_OPTI_FLAGS) \
-      $(COMPILER_FLAGS_) --output_file $(OUTDIR)/all-compiledOpti.js
+      $(COMPILER_FLAGS_) --output_file $(OUTDIR)/all-compiledOpti.js 
 
 # This target only shows the dependency calculation output, to make
 # sure all files you expect are being included

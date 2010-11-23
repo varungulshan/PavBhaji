@@ -31,8 +31,10 @@ view.MainViewImpl.prototype.openFolderEventHandler = function() {
 }
 
 view.MainViewImpl.prototype.openPhotoEventHandler = function() {
+  // TODO(Rahul): Store these in class vars for efficiency
   var photoDiv = document.getElementById('fullres_photo_div');
   var photoImg = document.getElementById('fullres_photo_img');
+  var photoCaption = document.getElementById('caption_div');
   var photoObj = this._model.getCurrentPhoto();
   photoImg.src = photoObj.imgUrl;
   var x_scaling = this._maxImageWidth/photoObj.width;
@@ -44,6 +46,12 @@ view.MainViewImpl.prototype.openPhotoEventHandler = function() {
   photoDiv.style.width = scaledWidth.toString()+"px";
   photoDiv.style.height = scaledHeight.toString()+"px";
   photoDiv.style.visibility = 'visible';
+  if (photoObj.caption == '')
+    photoCaption.style.visibility = 'hidden';
+  else {
+    photoCaption.style.visibility = 'visible';
+    common.helpers.setText(photoCaption, photoObj.caption);
+  }
 }
 
 view.MainViewImpl.prototype.closePhotoButtonClickHandler = function () {
@@ -57,7 +65,9 @@ view.MainViewImpl.prototype.closePhotoButtonClickHandler = function () {
 view.MainViewImpl.prototype.closePhoto = function () {
   var photoDiv = document.getElementById('fullres_photo_div');
   var photoImg = document.getElementById('fullres_photo_img');
+  var photoCaption = document.getElementById('caption_div');
   photoDiv.style.visibility = 'hidden';
+  photoCaption.style.visibility = 'hidden';
   photoImg.src = '';
 }
 
