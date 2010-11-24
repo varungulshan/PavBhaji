@@ -53,13 +53,26 @@ view.MainViewImpl.prototype.openPhotoEventHandler = function() {
     common.helpers.setText(photoCaption, photoObj.caption);
   }
   // set photo comments
+  // first create a map from commenter names to ids;
+  var id = 2;
+  var maxId = this._commenterColors.length;
+  var hashMap = [];
+  for (var i = 0; i < photoObj.commentArray.length; ++i) {
+    if (hashMap[photoObj.commentArray[i].from.name] == undefined) {
+      hashMap[photoObj.commentArray[i].from.name] = id;
+      id = (id + 1)%maxId;
+    }
+  }
   for (var i = 0; i < photoObj.commentArray.length; ++i) {
     var HTMLstring = 
-      photoObj.commentArray[i].from.name + ': ' +
-      photoObj.commentArray[i].message;
+      '<span class="commenter_name" style="color:'+ 
+      this._commenterColors[hashMap[photoObj.commentArray[i].from.name]]+'">' 
+      + photoObj.commentArray[i].from.name + 
+      '</span>: ' + photoObj.commentArray[i].message;
     this.consoleViewAdd(HTMLstring);
   }
 }
+
 
 view.MainViewImpl.prototype.closePhotoButtonClickHandler = function () {
   this.closePhoto();

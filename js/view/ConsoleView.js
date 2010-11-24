@@ -22,6 +22,6 @@ view.MainViewImpl.prototype.consoleViewClear = function () {
 view.MainViewImpl.prototype.consoleViewAdd = function (str) {
   var divelement = document.createElement("div");
   divelement.id = "comment_div";
-  common.helpers.setText(divelement,str);
+  divelement.innerHTML = str;
   this._consoleContent.appendChild(divelement);
 }
