@@ -7,7 +7,8 @@ OUTDIR          =$(TOPDIR)/php/js-compiled
 
 # ------ Flags -----------------
 NAMESPACE_FLAGS       = --namespace=view.MainViewImpl --namespace=models.Model1 \
-  --namespace=view.MainViewImplPart1 --namespace=view.MainViewImplPart2
+  --namespace=view.MainViewImplPart1 --namespace=view.MainViewImplPart2 \
+  --namespace=view.MainViewImplPart3
 NOCOMPILE_FLAGS       = -o script 
 SHOWDEP_FLAGS         = -o list
 COMPILE_SIMPLE_FLAGS  = -o compiled \
@@ -39,7 +40,7 @@ noCompile:
 # aggresive optimization from the closure compiler
 optiCompile:
 	$(BUILDER_FILE_) $(ROOT_FLAGS_) $(NAMESPACE_FLAGS) $(COMPILE_OPTI_FLAGS) \
-      $(COMPILER_FLAGS_) --output_file $(OUTDIR)/all-compiledOpti.js
+      $(COMPILER_FLAGS_) --output_file $(OUTDIR)/all-compiledOpti.js 
 
 # This target only shows the dependency calculation output, to make
 # sure all files you expect are being included

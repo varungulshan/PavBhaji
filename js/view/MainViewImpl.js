@@ -31,8 +31,10 @@ view.MainViewImpl.prototype.openFolderEventHandler = function() {
 }
 
 view.MainViewImpl.prototype.openPhotoEventHandler = function() {
+  // TODO(Rahul): Store these in class vars for efficiency
   var photoDiv = document.getElementById('fullres_photo_div');
   var photoImg = document.getElementById('fullres_photo_img');
+  var photoCaption = document.getElementById('caption_div');
   var photoObj = this._model.getCurrentPhoto();
   photoImg.src = photoObj.imgUrl;
   var x_scaling = this._maxImageWidth/photoObj.width;
@@ -44,10 +46,38 @@ view.MainViewImpl.prototype.openPhotoEventHandler = function() {
   photoDiv.style.width = scaledWidth.toString()+"px";
   photoDiv.style.height = scaledHeight.toString()+"px";
   photoDiv.style.visibility = 'visible';
+  if (photoObj.caption == '')
+    photoCaption.style.visibility = 'hidden';
+  else {
+    photoCaption.style.visibility = 'visible';
+    common.helpers.setText(photoCaption, photoObj.caption);
+  }
+  // set photo comments
+  // first create a map from commenter names to ids;
+  var id = 2;
+  var maxId = this._commenterColors.length;
+  var hashMap = [];
+  for (var i = 0; i < photoObj.commentArray.length; ++i) {
+    if (hashMap[photoObj.commentArray[i].from.name] == undefined) {
+      hashMap[photoObj.commentArray[i].from.name] = id;
+      id = (id + 1)%maxId;
+    }
+  }
+  for (var i = 0; i < photoObj.commentArray.length; ++i) {
+    var HTMLstring = 
+      '<span class="commenter_name" style="color:'+ 
+      this._commenterColors[hashMap[photoObj.commentArray[i].from.name]]+'">' 
+      + photoObj.commentArray[i].from.name + 
+      '</span>: ' + photoObj.commentArray[i].message;
+    this.consoleViewAdd(HTMLstring);
+  }
 }
+
 
 view.MainViewImpl.prototype.closePhotoButtonClickHandler = function () {
   this.closePhoto();
+  this.consoleViewClose();
+  this.consoleViewClear();
   var parentNodes = this._model.getCurrentPathIcons();
   this._model.gotoIcon(parentNodes[parentNodes.length-2]);  
 }
@@ -57,11 +87,15 @@ view.MainViewImpl.prototype.closePhotoButtonClickHandler = function () {
 view.MainViewImpl.prototype.closePhoto = function () {
   var photoDiv = document.getElementById('fullres_photo_div');
   var photoImg = document.getElementById('fullres_photo_img');
+  var photoCaption = document.getElementById('caption_div');
   photoDiv.style.visibility = 'hidden';
+  photoCaption.style.visibility = 'hidden';
   photoImg.src = '';
 }
 
 view.MainViewImpl.prototype.updateView = function() {
+  this.consoleViewClose();
+  this.consoleViewClear();
   // update navigation bar
   this.navbarViewUpdate();
   // update contextbar

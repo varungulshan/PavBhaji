@@ -15,10 +15,7 @@ goog.provide('view.MainView');
 
 goog.require('models.AbstractModel');
 goog.require('common.IconNode');
-goog.require('goog.ui.Popup');
-goog.require('goog.positioning.ClientPosition');
-goog.require('goog.positioning.Corner');
-goog.require('goog.positioning.AnchoredViewportPosition');
+goog.require('goog.ui.AnimatedZippy');
 
 view.MainView = function(model){
   this._model = model;
@@ -58,6 +55,13 @@ view.MainView = function(model){
     imageArrayViewNextClickHandlerClosure;
   document.getElementById('fullres_photo_close_button').onclick =
     closePhotoButtonClickHandlerClosure;
+  //add console zippy
+  this._consoleZippy = new goog.ui.AnimatedZippy('console_header_div',
+                                                 'console_content_div');
+  this._consoleContent = document.getElementById("console_content_div");
+  this._commenterColors = new Array("aliceblue","burlywood","darkorange",
+                               "darksalmon","gold","lightgreen","plum",
+                               "yellowgreen");
 }
 
 // TODO: We should probably move this to a common area
@@ -152,4 +156,27 @@ view.MainView.prototype.imageArrayViewNextClickHandler = view.MainView.errorFn;
  * handles click on the prevt page button
  */
 view.MainView.prototype.imageArrayViewPrevClickHandler = view.MainView.errorFn;
+
+//--------------------------------------------------------------------------
+// Functions for ConsoleView
+// ------------------------------------------------------------------------
+
+/**
+ * view.MainView.consoleViewClose()
+ * hides the console view if it is open
+ */
+view.MainView.prototype.consoleViewClose = view.MainView.errorFn;
+
+/**
+ * view.MainView.consoleViewClear()
+ *  clears everything from the console view
+ */
+view.MainView.prototype.consoleViewClear = view.MainView.errorFn;
+
+/** view.MainView.consoleViewAdd(str: string)
+ * adds a new div with the content specified by str
+ */
+view.MainView.prototype.consolveViewAdd = view.MainView.errorFn;
+
+
 

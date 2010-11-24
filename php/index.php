@@ -81,6 +81,13 @@ if ($session) {
     <div class="navigation_button"></div>
   </div>
   <div class="top_bar" id="tool_bar">You have 4 albums and 32 friends</div>
+  <div id="console_wrapper_div">
+    <div id="console_header_div">
+      Comment Console
+    </div>
+    <div id="console_content_div">
+    </div>
+  </div>
   <div id="icon_table">
   <table>
     <tr>
@@ -181,6 +188,7 @@ if ($session) {
         <img src="../resources/Button-Close-icon.png" 
             id="fullres_photo_close_button">
         </img>
+        <div id="caption_div"></div>
   </div>
   <script>
     var model = new models.Model1();
