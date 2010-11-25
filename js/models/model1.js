@@ -440,7 +440,8 @@ models.Model1.PersonNode.prototype.exploreNode = function(model){
 models.Model1.PersonNode.prototype.addAlbumsFromFBresponse = 
 function(apiResp,fbObj,pageSize){
   var albums=apiResp;
-  // TODO: check what happens when no albums are available
+  if(apiResp['length']===undefined){albums=[];} // this happens when user
+      // has no albums
   var fbSession=fbObj.getSession();
   //goog.asserts.assert(common.helpers.isArray(albums),
       //'Expected API call for albums to return array');
@@ -496,7 +497,8 @@ models.Model1.AlbumNode.prototype.exploreNode = function(model){
 models.Model1.AlbumNode.prototype.addPhotosFromFBresponse =
 function(apiResp,pageSize){
   var photos=apiResp;
-  // TODO: check what happens when no photos are available
+  if(photos['length']===undefined){photos=[];} // This happens when album
+      // has no photos
   //goog.asserts.assert(common.helpers.isArray(photos));
   for(var i=0;i<photos.length;i++){
     var photoObj=photos[i];
@@ -553,7 +555,8 @@ models.Model1.PhotosOfPersonNode.prototype.exploreNode = function(model){
 models.Model1.PhotosOfPersonNode.prototype.addPhotosFromFBresponse =
 function(apiResp,pageSize){
   var photos=apiResp;
-  // TODO: if no photos are avaialble, this returns empty
+  if(photos['length']===undefined){photos=[];} // This happens when no photos
+      // of the user are available
   photos.reverse(); // Photos are returned in reverse chronological order
       // for some reason
   //goog.asserts.assert(common.helpers.isArray(photos),
