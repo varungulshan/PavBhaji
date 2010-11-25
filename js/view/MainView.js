@@ -59,9 +59,8 @@ view.MainView = function(model){
   this._consoleZippy = new goog.ui.AnimatedZippy('console_header_div',
                                                  'console_content_div');
   this._consoleContent = document.getElementById("console_content_div");
-  this._commenterColors = new Array("aliceblue","burlywood","darkorange",
-                               "darksalmon","gold","lightgreen","plum",
-                               "yellowgreen");
+  this._commenterColors = new Array("brown","darkblue","darkred",
+                               "teal","olive");
 }
 
 // TODO: We should probably move this to a common area
