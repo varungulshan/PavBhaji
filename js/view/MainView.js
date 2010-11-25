@@ -25,6 +25,7 @@ view.MainView = function(model){
   this._currentIconNode = {};
   this._parentIconNodes = new Array(); // iconNodes leading to current IconNode
   this._childIconNodes = new Array(); // child nodes of curren node
+  this._imageArrayToolTips = new Array();
   this._currentPage = 0; // current page index; display 25 at a time
   this._maxImageWidth = 700;
   this._maxImageHeight = 540;

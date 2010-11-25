@@ -202,3 +202,10 @@ div#caption_div {
   background-image: url('../resources/translucent.png');
 }
 
+.goog-tooltip {
+      background: infobackground;
+      color: infotext;
+      border: 1px solid infotext;
+      padding: 1px;
+      font: menu;
+} 

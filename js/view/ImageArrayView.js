@@ -8,6 +8,7 @@ goog.provide('view.MainViewImplPart1');
 goog.require('view.MainViewImpl');
 goog.require('common.helpers');
 goog.require('view.MainView');
+goog.require('goog.ui.Tooltip');
 
 
 view.MainViewImpl.prototype.imageArrayViewUpdate = function () {
@@ -34,6 +35,8 @@ view.MainViewImpl.prototype.imageArrayViewUpdatePage = function () {
         }
       }(idx);
       common.helpers.setText(imageHolders[i].children[1],
+          this._childIconNodes[idx].iconText);
+      this._imageArrayToolTips = new goog.ui.Tooltip(imageHolders[i],
           this._childIconNodes[idx].iconText);
     } else {
       imageHolders[i].style.visibility = 'hidden';
