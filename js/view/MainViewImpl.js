@@ -9,6 +9,7 @@ goog.require('common.helpers');
 goog.require('view.MainView');
 goog.require('models.AbstractModel');
 goog.require('goog.asserts');
+goog.require('goog.events.KeyCodes');
 
 view.MainViewImpl = function(model) {
   view.MainView.call(this,model);
@@ -104,5 +105,13 @@ view.MainViewImpl.prototype.updateView = function() {
   // this.contextbarViewUpdate();
   // update image array
   this.imageArrayViewUpdate();
+}
+
+view.MainViewImpl.prototype.handleKeyPress = function (e) {
+  switch(e.keyCode) {
+    case goog.events.KeyCodes.CTRL:
+      this._consoleZippy.toggle();
+      break;
+  }
 }
 

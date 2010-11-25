@@ -16,6 +16,7 @@ goog.provide('view.MainView');
 goog.require('models.AbstractModel');
 goog.require('common.IconNode');
 goog.require('goog.ui.AnimatedZippy');
+goog.require('goog.events.KeyHandler');
 
 view.MainView = function(model){
   this._model = model;
@@ -63,6 +64,12 @@ view.MainView = function(model){
   this._consoleHeader = document.getElementById("console_header_div");
   this._commenterColors = new Array("brown","darkblue","darkred",
                                "teal","olive");
+  // set up kye handling
+  this._keyHandler = new goog.events.KeyHandler(document);
+  var handleKeyPressClosure = function(e) {
+    _view.handleKeyPress(e);
+  }
+  goog.events.listen(this._keyHandler,'key', handleKeyPressClosure);
 }
 
 // TODO: We should probably move this to a common area
@@ -101,6 +108,12 @@ view.MainView.prototype.closePhotoButtonClickHandler =
  * currentIconNode and states have been updated
  */
 view.MainView.prototype.updateView = view.MainView.errorFn;
+
+/**
+ *  view.MainView.handleKeyPress(e: event)
+ *  handles different key presses
+ */
+view.MainView.prototype.handleKeyPress = view.MainView.errorFn;
  
 //--------------------------------------------------------------------------
 // Functions for NavbarView
