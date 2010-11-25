@@ -17,6 +17,7 @@ goog.require('models.AbstractModel');
 goog.require('common.IconNode');
 goog.require('goog.ui.AnimatedZippy');
 goog.require('goog.events.KeyHandler');
+goog.require('goog.ui.Tooltip');
 
 view.MainView = function(model){
   this._model = model;
@@ -30,6 +31,14 @@ view.MainView = function(model){
   this._currentPage = 0; // current page index; display 25 at a time
   this._maxImageWidth = 700;
   this._maxImageHeight = 540;
+  this._numImageHolders = 25;
+  // attach tooltips
+  var imageHolders = common.helpers.getElementByTagAndClassName('div',
+                                                                'image_holder');
+  goog.asserts.assert( imageHolders.length == this._numImageHolders);
+  for(var i = 0; i < this._numImageHolders; ++i) {
+    this._imageArrayToolTips[i] = new goog.ui.Tooltip(imageHolders[i],'');
+  }
   // attach listeners
   _view = this;
   var openFolderEventHandlerClosure = function () {
