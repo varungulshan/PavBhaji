@@ -77,7 +77,7 @@ goog.inherits(common.PhotosOfPersonIcon,common.IconNode);
  * Class for representing a photo. Stores the photo url, comments, tags etc.
  * that are needed for displaying the photo
  */
-common.PhotoObj = function(imgUrl,caption,commentArray,width,height){
+common.PhotoObj = function(imgUrl,caption,commentArray,width,height,likes){
   this.imgUrl=imgUrl;
   this.caption=caption;
   this.commentArray=commentArray; 
@@ -89,6 +89,11 @@ common.PhotoObj = function(imgUrl,caption,commentArray,width,height){
   //                      it tells who posted the comment
   // The above format is actually what FB returns on an API call
   // so just used the same format
+  this.likes=likes; 
+  // likes is an array of objects with following fields:
+  // [1] uid: User id of liker
+  // [2] name: Full name of liker
+
   this.width = width;
   this.height = height;
 };
