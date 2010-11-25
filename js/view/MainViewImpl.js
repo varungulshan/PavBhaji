@@ -77,9 +77,10 @@ view.MainViewImpl.prototype.openPhotoEventHandler = function() {
 
 
 view.MainViewImpl.prototype.closePhotoButtonClickHandler = function () {
+  this._model.closeCurrentPhoto();
   this.closePhoto();
   var parentNodes = this._model.getCurrentPathIcons();
-  this._model.gotoIcon(parentNodes[parentNodes.length-2]);  
+  this._model.gotoIcon(parentNodes[parentNodes.length-1]);  
 }
 
 /** closes the photo if it's open 

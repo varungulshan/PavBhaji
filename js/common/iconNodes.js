@@ -20,8 +20,9 @@ common.IconNode = function(iconText,iconImgUrl,fileDepth,fileIdx){
   this.fileIdx=fileIdx;     // Used by model to locate node in tree
   this.navText=''; // text to be used in the navigation bar, the subclasses
                    // will fill this out appropriately
-  this.curPageNum=-1;
-  this.nextAvailable=true;
+  this.curPageNum=0; // Should be used by view to keep track of which page is
+      // open
+  //this.nextAvailable=false;
 };
 
 common.PersonIcon = function(iconText,iconImgUrl,fileDepth,fileIdx, 
@@ -35,9 +36,11 @@ goog.inherits(common.PersonIcon,common.IconNode); // This call simulates
 // inheritance, and needs to be made after the class declaration.
 
 common.AlbumIcon = function(iconText,iconImgUrl,fileDepth,fileIdx,
-                         fbId){
+                         fqlId,fbId){
   common.IconNode.call(this,iconText,iconImgUrl,fileDepth,fileIdx);
-  this.fbId=fbId; // Facebook UID of the album, type string
+  this.fqlId=fqlId; // The aid of the album used for FQL queries
+      // is different from the fbId used for graph API queries
+  this.fbId=fbId;
   this.navText=common.helpers.shortenText(iconText,10);
 };
 goog.inherits(common.AlbumIcon,common.IconNode);

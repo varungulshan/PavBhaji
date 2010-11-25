@@ -24,6 +24,8 @@ models.Model1 = function(){
   this.currentState=models.Model1.State.folderView;
   this.userNode=null;
   this.friendsNode=null;
+  this.pageSize=25;
+  // TODO: remove pageSize after discussion with rahul
 };
 goog.inherits(models.Model1,models.AbstractModel);
 goog.exportSymbol('models.Model1',models.Model1);
@@ -32,6 +34,7 @@ models.Model1.prototype.initialize = function(fbObj,userId){
   goog.asserts.assert(typeof userId === 'string');
   this.fb=fbObj;
   this.userId=userId;
+  this.pageSize=25; // Can make a parameter
 
   var rootIcon=new common.IconNode('root','',0,-1);
   var rootNode=new models.Model1.TreeNode(rootIcon,false);
@@ -41,6 +44,7 @@ models.Model1.prototype.initialize = function(fbObj,userId){
   var homeNode=new models.Model1.HomeNode(homeIcon); 
 
   rootNode.addChildren(homeNode);
+  rootNode._numPages=1; // Need this hacky private member access once!
   rootNode._isOpen=true; // Need this hacky private member access once!
 
   this._openNodeList=[rootNode]; //Array of open nodes, each node should be open
@@ -60,19 +64,33 @@ models.Model1.prototype.getOpenIcon = function(){
   return openNode.iconNode;
 };
 
-// TODO(varun): implement close photo event
+models.Model1.prototype.closeCurrentPhoto = function(){
+  if(this.currentState!=models.Model1.State.photoView){
+    throw Error(
+        'Expected model to be in photo view state on model.closeCurrentPhoto');
+  }
+  goog.asserts.assert(this._openNodeIdx===(this._openNodeList.length-1));
+  this._openNodeList[this._openNodeIdx].closeNode();
+  this._openNodeList=this._openNodeList.slice(0,this._openNodeIdx);
+  this._openNodeIdx--;
+  this.currentState=models.Model1.State.folderView;
+};
 
 models.Model1.prototype.getCurrentPathIcons = function(){
-  // TODO(varun): correct variable naming in here
-  // also fix if the last node is a photo then not return it
   goog.asserts.assert(this._openNodeList.length>=2); // 'root' and 'home'
       // nodes should always be open
-  var parentIcons=[];
+  var pathIcons=[];
   var openNodeList=this._openNodeList;
-  for(var i=1;i<openNodeList.length;i++){
-    parentIcons.push(openNodeList[i].iconNode);
+  var lastEntry=openNodeList.length;
+  if(this.currentState===models.Model1.State.photoView){
+    lastEntry--;
+    // when in photoView state, do not include the photoIcon in the
+    // list of icons in the path
   }
-  return parentIcons;
+  for(var i=1;i<lastEntry;i++){
+    pathIcons.push(openNodeList[i].iconNode);
+  }
+  return pathIcons;
 };
 
 models.Model1.prototype.gotoIcon = function(targetIcon){
@@ -92,6 +110,7 @@ models.Model1.prototype.gotoIcon = function(targetIcon){
   }else{
     this.currentState=models.Model1.State.folderView;
   }
+  // TODO: set icon's nextAvailable property
 };
 
 models.Model1.prototype._openNode = function(nodeToOpen){
@@ -205,6 +224,14 @@ models.Model1.getAlbumPicUrl = function(albumId,fbSession){
   return albumPic;
 };
 
+models.Model1.invalidPageError = function(opt_message){
+  var message='';
+  if(opt_message){
+    message=opt_message;
+  }
+  throw Error('Invalid page requested: '+message);
+};
+
 // ----- End implementation of Model1 ------------
 
 // ---- Begin implementation of supporting objects ---
@@ -216,6 +243,8 @@ models.Model1.TreeNode = function(iconNode,isLeaf){
   this._isOpen=false;
   this._children=[]; // Array of TreeNodes
   this._alwaysCache=false; 
+  this._numPages=0;
+  // TODO: get rid of _numPages after discussion with rahul
 };
 
 /**
@@ -230,6 +259,7 @@ models.Model1.TreeNode.prototype.closeNode = function(){
   // Dont close nodes for which alwaysCache flag is set
   if(!this._alwaysCache){
     this._children=[];
+    this._numPages=0;
     this._isOpen=false;
   }
 };
@@ -312,7 +342,11 @@ models.Model1.HomeNode.prototype.exploreNode = function(model){
   model.friendsNode=friendsNode;
 
   this.addChildren([userNode,friendsNode]);
-  this._isOpen=true;
+  goog.asserts.assert(model.pageSize>=2,'Expected page size>=2');
+  // assert to ensure that this hand insertion of two children does
+  // not violate page size limits
+  this._isOpen=1;
+  this._numPages=1;
   model.raiseOpenFolderEvent();
 
 };
@@ -335,15 +369,18 @@ models.Model1.FriendsNode.prototype.exploreNode = function(model){
   // Else need to make a FB api call
   var fbObj=model.fb;
   var _node=this;
+  var pageSize=model.pageSize;
   var fbOpenFriendsCB = function(apiResponse){
-    _node.addFriendsFromFBresponse(apiResponse,fbObj);
+    _node.addFriendsFromFBresponse(apiResponse,fbObj,pageSize);
     model.raiseOpenFolderEvent();
   };
   fbObj.api('/me/friends',fbOpenFriendsCB);
+  // TODO: check if this call returns all friends
+  // for huge friend lists
 };
 
 models.Model1.FriendsNode.prototype.addFriendsFromFBresponse = 
-    function(apiResp,fbObj){
+    function(apiResp,fbObj,pageSize){
       var friends=apiResp['data'];
       var fbSession=fbObj.getSession();
       goog.asserts.assert(common.helpers.isArray(friends),
@@ -357,6 +394,7 @@ models.Model1.FriendsNode.prototype.addFriendsFromFBresponse =
         this.addChildren(friendNode);
       }
       this._isOpen=true;
+      this._numPages=Math.ceil(this._children.length/pageSize);
     };
 
 // --- End implementation of FriendsNode ---------
@@ -373,6 +411,7 @@ models.Model1.PersonNode.prototype.exploreNode = function(model){
     model.raiseOpenFolderEvent();
     return;
   }
+
   var curIcon=this.iconNode;
   var fbSession=model.fb.getSession();
   var photoOfPersonIcon = new common.PhotosOfPersonIcon('Photos of '+
@@ -388,31 +427,36 @@ models.Model1.PersonNode.prototype.exploreNode = function(model){
   var fbId=curIcon.fbId;
   var fbObj=model.fb;
   var _node=this;
+  var pageSize=model.pageSize;
   var fbGetAlbumsCB = function(apiResp){
-    _node.addAlbumsFromFBresponse(apiResp,fbObj);
+    _node.addAlbumsFromFBresponse(apiResp,fbObj,pageSize);
     model.raiseOpenFolderEvent();
   };
-  fbObj.api('/'+fbId+'/albums',fbGetAlbumsCB);
-  // TODO(varun): Implement the paging for albums for >25 albums
+  //fbObj.api('/'+fbId+'/albums',fbGetAlbumsCB);
+  var queryString='SELECT aid,name,object_id FROM album WHERE owner="'+fbId+'"';
+  fbObj.api({method: 'fql.query',query: queryString},fbGetAlbumsCB);
 };
 
 models.Model1.PersonNode.prototype.addAlbumsFromFBresponse = 
-function(apiResp,fbObj){
-  var albums=apiResp['data'];
+function(apiResp,fbObj,pageSize){
+  var albums=apiResp;
+  if(apiResp['length']===undefined){albums=[];} // this happens when user
+      // has no albums
   var fbSession=fbObj.getSession();
-  goog.asserts.assert(common.helpers.isArray(albums),
-      'Expected API call for albums to return array');
+  //goog.asserts.assert(common.helpers.isArray(albums),
+      //'Expected API call for albums to return array');
   for(var i=0;i<albums.length;i++){
     var albumObj=albums[i];
     var albumName='';
     if(albumObj['name']){albumName=albumObj['name'];}
     var albumIcon = new common.AlbumIcon(albumName,
-        models.Model1.getAlbumPicUrl(albumObj['id'],fbSession),
-        0,0,albumObj['id']);
+        models.Model1.getAlbumPicUrl(albumObj['object_id'],fbSession),
+        0,0,albumObj['aid'],albumObj['object_id']);
     var albumNode = new models.Model1.AlbumNode(albumIcon);
     this.addChildren(albumNode);
   }
   this._isOpen=true;
+  this._numPages=Math.ceil(this._children.length/pageSize);
 };
 
 // --- End implementation of PersonNode ---------
@@ -434,32 +478,41 @@ models.Model1.AlbumNode.prototype.exploreNode = function(model){
   var curIcon=this.iconNode;
   var fbObj=model.fb;
   var _node=this;
-  var fbId=curIcon.fbId;
+  var fqlId=curIcon.fqlId;
  
+  var pageSize=model.pageSize;
   var fbGetPhotosCB = function(apiResp){
-    _node.addPhotosFromFBresponse(apiResp);
+    _node.addPhotosFromFBresponse(apiResp,pageSize);
     model.raiseOpenFolderEvent();
   };
-  fbObj.api('/'+fbId+'/photos',fbGetPhotosCB);
-  // TODO(varun): Implement paging for albums > 25 photos
+  //fbObj.api('/'+fbId+'/photos',fbGetPhotosCB);
+  var queryString=
+      'SELECT caption,src,src_big,src_big_height,src_big_width,object_id '+
+      'FROM photo WHERE aid="'+fqlId+'"';
+  fbObj.api({method: 'fql.query',query: queryString},fbGetPhotosCB);
+  // TODO(varun): check if everything is sane with above query
 
 };
 
-models.Model1.AlbumNode.prototype.addPhotosFromFBresponse = function(apiResp){
-  var photos=apiResp['data'];
-  goog.asserts.assert(common.helpers.isArray(photos));
+models.Model1.AlbumNode.prototype.addPhotosFromFBresponse =
+function(apiResp,pageSize){
+  var photos=apiResp;
+  if(photos['length']===undefined){photos=[];} // This happens when album
+      // has no photos
+  //goog.asserts.assert(common.helpers.isArray(photos));
   for(var i=0;i<photos.length;i++){
     var photoObj=photos[i];
     var photoCaption='';
-    if(photoObj['name']){photoCaption=photoObj['name'];}
-    var photoIcon = new common.PhotoIcon(photoCaption,photoObj['picture'],0,0,
-        photoObj['id'],photoObj['source'],photoCaption,photoObj['width'],
-        photoObj['height']);
+    if(photoObj['caption']){photoCaption=photoObj['caption'];}
+    var photoIcon = new common.PhotoIcon(photoCaption,photoObj['src'],0,0,
+        photoObj['object_id'],photoObj['src_big'],photoCaption,
+        photoObj['src_big_width'],photoObj['src_big_height']);
 
     var photoNode = new models.Model1.PhotoNode(photoIcon);
     this.addChildren(photoNode);
   }
   this._isOpen=true;
+  this._numPages=Math.ceil(this._children.length/pageSize);
 };
 
 // --- End implementation of AlbumNode -------
@@ -485,35 +538,42 @@ models.Model1.PhotosOfPersonNode.prototype.exploreNode = function(model){
   var _node=this;
   var fbId=curIcon.fbId;
  
+  var pageSize=model.pageSize;
   var fbGetPhotosCB = function(apiResp){
-    _node.addPhotosFromFBresponse(apiResp);
+    _node.addPhotosFromFBresponse(apiResp,pageSize);
     model.raiseOpenFolderEvent();
   };
-  fbObj.api('/'+fbId+'/photos',fbGetPhotosCB);
-  // Note: all this code is same as in albumNode, actually one
-  // can think of photos of person as an album, the connections used
-  // are the same
-  // TODO(varun): Implement paging when > 25 photos
- 
+  var queryString=
+      'SELECT caption,src,src_big,src_big_height,src_big_width,object_id '+
+      'FROM photo WHERE pid IN '+
+      '(SELECT pid FROM photo_tag WHERE subject="'+fbId+'")';
+  fbObj.api({method: 'fql.query',query: queryString},fbGetPhotosCB);
+  //fbObj.api('/'+fbId+'/photos',fbGetPhotosCB);
+
 };
 
 models.Model1.PhotosOfPersonNode.prototype.addPhotosFromFBresponse =
-function(apiResp){
-  var photos=apiResp['data'];
-  goog.asserts.assert(common.helpers.isArray(photos),
-      'Expect FB api call for photos of person to return an array');
+function(apiResp,pageSize){
+  var photos=apiResp;
+  if(photos['length']===undefined){photos=[];} // This happens when no photos
+      // of the user are available
+  photos.reverse(); // Photos are returned in reverse chronological order
+      // for some reason
+  //goog.asserts.assert(common.helpers.isArray(photos),
+      //'Expect FB api call for photos of person to return an array');
   for(var i=0;i<photos.length;i++){
     var photoObj=photos[i];
     var photoCaption='';
-    if(photoObj['name']){photoCaption=photoObj['name'];}
-    var photoIcon = new common.PhotoIcon(photoCaption,photoObj['picture'],0,0,
-        photoObj['id'],photoObj['source'],photoCaption,photoObj['width'],
-        photoObj['height']);
+    if(photoObj['caption']){photoCaption=photoObj['caption'];}
+    var photoIcon = new common.PhotoIcon(photoCaption,photoObj['src'],0,0,
+        photoObj['object_id'],photoObj['src_big'],photoCaption,
+        photoObj['src_big_width'],photoObj['src_big_height']);
 
     var photoNode = new models.Model1.PhotoNode(photoIcon);
     this.addChildren(photoNode);
   }
   this._isOpen=true;
+  this._numPages=Math.ceil(this._children.length/pageSize);
 };
 
 
@@ -565,6 +625,22 @@ function (apiResp){
 
   this._isOpen=true;
 };
+
+
+/**
+ * closeNode(), function to close a node, overriding default one
+ */
+models.Model1.PhotoNode.prototype.closeNode = function(){
+  // Dont close nodes for which alwaysCache flag is set
+  if(!this._alwaysCache){
+    goog.asserts.assert(this._children.length===0,
+        'Photo node should not have any children');
+    this._numPages=0;
+    this._isOpen=false;
+    this._comments=[];
+  }
+};
+
 
 // --- End implementation of PhotoNode -------
 
