@@ -83,7 +83,7 @@ if ($session) {
   <div class="top_bar" id="tool_bar">You have 4 albums and 32 friends</div>
   <div id="console_wrapper_div">
     <div id="console_header_div">
-      Comment Console
+      Comments(0)
     </div>
     <div id="console_content_div">
     </div>

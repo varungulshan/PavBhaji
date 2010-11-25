@@ -53,6 +53,7 @@ view.MainViewImpl.prototype.openPhotoEventHandler = function() {
     common.helpers.setText(photoCaption, photoObj.caption);
   }
   // set photo comments
+  this.consoleViewUpdateNumComments(photoObj.commentArray.length);
   // first create a map from commenter names to ids;
   var id = 2;
   var maxId = this._commenterColors.length;
@@ -76,8 +77,6 @@ view.MainViewImpl.prototype.openPhotoEventHandler = function() {
 
 view.MainViewImpl.prototype.closePhotoButtonClickHandler = function () {
   this.closePhoto();
-  this.consoleViewClose();
-  this.consoleViewClear();
   var parentNodes = this._model.getCurrentPathIcons();
   this._model.gotoIcon(parentNodes[parentNodes.length-2]);  
 }
@@ -91,6 +90,9 @@ view.MainViewImpl.prototype.closePhoto = function () {
   photoDiv.style.visibility = 'hidden';
   photoCaption.style.visibility = 'hidden';
   photoImg.src = '';
+  this.consoleViewClose();
+  this.consoleViewClear();
+  this.consoleViewUpdateNumComments(0);
 }
 
 view.MainViewImpl.prototype.updateView = function() {

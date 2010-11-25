@@ -25,3 +25,8 @@ view.MainViewImpl.prototype.consoleViewAdd = function (str) {
   divelement.innerHTML = str;
   this._consoleContent.appendChild(divelement);
 }
+
+view.MainViewImpl.prototype.consoleViewUpdateNumComments = function (num) {
+  var headerString = "Comments("+num.toString()+")";
+  common.helpers.setText(this._consoleHeader, headerString);
+}

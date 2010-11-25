@@ -59,6 +59,7 @@ view.MainView = function(model){
   this._consoleZippy = new goog.ui.AnimatedZippy('console_header_div',
                                                  'console_content_div');
   this._consoleContent = document.getElementById("console_content_div");
+  this._consoleHeader = document.getElementById("console_header_div");
   this._commenterColors = new Array("brown","darkblue","darkred",
                                "teal","olive");
 }
@@ -177,5 +178,8 @@ view.MainView.prototype.consoleViewClear = view.MainView.errorFn;
  */
 view.MainView.prototype.consolveViewAdd = view.MainView.errorFn;
 
-
+/** view.MainView.consoleViewUpdateNumComments(num: number)
+ * show the number of comments on the photo
+ */
+view.MainView.prototype.consoleViewUpdateNumComments = view.MainView.errorFn;
 
