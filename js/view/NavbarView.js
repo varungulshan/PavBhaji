@@ -19,8 +19,14 @@ view.MainViewImpl.prototype.navbarViewUpdate = function() {
                                                            'navigation_button');
   var view = this;
   goog.asserts.assert(buttons.length == numButtons);  
+  var currentNodes = this._model.getCurrentPathIcons();
   for(i = 0; i < numButtons; ++i) {
-    if (i+1 < this._currentIconNode.fileDepth) {
+    if ( i+1 == this._currentIconNode.fileDepth) {
+      // visible and selected
+      buttons[i].style.visibility = 'visible';
+      buttons[i].id = "selected_navigation_button";
+      common.helpers.setText(buttons[i],this._currentIconNode.navText);
+    } else if (i < currentNodes.length) {
       // visible but unselected
       buttons[i].style.visibility = 'visible';
       buttons[i].id = "";
@@ -29,11 +35,6 @@ view.MainViewImpl.prototype.navbarViewUpdate = function() {
           view.navbarViewClickHandler(value);
         }
       }(i);
-    } else if ( i+1 == this._currentIconNode.fileDepth) {
-      // visible and selected
-      buttons[i].style.visibility = 'visible';
-      buttons[i].id = "selected_navigation_button";
-      common.helpers.setText(buttons[i],this._currentIconNode.navText);
     } else {
       // make invisible
       buttons[i].style.visibility = 'hidden';
