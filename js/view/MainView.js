@@ -40,7 +40,7 @@ view.MainView = function(model){
     this._imageArrayToolTips[i] = new goog.ui.Tooltip(imageHolders[i],'');
   }
   // attach listeners
-  _view = this;
+  var _view = this;
   var openFolderEventHandlerClosure = function () {
     _view.openFolderEventHandler();
   }
@@ -199,7 +199,7 @@ view.MainView.prototype.consoleViewClear = view.MainView.errorFn;
 /** view.MainView.consoleViewAdd(str: string)
  * adds a new div with the content specified by str
  */
-view.MainView.prototype.consolveViewAdd = view.MainView.errorFn;
+view.MainView.prototype.consoleViewAdd = view.MainView.errorFn;
 
 /** view.MainView.consoleViewUpdateNumComments(num: number)
  * show the number of comments on the photo
