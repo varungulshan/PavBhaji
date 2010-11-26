@@ -44,6 +44,10 @@ view.MainViewImpl.prototype.openPhotoEventHandler = function() {
   scaling = Math.min(1.0,scaling);
   var scaledWidth = Math.floor(scaling * photoObj.width);
   var scaledHeight = Math.floor(scaling * photoObj.height);
+  if (scaledWidth == 0)
+    scaledWidth = this._maxImageWidth;
+  if (scaledHeight == 0)
+    scaledHeight = this._maxImageHeight;
   photoDiv.style.width = scaledWidth.toString()+"px";
   photoDiv.style.height = scaledHeight.toString()+"px";
   photoDiv.style.visibility = 'visible';
