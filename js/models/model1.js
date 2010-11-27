@@ -178,7 +178,7 @@ models.Model1.prototype.getCurrentPhoto = function(){
   var photoIcon=photoNode.iconNode;
   var photoObj = new common.PhotoObj(photoIcon.fullImgUrl,
       photoIcon.photoCaption,photoNode.comments,photoIcon.width,
-      photoIcon.height);
+      photoIcon.height,photoNode.likes);
 
   return photoObj;
 };
@@ -490,7 +490,6 @@ models.Model1.AlbumNode.prototype.exploreNode = function(model){
       'SELECT caption,src,src_big,src_big_height,src_big_width,object_id '+
       'FROM photo WHERE aid="'+fqlId+'"';
   fbObj.api({method: 'fql.query',query: queryString},fbGetPhotosCB);
-  // TODO(varun): check if everything is sane with above query
 
 };
 
@@ -586,6 +585,7 @@ models.Model1.PhotoNode = function(iconNode){
   this._alwaysCache=true; // is useful because often a photo will be viewed
       // in an album, and user will go back and forth
   this.comments=[]; // Not storing this in the icon yet
+  this.likes=[];
 };
 goog.inherits(models.Model1.PhotoNode,models.Model1.TreeNode);
 
@@ -600,15 +600,48 @@ models.Model1.PhotoNode.prototype.exploreNode = function(model){
   var fbObj=model.fb;
   var _node=this;
   var fbId=curIcon.fbId;
+  var callBacksRemaining=0;
  
   var fbGetCommentsCB = function(apiResp){
     _node.addCommentsFromFBresponse(apiResp);
-    model.raiseOpenPhotoEvent();
+    callBacksRemaining--;
+    if(callBacksRemaining===0){
+      _node.callBacksCompleted(model);
+    }
   };
+
+  var fbGetLikesCB = function(apiResp){
+    _node.addLikesFromFBresponse(apiResp);
+    callBacksRemaining--;
+    if(callBacksRemaining===0){
+      _node.callBacksCompleted(model);
+    }
+  };
+
   fbObj.api('/'+fbId+'/comments',fbGetCommentsCB);
+  callBacksRemaining++;
   // TODO(varun): Implement paging when > 25 comments. Maybe paging is not
-  // for comments (as FB might return all in one go), but check that.
- 
+  // needed for comments (as FB might return all in one go), but check that.
+
+  var queryString='SELECT uid,name FROM user WHERE uid IN '+
+    '(SELECT user_id FROM like WHERE object_id="'+fbId+'")';
+  fbObj.api({method: 'fql.query',query: queryString},fbGetLikesCB);
+  callBacksRemaining++;
+};
+
+models.Model1.PhotoNode.prototype.callBacksCompleted = function(model){
+  this._isOpen=true;
+  model.raiseOpenPhotoEvent();
+};
+
+models.Model1.PhotoNode.prototype.addLikesFromFBresponse = 
+function (apiResp){
+  var likesArray=[];
+  if(apiResp['length']!==undefined){likesArray=apiResp;}
+  this.likes=likesArray;
+  // Each element of likesArray is an object with the following fields:
+  // uid: User id of liker
+  // name: Full name of liker
 };
 
 models.Model1.PhotoNode.prototype.addCommentsFromFBresponse = 
@@ -622,8 +655,6 @@ function (apiResp){
   //id: of the message, not of the person who posted
   // message: this field is the string that has the comment.
   // from={id,name} : the from field tells who posted the comment
-
-  this._isOpen=true;
 };
 
 
@@ -634,10 +665,11 @@ models.Model1.PhotoNode.prototype.closeNode = function(){
   // Dont close nodes for which alwaysCache flag is set
   if(!this._alwaysCache){
     goog.asserts.assert(this._children.length===0,
-        'Photo node should not have any children');
+        'Photo node should not have any children');        
     this._numPages=0;
     this._isOpen=false;
-    this._comments=[];
+    this.comments=[];
+    this.likes=[];
   }
 };
 
