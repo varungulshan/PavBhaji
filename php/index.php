@@ -81,6 +81,7 @@ if ($session) {
     <div class="navigation_button"></div>
   </div>
   <div class="top_bar" id="tool_bar">You have 4 albums and 32 friends</div>
+  <div id="loading_div">Loading...</div>
   <div id="console_wrapper_div">
     <div id="console_header_div">
       Comments(0)

@@ -94,6 +94,9 @@ view.MainView = function(model){
   this._photoDiv = document.getElementById('fullres_photo_div');
   this._photoImg = document.getElementById('fullres_photo_img');
   this._photoCaption = document.getElementById('caption_div');
+  
+  this._loadingDiv = document.getElementById('loading_div');
+  
 }
 
 // TODO: We should probably move this to a common area

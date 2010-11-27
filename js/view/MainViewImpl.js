@@ -27,11 +27,13 @@ goog.exportSymbol('view.MainViewImpl.prototype.initialize',
   view.MainViewImpl.prototype.initialize);
 
 view.MainViewImpl.prototype.openFolderEventHandler = function() {
+  this._loadingDiv.style.visibility = 'hidden';
   this._currentIconNode = this._model.getOpenIcon();
   this.updateView();
 }
 
 view.MainViewImpl.prototype.openPhotoEventHandler = function() {
+  this._loadingDiv.style.visibility = 'hidden';
   var photoObj = this._model.getCurrentPhoto();
   this.photoViewDisplayPhoto(photoObj);
 }

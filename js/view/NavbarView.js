@@ -47,5 +47,6 @@ view.MainViewImpl.prototype.navbarViewClickHandler = function(idx) {
   this.photoViewClosePhoto();
   var parentNodes = this._model.getCurrentPathIcons();
   goog.asserts.assert(idx  < parentNodes.length);
+  this._loadingDiv.style.visibility = 'visible';
   this._model.gotoIcon(parentNodes[idx]);
 }
