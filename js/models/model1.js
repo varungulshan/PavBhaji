@@ -211,6 +211,9 @@ models.Model1.resourceDir = '../resources/'; // This path needs to be
     // relative to the document which is loaded, need to be more
     // smarter on how to set it
 
+models.Model1.numRecentAlbums = 50;
+models.Model1.numRecentPhotos = 50;
+
 models.Model1.getProfilePicUrl = function(userId,fbSession){
   var userPic = 'https://graph.facebook.com/'+userId+'/picture'+
                 '?access_token='+fbSession['access_token'];
@@ -341,8 +344,18 @@ models.Model1.HomeNode.prototype.exploreNode = function(model){
   var friendsNode = new models.Model1.FriendsNode(friendsIcon);
   model.friendsNode=friendsNode;
 
-  this.addChildren([userNode,friendsNode]);
-  goog.asserts.assert(model.pageSize>=2,'Expected page size>=2');
+  var recentPhotosPic = models.Model1.resourceDir+'recent.jpg';
+  var recentPhotosIcon = new common.RecentPhotosIcon('Recent photos',
+      recentPhotosPic,0,0);
+  var recentPhotosNode = new models.Model1.RecentPhotosNode(recentPhotosIcon);
+
+  var recentAlbumsPic = models.Model1.resourceDir+'recent.jpg';
+  var recentAlbumsIcon = new common.RecentAlbumsIcon('Recent albums',
+      recentAlbumsPic,0,0);
+  var recentAlbumsNode = new models.Model1.RecentAlbumsNode(recentAlbumsIcon);
+  
+  this.addChildren([userNode,friendsNode,recentAlbumsNode,recentPhotosNode]);
+  goog.asserts.assert(model.pageSize>=4,'Expected page size>=4');
   // assert to ensure that this hand insertion of two children does
   // not violate page size limits
   this._isOpen=1;
@@ -398,6 +411,121 @@ models.Model1.FriendsNode.prototype.addFriendsFromFBresponse =
     };
 
 // --- End implementation of FriendsNode ---------
+
+// --- Being implementation of RecentPhotosNode -----
+models.Model1.RecentPhotosNode = function(iconNode){
+  goog.asserts.assert(iconNode instanceof common.RecentPhotosIcon);
+  models.Model1.TreeNode.call(this,iconNode,false);
+  this._alwaysCache=true;
+};
+goog.inherits(models.Model1.RecentPhotosNode,models.Model1.TreeNode);
+
+models.Model1.RecentPhotosNode.prototype.exploreNode = function(model){
+  if(this.isOpen()){
+    model.raiseOpenFolderEvent();
+    return;
+  }
+  // Else need to make a FB api call
+  var fbObj=model.fb;
+  var _node=this;
+  var pageSize=model.pageSize;
+
+  var fbOpenRecentPhotosCB = function(apiResponse){
+    _node.addPhotosFromFBresponse(apiResponse,fbObj,pageSize);
+    model.raiseOpenFolderEvent();
+  };
+  var queryString=
+      'SELECT caption,src,src_big,src_big_height,src_big_width,object_id '+
+      'FROM photo WHERE pid IN'+
+      '(SELECT pid FROM photo_tag WHERE subject IN'+
+      '(SELECT uid2 FROM friend WHERE uid1 = me()) '+
+      'order by created desc limit '+models.Model1.numRecentPhotos.toString()+
+      ')';
+  fbObj.api({method: 'fql.query',query: queryString},fbOpenRecentPhotosCB);
+  // TODO: check if the above call can be made simpler/faster
+};
+
+// This function is exact copy from AlbumNode function
+models.Model1.RecentPhotosNode.prototype.addPhotosFromFBresponse =
+function(apiResp,pageSize){
+  var photos=apiResp;
+  if(photos['length']===undefined){photos=[];} // This happens when album
+      // has no photos
+  //goog.asserts.assert(common.helpers.isArray(photos));
+  for(var i=0;i<photos.length;i++){
+    var photoObj=photos[i];
+    var photoCaption='';
+    if(photoObj['caption']){photoCaption=photoObj['caption'];}
+    var photoIcon = new common.PhotoIcon(photoCaption,photoObj['src'],0,0,
+        photoObj['object_id'],photoObj['src_big'],photoCaption,
+        photoObj['src_big_width'],photoObj['src_big_height']);
+
+    var photoNode = new models.Model1.PhotoNode(photoIcon);
+    this.addChildren(photoNode);
+  }
+  this._isOpen=true;
+  this._numPages=Math.ceil(this._children.length/pageSize);
+};
+
+// --- End implementation of FriendsNode ---------
+
+
+
+// --- Being implementation of RecentAlbumsNode -----
+models.Model1.RecentAlbumsNode = function(iconNode){
+  goog.asserts.assert(iconNode instanceof common.RecentAlbumsIcon);
+  models.Model1.TreeNode.call(this,iconNode,false);
+  this._alwaysCache=true;
+};
+goog.inherits(models.Model1.RecentAlbumsNode,models.Model1.TreeNode);
+
+models.Model1.RecentAlbumsNode.prototype.exploreNode = function(model){
+  if(this.isOpen()){
+    model.raiseOpenFolderEvent();
+    return;
+  }
+  // Else need to make a FB api call
+  var fbObj=model.fb;
+  var _node=this;
+  var pageSize=model.pageSize;
+
+  var fbOpenRecentAlbumsCB = function(apiResponse){
+    _node.addAlbumsFromFBresponse(apiResponse,fbObj,pageSize);
+    model.raiseOpenFolderEvent();
+  };
+  var queryString='SELECT aid,name,object_id FROM album WHERE owner IN'+
+      '(SELECT uid2 FROM friend WHERE uid1 = me()) '+
+      'order by modified desc limit '+models.Model1.numRecentAlbums.toString();
+  fbObj.api({method: 'fql.query',query: queryString},fbOpenRecentAlbumsCB);
+  // TODO: check if the above call can be made simpler/faster
+};
+
+// This function is exact copy from PersonNode function
+models.Model1.RecentAlbumsNode.prototype.addAlbumsFromFBresponse = 
+function(apiResp,fbObj,pageSize){
+  var albums=apiResp;
+  if(apiResp['length']===undefined){albums=[];} // this happens when user
+      // has no albums
+  var fbSession=fbObj.getSession();
+  //goog.asserts.assert(common.helpers.isArray(albums),
+      //'Expected API call for albums to return array');
+  for(var i=0;i<albums.length;i++){
+    var albumObj=albums[i];
+    var albumName='';
+    if(albumObj['name']){albumName=albumObj['name'];}
+    var albumIcon = new common.AlbumIcon(albumName,
+        models.Model1.getAlbumPicUrl(albumObj['object_id'],fbSession),
+        0,0,albumObj['aid'],albumObj['object_id']);
+    var albumNode = new models.Model1.AlbumNode(albumIcon);
+    this.addChildren(albumNode);
+  }
+  this._isOpen=true;
+  this._numPages=Math.ceil(this._children.length/pageSize);
+};
+
+
+// --- End implementation of FriendsNode ---------
+
 
 // --- Begin implementation of PersonNode -------
 models.Model1.PersonNode = function(iconNode){
