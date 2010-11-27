@@ -25,6 +25,21 @@ common.IconNode = function(iconText,iconImgUrl,fileDepth,fileIdx){
   //this.nextAvailable=false;
 };
 
+common.RecentPhotosIcon = function(iconText,iconImgUrl,fileDepth,fileIdx){
+  common.IconNode.call(this,iconText,iconImgUrl,fileDepth,fileIdx);
+  this.navText='Rec Photos';
+};
+goog.inherits(common.RecentPhotosIcon,common.IconNode); // This call simulates
+// inheritance, and needs to be made after the class declaration.
+
+common.RecentAlbumsIcon = function(iconText,iconImgUrl,fileDepth,fileIdx){
+  common.IconNode.call(this,iconText,iconImgUrl,fileDepth,fileIdx);
+  this.navText='Rec Albums';
+};
+goog.inherits(common.RecentAlbumsIcon,common.IconNode); // This call simulates
+// inheritance, and needs to be made after the class declaration.
+
+
 common.PersonIcon = function(iconText,iconImgUrl,fileDepth,fileIdx, 
                                  fbId,name){
   common.IconNode.call(this,iconText,iconImgUrl,fileDepth,fileIdx);
