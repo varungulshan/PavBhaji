@@ -32,6 +32,7 @@ view.MainView = function(model){
   this._maxImageWidth = 700;
   this._maxImageHeight = 540;
   this._numImageHolders = 25;
+  this._currentPhotoIndex = -1; // keeps track of the current photo being shown
   // attach tooltips
   var imageHolders = common.helpers.getElementByTagAndClassName('div',
                                                                 'image_holder');
@@ -60,12 +61,22 @@ view.MainView = function(model){
   var closePhotoButtonClickHandlerClosure = function () {
     _view.photoViewClosePhotoButtonClickHandler(); 
   }
+  var nextPhotoButtonClickHandlerClosure = function () {
+    _view.photoViewNextButtonClickHandler(); 
+  }
+  var prevPhotoButtonClickHandlerClosure = function () {
+    _view.photoViewPrevButtonClickHandler(); 
+  }
   document.getElementById('prev_button').onclick = 
     imageArrayViewPrevClickHandlerClosure;
   document.getElementById('next_button').onclick = 
     imageArrayViewNextClickHandlerClosure;
   document.getElementById('fullres_photo_close_button').onclick =
     closePhotoButtonClickHandlerClosure;
+  document.getElementById('fullres_photo_next_button').onclick =
+    nextPhotoButtonClickHandlerClosure;
+  document.getElementById('fullres_photo_prev_button').onclick =
+    prevPhotoButtonClickHandlerClosure;
   //add console zippy
   this._consoleZippy = new goog.ui.AnimatedZippy('console_header_div',
                                                  'console_content_div');
@@ -211,8 +222,22 @@ view.MainView.prototype.consoleViewUpdateNumComments = view.MainView.errorFn;
 view.MainView.prototype.photoViewDisplayPhoto = view.MainView.errorFn;
 
 /**
- * view.PhotoViewClosePhotoButtonClickHandler
+ * view.photoViewClosePhotoButtonClickHandler
  * Invoked when a user closes an open photo
  */ 
 view.MainView.prototype.photoViewClosePhotoButtonClickHandler =
     view.MainView.errorFn;
+
+/**
+ * view.photoViewNextButtonClickHandler
+ * goto next image in album, cycle if we have reached the end
+ */
+view.MainView.prototype.photoViewNextButtonClickHandler = 
+  view.MainView.errorFn;
+
+/**
+ * view.photoViewPrevButtonClickHandler
+ * goto prev image in album, cycle if we have reached the beginning
+ */
+view.MainView.prototype.photoViewPrevButtonClickHandler = 
+  view.MainView.errorFn;

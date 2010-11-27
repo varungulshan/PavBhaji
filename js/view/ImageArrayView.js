@@ -53,6 +53,7 @@ view.MainViewImpl.prototype.imageArrayViewUpdatePage = function () {
 view.MainViewImpl.prototype.imageArrayViewClickHandler = function (idx) {
   this.photoViewClosePhoto();
   goog.asserts.assert(idx < this._childIconNodes.length);
+  this._currentPhotoIndex = idx;
   this._model.gotoIcon(this._childIconNodes[idx]);
 }
 
