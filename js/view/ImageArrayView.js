@@ -12,7 +12,6 @@ goog.require('view.MainView');
 
 view.MainViewImpl.prototype.imageArrayViewUpdate = function () {
   this._childIconNodes = this._model.getCurrentIcons();
-  this._currentPage = 0;
   this.imageArrayViewUpdatePage();
 }
 
@@ -21,7 +20,7 @@ view.MainViewImpl.prototype.imageArrayViewUpdatePage = function () {
                                                                 'image_holder');
   var numImageHolders = this._numImageHolders;
   var view = this;
-  var idx = this._currentPage * numImageHolders;
+  var idx = this._currentIconNode.curPageNum * numImageHolders;
   goog.asserts.assert( imageHolders.length == numImageHolders);
   for (var i = 0; i < numImageHolders; ++i, ++idx) {
     if ( idx < this._childIconNodes.length) {
@@ -40,7 +39,7 @@ view.MainViewImpl.prototype.imageArrayViewUpdatePage = function () {
       imageHolders[i].style.visibility = 'hidden';
     }
   }
-  if (this._currentPage > 0)
+  if (this._currentIconNode.curPageNum > 0)
     document.getElementById('prev_button').style.visibility = 'visible';
   else
     document.getElementById('prev_button').style.visibility = 'hidden';
@@ -58,12 +57,12 @@ view.MainViewImpl.prototype.imageArrayViewClickHandler = function (idx) {
 }
 
 view.MainViewImpl.prototype.imageArrayViewNextClickHandler = function () {
-  this._currentPage++;
+  this._currentIconNode.curPageNum++;
   this.imageArrayViewUpdatePage();
 }
 
 view.MainViewImpl.prototype.imageArrayViewPrevClickHandler = function () {
-  this._currentPage--;
-  goog.asserts.assert(this._currentPage >= 0);
+  this._currentIconNode.curPageNum--;
+  goog.asserts.assert(this._currentIconNode.curPageNum >= 0);
   this.imageArrayViewUpdatePage();
 }
