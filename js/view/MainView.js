@@ -58,7 +58,7 @@ view.MainView = function(model){
     _view.imageArrayViewNextClickHandler(); 
   }
   var closePhotoButtonClickHandlerClosure = function () {
-    _view.closePhotoButtonClickHandler(); 
+    _view.photoViewClosePhotoButtonClickHandler(); 
   }
   document.getElementById('prev_button').onclick = 
     imageArrayViewPrevClickHandlerClosure;
@@ -104,12 +104,6 @@ view.MainView.prototype.openFolderEventHandler =
 view.MainView.prototype.openPhotoEventHandler =
     view.MainView.errorFn;
 
-/**
- * view.closePhotoButtonClickHandler
- * Invoked when a user closes an open photo
- */ 
-view.MainView.prototype.closePhotoButtonClickHandler =
-    view.MainView.errorFn;
 
 /**
  * view.MainView.updateView()
@@ -206,3 +200,19 @@ view.MainView.prototype.consoleViewAdd = view.MainView.errorFn;
  */
 view.MainView.prototype.consoleViewUpdateNumComments = view.MainView.errorFn;
 
+//--------------------------------------------------------------------------
+// Functions for PhotoView
+// -------------------------------------------------------------------------
+
+/** view.photoViewDisplayPhoto(photoObj: PhotoObject)
+ *
+ * Given a photo object, sets it up for viewing
+ */
+view.MainView.prototype.photoViewDisplayPhoto = view.MainView.errorFn;
+
+/**
+ * view.PhotoViewClosePhotoButtonClickHandler
+ * Invoked when a user closes an open photo
+ */ 
+view.MainView.prototype.photoViewClosePhotoButtonClickHandler =
+    view.MainView.errorFn;

@@ -40,6 +40,8 @@
             src="../js/view/ImageArrayView.js"></script>
     <script type="text/javascript" 
             src="../js/view/ConsoleView.js"></script>
+    <script type="text/javascript" 
+            src="../js/view/PhotoView.js"></script>
 
 <?php elseif($scriptMethod==='closureBuilt'): ?>
     <script type="text/javascript" 
