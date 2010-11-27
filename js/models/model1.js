@@ -25,6 +25,7 @@ models.Model1 = function(){
   this.userNode=null;
   this.friendsNode=null;
   this.pageSize=25;
+  this.busy=false;
   // TODO: remove pageSize after discussion with rahul
 };
 goog.inherits(models.Model1,models.AbstractModel);
@@ -94,6 +95,10 @@ models.Model1.prototype.getCurrentPathIcons = function(){
 };
 
 models.Model1.prototype.gotoIcon = function(targetIcon){
+  if(this.busy){
+    return -1; // Means request not processed
+  }
+  this.busy=true;
   goog.asserts.assert(targetIcon instanceof common.IconNode);
   var parentIconDepth=targetIcon.fileDepth-1;
   var iconChildIdx=targetIcon.fileIdx;
@@ -111,6 +116,7 @@ models.Model1.prototype.gotoIcon = function(targetIcon){
     this.currentState=models.Model1.State.folderView;
   }
   // TODO: set icon's nextAvailable property
+  return 0; // Means processed successfully
 };
 
 models.Model1.prototype._openNode = function(nodeToOpen){
@@ -148,12 +154,14 @@ models.Model1.prototype._openNode = function(nodeToOpen){
 
 models.Model1.prototype.raiseOpenPhotoEvent = function(){
   this._openPhotoEvent.notify();
+  this.busy=false;
 };
 
 models.Model1.prototype.raiseOpenFolderEvent = function(){
   goog.asserts.assert(this._openNodeList[this._openNodeIdx].isOpen(),
       'Expected node to be opened on the openFolder notification');
   this._openFolderEvent.notify();
+  this.busy=false;
 };
 
 models.Model1.prototype.attachToOpenFolderEvent = function(eventHandler){
