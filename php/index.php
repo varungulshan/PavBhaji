@@ -186,7 +186,13 @@ if ($session) {
         <img id="fullres_photo_img">
         </img>
         <img src="../resources/Button-Close-icon.png" 
-            id="fullres_photo_close_button">
+            id="fullres_photo_close_button" class="fullres_photo_buttons">
+        </img>
+        <img src="../resources/Button-Prev-Photo.png" 
+            id="fullres_photo_prev_button" class="fullres_photo_buttons">
+        </img>
+        <img src="../resources/Button-Next-Photo.png" 
+            id="fullres_photo_next_button" class="fullres_photo_buttons">
         </img>
         <div id="caption_div"></div>
   </div>

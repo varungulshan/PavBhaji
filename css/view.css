@@ -185,7 +185,19 @@ img#fullres_photo_close_button {
   right: -20px;
 }
 
-img#fullres_photo_close_button:hover {
+img#fullres_photo_prev_button {
+  position: absolute;
+  top: 50%;
+  left: -25px;
+}
+
+img#fullres_photo_next_button {
+  position: absolute;
+  top: 50%;
+  right: -25px;
+}
+
+img.fullres_photo_buttons:hover {
   cursor: pointer;
 }
 
