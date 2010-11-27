@@ -33,6 +33,7 @@ view.MainView = function(model){
   this._maxImageHeight = 540;
   this._numImageHolders = 25;
   this._currentPhotoIndex = -1; // keeps track of the current photo being shown
+  this._clearImage = "../resources/Clear.gif";
   // attach tooltips
   var imageHolders = common.helpers.getElementByTagAndClassName('div',
                                                                 'image_holder');
@@ -84,12 +85,16 @@ view.MainView = function(model){
   this._consoleHeader = document.getElementById("console_header_div");
   this._commenterColors = new Array("brown","darkblue","darkred",
                                "teal","olive");
-  // set up kye handling
+  // set up key handling
   this._keyHandler = new goog.events.KeyHandler(document);
   var handleKeyPressClosure = function(e) {
     _view.handleKeyPress(e);
   }
   goog.events.listen(this._keyHandler,'key', handleKeyPressClosure);
+  // cache some divs images in DOM for faster access
+  this._photoDiv = document.getElementById('fullres_photo_div');
+  this._photoImg = document.getElementById('fullres_photo_img');
+  this._photoCaption = document.getElementById('caption_div');
 }
 
 // TODO: We should probably move this to a common area
@@ -241,3 +246,9 @@ view.MainView.prototype.photoViewNextButtonClickHandler =
  */
 view.MainView.prototype.photoViewPrevButtonClickHandler = 
   view.MainView.errorFn;
+
+/**
+ *  view.photoViewIsOpen()
+ *  returns a boolean specifying whether the photoview is open or not
+ */
+view.MainView.prototype.photoViewIsOpen = view.MainView.errorFn;

@@ -183,7 +183,7 @@ if ($session) {
   <img src = "../resources/Button-Fast-Forward-icon.png" id="next_button"></img>
   </div>
   <div id="fullres_photo_div">
-        <img id="fullres_photo_img">
+        <img src="../resources/Clear.gif" id="fullres_photo_img">
         </img>
         <img src="../resources/Button-Close-icon.png" 
             id="fullres_photo_close_button" class="fullres_photo_buttons">

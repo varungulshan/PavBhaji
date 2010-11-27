@@ -52,6 +52,14 @@ view.MainViewImpl.prototype.handleKeyPress = function (e) {
     case goog.events.KeyCodes.CTRL:
       this._consoleZippy.toggle();
       break;
+    case goog.events.KeyCodes.RIGHT:
+      if (this.photoViewIsOpen())
+        this.photoViewNextButtonClickHandler();
+      break;
+    case goog.events.KeyCodes.LEFT:
+      if (this.photoViewIsOpen())
+        this.photoViewPrevButtonClickHandler();
+      break;
   }
 }
 
