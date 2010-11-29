@@ -14,6 +14,7 @@ goog.require('common.PhotoIcon');
 goog.require('common.PhotosOfPersonIcon');
 goog.require('models.AbstractModel');
 goog.require('goog.asserts');
+goog.require('goog.date');
 
 // ---- Begin implementation of Model1 ---------
 models.Model1 = function(){
@@ -24,9 +25,10 @@ models.Model1 = function(){
   this.currentState=models.Model1.State.folderView;
   this.userNode=null;
   this.friendsNode=null;
-  this.pageSize=25;
+  this.friendIds=[]; // Array of friend Ids
+  this.friendNameById={}; // Map between friend Id and name
+      // friendNameById['id']='friend name';
   this.busy=false;
-  // TODO: remove pageSize after discussion with rahul
 };
 goog.inherits(models.Model1,models.AbstractModel);
 goog.exportSymbol('models.Model1',models.Model1);
@@ -35,7 +37,6 @@ models.Model1.prototype.initialize = function(fbObj,userId){
   goog.asserts.assert(typeof userId === 'string');
   this.fb=fbObj;
   this.userId=userId;
-  this.pageSize=25; // Can make a parameter
 
   var rootIcon=new common.IconNode('root','',0,-1);
   var rootNode=new models.Model1.TreeNode(rootIcon,false);
@@ -45,7 +46,6 @@ models.Model1.prototype.initialize = function(fbObj,userId){
   var homeNode=new models.Model1.HomeNode(homeIcon); 
 
   rootNode.addChildren(homeNode);
-  rootNode._numPages=1; // Need this hacky private member access once!
   rootNode._isOpen=true; // Need this hacky private member access once!
 
   this._openNodeList=[rootNode]; //Array of open nodes, each node should be open
@@ -115,7 +115,6 @@ models.Model1.prototype.gotoIcon = function(targetIcon){
   }else{
     this.currentState=models.Model1.State.folderView;
   }
-  // TODO: set icon's nextAvailable property
   return 0; // Means processed successfully
 };
 
@@ -254,8 +253,6 @@ models.Model1.TreeNode = function(iconNode,isLeaf){
   this._isOpen=false;
   this._children=[]; // Array of TreeNodes
   this._alwaysCache=false; 
-  this._numPages=0;
-  // TODO: get rid of _numPages after discussion with rahul
 };
 
 /**
@@ -270,7 +267,6 @@ models.Model1.TreeNode.prototype.closeNode = function(){
   // Dont close nodes for which alwaysCache flag is set
   if(!this._alwaysCache){
     this._children=[];
-    this._numPages=0;
     this._isOpen=false;
   }
 };
@@ -353,23 +349,39 @@ models.Model1.HomeNode.prototype.exploreNode = function(model){
   model.friendsNode=friendsNode;
 
   var recentPhotosPic = models.Model1.resourceDir+'recent.jpg';
-  var recentPhotosIcon = new common.RecentPhotosIcon('Recent photos',
-      recentPhotosPic,0,0);
+  var recentPhotosIcon = new common.RecentPhotosIcon(recentPhotosPic,0,0);
   var recentPhotosNode = new models.Model1.RecentPhotosNode(recentPhotosIcon);
 
   var recentAlbumsPic = models.Model1.resourceDir+'recent.jpg';
-  var recentAlbumsIcon = new common.RecentAlbumsIcon('Recent albums',
-      recentAlbumsPic,0,0);
+  var recentAlbumsIcon = new common.RecentAlbumsIcon(recentAlbumsPic,0,0);
   var recentAlbumsNode = new models.Model1.RecentAlbumsNode(recentAlbumsIcon);
   
   this.addChildren([userNode,friendsNode,recentAlbumsNode,recentPhotosNode]);
-  goog.asserts.assert(model.pageSize>=4,'Expected page size>=4');
-  // assert to ensure that this hand insertion of two children does
-  // not violate page size limits
-  this._isOpen=1;
-  this._numPages=1;
-  model.raiseOpenFolderEvent();
 
+  this.loadFriends(model);
+  //this._isOpen=true;
+  //model.raiseOpenFolderEvent();
+
+};
+
+models.Model1.HomeNode.prototype.loadFriends = function(model){
+  var fbObj=model.fb;
+  var _node=this;
+  var fbOpenFriendsCB = function(apiResp){
+    var friends=apiResp['data'];
+    goog.asserts.assert(common.helpers.isArray(friends),
+        'Expected API call for friend list to return array');
+    for(var i=0;i<friends.length;i++){
+      var friendObj=friends[i];
+      var friendId=friendObj['id'];
+      model.friendIds.push(friendId);
+      model.friendNameById[friendId]=friendObj['name'];
+    }
+    _node._isOpen=true;
+    model.raiseOpenFolderEvent();
+    // this raise event is hacky, need to make an initialize event
+  };
+  fbObj.api('/me/friends',fbOpenFriendsCB);
 };
 
 // ---- End implementation of HomeNode ------
@@ -387,36 +399,24 @@ models.Model1.FriendsNode.prototype.exploreNode = function(model){
     model.raiseOpenFolderEvent();
     return;
   }
-  // Else need to make a FB api call
-  var fbObj=model.fb;
-  var _node=this;
-  var pageSize=model.pageSize;
-  var fbOpenFriendsCB = function(apiResponse){
-    _node.addFriendsFromFBresponse(apiResponse,fbObj,pageSize);
-    model.raiseOpenFolderEvent();
-  };
-  fbObj.api('/me/friends',fbOpenFriendsCB);
-  // TODO: check if this call returns all friends
-  // for huge friend lists
-};
 
-models.Model1.FriendsNode.prototype.addFriendsFromFBresponse = 
-    function(apiResp,fbObj,pageSize){
-      var friends=apiResp['data'];
-      var fbSession=fbObj.getSession();
-      goog.asserts.assert(common.helpers.isArray(friends),
-          'Expected API call for friend list to return array');
-      for(var i=0;i<friends.length;i++){
-        var friendObj=friends[i];
-        var friendIcon = new common.PersonIcon(friendObj['name'],
-            models.Model1.getProfilePicUrl(friendObj['id'],fbSession),
-            0,0,friendObj['id'],friendObj['name']);
-        var friendNode = new models.Model1.PersonNode(friendIcon);
-        this.addChildren(friendNode);
-      }
-      this._isOpen=true;
-      this._numPages=Math.ceil(this._children.length/pageSize);
-    };
+  var fbObj=model.fb;
+  var friendIds=model.friendIds;
+  var friendNameById=model.friendNameById;
+  var fbSession=fbObj.getSession();
+
+  for(var i=0;i<friendIds.length;i++){
+    var currentId=friendIds[i];
+    var currentName=friendNameById[currentId];
+    var friendIcon = new common.PersonIcon(currentName,
+        models.Model1.getProfilePicUrl(currentId,fbSession),
+        0,0,currentId,currentName);
+    var friendNode = new models.Model1.PersonNode(friendIcon);
+    this.addChildren(friendNode);
+  }
+  this._isOpen=true;
+  model.raiseOpenFolderEvent();
+};
 
 // --- End implementation of FriendsNode ---------
 
@@ -436,10 +436,9 @@ models.Model1.RecentPhotosNode.prototype.exploreNode = function(model){
   // Else need to make a FB api call
   var fbObj=model.fb;
   var _node=this;
-  var pageSize=model.pageSize;
 
   var fbOpenRecentPhotosCB = function(apiResponse){
-    _node.addPhotosFromFBresponse(apiResponse,fbObj,pageSize);
+    _node.addPhotosFromFBresponse(apiResponse,fbObj);
     model.raiseOpenFolderEvent();
   };
   var queryString=
@@ -455,7 +454,7 @@ models.Model1.RecentPhotosNode.prototype.exploreNode = function(model){
 
 // This function is exact copy from AlbumNode function
 models.Model1.RecentPhotosNode.prototype.addPhotosFromFBresponse =
-function(apiResp,pageSize){
+function(apiResp){
   var photos=apiResp;
   if(photos['length']===undefined){photos=[];} // This happens when album
       // has no photos
@@ -472,7 +471,6 @@ function(apiResp,pageSize){
     this.addChildren(photoNode);
   }
   this._isOpen=true;
-  this._numPages=Math.ceil(this._children.length/pageSize);
 };
 
 // --- End implementation of FriendsNode ---------
@@ -495,22 +493,27 @@ models.Model1.RecentAlbumsNode.prototype.exploreNode = function(model){
   // Else need to make a FB api call
   var fbObj=model.fb;
   var _node=this;
-  var pageSize=model.pageSize;
 
   var fbOpenRecentAlbumsCB = function(apiResponse){
-    _node.addAlbumsFromFBresponse(apiResponse,fbObj,pageSize);
+    _node.addAlbumsFromFBresponse(apiResponse,fbObj,model.friendNameById);
     model.raiseOpenFolderEvent();
   };
-  var queryString='SELECT aid,name,object_id FROM album WHERE owner IN'+
-      '(SELECT uid2 FROM friend WHERE uid1 = me()) '+
-      'order by modified desc limit '+models.Model1.numRecentAlbums.toString();
+
+  var timeThresh = new goog.date.Date();
+  var monthInterval = new goog.date.Interval(0,0,-7); 
+      // 0 years, 0 months, -7 days
+  timeThresh.add(monthInterval);
+  var queryString='SELECT aid,name,object_id,owner FROM album WHERE '+
+      'modified > '+(timeThresh.getTime()/1000).toString()+
+      ' AND owner IN (SELECT uid2 FROM friend WHERE uid1 = me()) '+
+      ' order by modified desc limit '+models.Model1.numRecentAlbums.toString();
   fbObj.api({method: 'fql.query',query: queryString},fbOpenRecentAlbumsCB);
   // TODO: check if the above call can be made simpler/faster
+  // seems like the time threshold doesnt affect anything
 };
 
-// This function is exact copy from PersonNode function
 models.Model1.RecentAlbumsNode.prototype.addAlbumsFromFBresponse = 
-function(apiResp,fbObj,pageSize){
+function(apiResp,fbObj,friendNameById){
   var albums=apiResp;
   if(apiResp['length']===undefined){albums=[];} // this happens when user
       // has no albums
@@ -521,14 +524,15 @@ function(apiResp,fbObj,pageSize){
     var albumObj=albums[i];
     var albumName='';
     if(albumObj['name']){albumName=albumObj['name'];}
-    var albumIcon = new common.AlbumIcon(albumName,
+    var iconText = common.helpers.shortenText(albumName,6) +
+                   ' by '+friendNameById[albumObj['owner']];
+    var albumIcon = new common.AlbumIcon(iconText,
         models.Model1.getAlbumPicUrl(albumObj['object_id'],fbSession),
-        0,0,albumObj['aid'],albumObj['object_id']);
+        0,0,albumObj['aid'],albumObj['object_id'],albumName);
     var albumNode = new models.Model1.AlbumNode(albumIcon);
     this.addChildren(albumNode);
   }
   this._isOpen=true;
-  this._numPages=Math.ceil(this._children.length/pageSize);
 };
 
 
@@ -563,9 +567,8 @@ models.Model1.PersonNode.prototype.exploreNode = function(model){
   var fbId=curIcon.fbId;
   var fbObj=model.fb;
   var _node=this;
-  var pageSize=model.pageSize;
   var fbGetAlbumsCB = function(apiResp){
-    _node.addAlbumsFromFBresponse(apiResp,fbObj,pageSize);
+    _node.addAlbumsFromFBresponse(apiResp,fbObj);
     model.raiseOpenFolderEvent();
   };
   //fbObj.api('/'+fbId+'/albums',fbGetAlbumsCB);
@@ -574,7 +577,7 @@ models.Model1.PersonNode.prototype.exploreNode = function(model){
 };
 
 models.Model1.PersonNode.prototype.addAlbumsFromFBresponse = 
-function(apiResp,fbObj,pageSize){
+function(apiResp,fbObj){
   var albums=apiResp;
   if(apiResp['length']===undefined){albums=[];} // this happens when user
       // has no albums
@@ -587,12 +590,11 @@ function(apiResp,fbObj,pageSize){
     if(albumObj['name']){albumName=albumObj['name'];}
     var albumIcon = new common.AlbumIcon(albumName,
         models.Model1.getAlbumPicUrl(albumObj['object_id'],fbSession),
-        0,0,albumObj['aid'],albumObj['object_id']);
+        0,0,albumObj['aid'],albumObj['object_id'],albumName);
     var albumNode = new models.Model1.AlbumNode(albumIcon);
     this.addChildren(albumNode);
   }
   this._isOpen=true;
-  this._numPages=Math.ceil(this._children.length/pageSize);
 };
 
 // --- End implementation of PersonNode ---------
@@ -616,9 +618,8 @@ models.Model1.AlbumNode.prototype.exploreNode = function(model){
   var _node=this;
   var fqlId=curIcon.fqlId;
  
-  var pageSize=model.pageSize;
   var fbGetPhotosCB = function(apiResp){
-    _node.addPhotosFromFBresponse(apiResp,pageSize);
+    _node.addPhotosFromFBresponse(apiResp);
     model.raiseOpenFolderEvent();
   };
   //fbObj.api('/'+fbId+'/photos',fbGetPhotosCB);
@@ -630,7 +631,7 @@ models.Model1.AlbumNode.prototype.exploreNode = function(model){
 };
 
 models.Model1.AlbumNode.prototype.addPhotosFromFBresponse =
-function(apiResp,pageSize){
+function(apiResp){
   var photos=apiResp;
   if(photos['length']===undefined){photos=[];} // This happens when album
       // has no photos
@@ -647,7 +648,6 @@ function(apiResp,pageSize){
     this.addChildren(photoNode);
   }
   this._isOpen=true;
-  this._numPages=Math.ceil(this._children.length/pageSize);
 };
 
 // --- End implementation of AlbumNode -------
@@ -673,9 +673,8 @@ models.Model1.PhotosOfPersonNode.prototype.exploreNode = function(model){
   var _node=this;
   var fbId=curIcon.fbId;
  
-  var pageSize=model.pageSize;
   var fbGetPhotosCB = function(apiResp){
-    _node.addPhotosFromFBresponse(apiResp,pageSize);
+    _node.addPhotosFromFBresponse(apiResp);
     model.raiseOpenFolderEvent();
   };
   var queryString=
@@ -688,7 +687,7 @@ models.Model1.PhotosOfPersonNode.prototype.exploreNode = function(model){
 };
 
 models.Model1.PhotosOfPersonNode.prototype.addPhotosFromFBresponse =
-function(apiResp,pageSize){
+function(apiResp){
   var photos=apiResp;
   if(photos['length']===undefined){photos=[];} // This happens when no photos
       // of the user are available
@@ -708,7 +707,6 @@ function(apiResp,pageSize){
     this.addChildren(photoNode);
   }
   this._isOpen=true;
-  this._numPages=Math.ceil(this._children.length/pageSize);
 };
 
 
@@ -802,7 +800,6 @@ models.Model1.PhotoNode.prototype.closeNode = function(){
   if(!this._alwaysCache){
     goog.asserts.assert(this._children.length===0,
         'Photo node should not have any children');        
-    this._numPages=0;
     this._isOpen=false;
     this.comments=[];
     this.likes=[];
