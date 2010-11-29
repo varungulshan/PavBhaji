@@ -34,7 +34,8 @@ view.MainViewImpl.prototype.imageArrayViewUpdatePage = function () {
       }(idx);
       common.helpers.setText(imageHolders[i].children[1],
           this._childIconNodes[idx].iconText);
-      this._imageArrayToolTips[i].setText(this._childIconNodes[idx].iconText);
+      this._imageArrayToolTips[i].setText(
+          this._childIconNodes[idx].toolTipText);
     } else {
       imageHolders[i].style.visibility = 'hidden';
     }
