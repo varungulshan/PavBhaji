@@ -213,6 +213,11 @@ view.MainView.prototype.consoleViewClear = view.MainView.errorFn;
  */
 view.MainView.prototype.consoleViewAdd = view.MainView.errorFn;
 
+/** view.MainView.consoleViewAddCommentArea()
+ * adds a text area and a button for the user to make comment
+ */
+view.MainView.prototype.consoleViewAddCommentArea = view.MainView.errorFn;
+
 /** view.MainView.consoleViewUpdateNumComments(num: number)
  * show the number of comments on the photo
  */

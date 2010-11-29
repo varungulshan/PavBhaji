@@ -53,6 +53,7 @@ view.MainViewImpl.prototype.photoViewDisplayPhoto = function(photoObj) {
       '</span>: ' + photoObj.commentArray[i].message;
     this.consoleViewAdd(HTMLstring);
   }
+  this.consoleViewAddCommentArea();
 
 }
 

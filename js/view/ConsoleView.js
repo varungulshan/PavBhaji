@@ -26,6 +26,19 @@ view.MainViewImpl.prototype.consoleViewAdd = function (str) {
   this._consoleContent.appendChild(divelement);
 }
 
+view.MainViewImpl.prototype.consoleViewAddCommentArea = function () {
+  var divelement = document.createElement("div");
+  divelement.id = "comment_div";
+  var textarea_element = document.createElement("textarea");
+  textarea_element.id = "comment_area";
+  var comment_button = document.createElement("div");
+  common.helpers.setText(comment_button,"Comment");
+  comment_button.setAttribute("class","fb_button");
+  divelement.appendChild(textarea_element);
+  divelement.appendChild(comment_button);
+  this._consoleContent.appendChild(divelement);
+}
+
 view.MainViewImpl.prototype.consoleViewUpdateNumComments = function (num) {
   var headerString = "Comments("+num.toString()+")";
   common.helpers.setText(this._consoleHeader, headerString);
