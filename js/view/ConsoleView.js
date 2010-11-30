@@ -31,6 +31,7 @@ view.MainViewImpl.prototype.consoleViewAddCommentArea = function () {
   divelement.id = "comment_div";
   var textarea_element = document.createElement("textarea");
   textarea_element.id = "comment_area";
+  textarea_element.rows = 2;
   var comment_button = document.createElement("div");
   common.helpers.setText(comment_button,"Comment");
   comment_button.setAttribute("class","fb_button");

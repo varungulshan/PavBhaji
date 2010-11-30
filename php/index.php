@@ -178,11 +178,14 @@ if ($session) {
     </tr>
   </table>
   </div>
+  <div id="quick_access_bar"> Jump to page:
+  </div>
   <div id="button_holder">
   <img src = "../resources/Button-Rewind-icon.png" id="prev_button"></img>
   <img src = "../resources/Button-Play-icon.png" id="play_pause_button"></img>
   <img src = "../resources/Button-Fast-Forward-icon.png" id="next_button"></img>
   </div>
+  <div id="outer_photo_div">
   <div id="fullres_photo_div">
         <img src="../resources/Clear.gif" id="fullres_photo_img">
         </img>
@@ -196,6 +199,7 @@ if ($session) {
             id="fullres_photo_next_button" class="fullres_photo_buttons">
         </img>
         <div id="caption_div"></div>
+  </div>
   </div>
   <script>
     var model = new models.Model1();

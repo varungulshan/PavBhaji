@@ -5,15 +5,26 @@ div {
 div.top_bar {
   background-color: #3B5998;
   color: #FFFFFF;
-  width: 48%;
+  width: 50%;
   height: 20px;
-  float: left;
-  margin: 2px 2px;
   padding: 2px;
   overflow: hidden;
   font-size: 11px;
   font-weight: bold;
   text-align: center;
+  z-index: 10;
+}
+
+div#navigation_bar {
+  position: fixed;
+  top : 0px;
+  left: 0px;
+}
+
+div#tool_bar {
+  position: fixed;
+  top: 0px;
+  left: 50%;
 }
 
 div.navigation_button {
@@ -41,8 +52,8 @@ div.navigation_button:hover {
 
 div#loading_div {
   text-align: center;
-  position: absolute;
-  top:34px;
+  position: fixed;
+  top:23px;
   left:45%;
   width: 10%;
   height: 13px;
@@ -51,11 +62,11 @@ div#loading_div {
   font-size: 11px;
   font-weight: bold;
   visibility: hidden;
-  z-index: 8;
+  z-index: 9;
 }
 
 div#console_wrapper_div {
-  position:absolute;
+  position:fixed;
   top: 0px;
   left: 0px;
   width: 100%;
@@ -105,15 +116,34 @@ div#comment_div {
   font-weight: bold;
 }
 
+div#quick_access_bar {
+  width: 4%;
+  height: 80%;
+  background-color: #d8dfea;
+  position: fixed;
+  top: 34px;
+  left: 0px;
+  z-index: 7;
+}
+
+div#quick_access_bar_button {
+  border: 1px solid black;
+}
+
+div#quick_access_bar_button:hover {
+  cursor: pointer;
+}
+
 div#icon_table {
   text-align: center;
 }
 
 #icon_table table {
   width: 98%;
-  position: fixed;
+  position: absolute;
   top: 34px;
   left: 0px;
+  z-index: 6;
 }
 
 
@@ -165,11 +195,16 @@ img#next_button {
   visibility: hidden;
 }
 
+div#outer_photo_div {
+  position: fixed;
+  top: 34px;
+  left: 0;
+  width: 100%;
+}
+
 div#fullres_photo_div {
   position: relative;
-  top: 34px;
-  left: 0px;
-  width: 50%;
+  top: 0px;
   background-color: #eeeeee;
   background-image: url('../resources/loading.gif');
   background-repeat: no-repeat;
@@ -183,11 +218,11 @@ div#fullres_photo_div {
   -moz-box-shadow: 3px 3px 8px #000;
   -webkit-box-shadow: 3px 3px 8px #000;
   box-shadow: 3px 3px 8px #000;
-  z-index: 1;
+  z-index: 8;
 }
 
 img#fullres_photo_img {
-  position: absolute;
+  position: relative;
   top: 0px;
   left: 0px;
   max-height: 540px;  /*will not work in IE*/ 
@@ -235,6 +270,7 @@ div#caption_div {
       border: 1px solid infotext;
       padding: 1px;
       font: menu;
+      z-index: 10;
 }
 
 .fb_button {

@@ -47,6 +47,8 @@ view.MainViewImpl.prototype.updateView = function() {
   // this.contextbarViewUpdate();
   // update image array
   this.imageArrayViewUpdate();
+  // update quick Access Bar
+  this.quickAccessBarViewUpdate();
 }
 
 view.MainViewImpl.prototype.handleKeyPress = function (e) {
@@ -61,6 +63,12 @@ view.MainViewImpl.prototype.handleKeyPress = function (e) {
     case goog.events.KeyCodes.LEFT:
       if (this.photoViewIsOpen())
         this.photoViewPrevButtonClickHandler();
+      break;
+    case goog.events.KeyCodes.ESC:
+      if (this._consoleZippy.isExpanded())
+        this.consoleViewClose();
+      else if (this.photoViewIsOpen())
+        this.photoViewClosePhotoButtonClickHandler();
       break;
   }
 }

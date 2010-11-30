@@ -4,7 +4,7 @@
  *
  * It is useful to think of the this class in a heirarchical structure with
  * MainView at the top and NavbarView, ContextbarView, ImageArrayView, PhotoView
- * at the next level. We should ideally have separate classes for these but
+ * etc. at the next level. We should ideally have separate classes for these but
  * there seems to be cyclic dependency between them. For now, we encode this
  * association in function/data name prefixes
  *
@@ -31,6 +31,7 @@ view.MainView = function(model){
   this._maxImageWidth = 700;
   this._maxImageHeight = 540;
   this._numImageHolders = 25;
+  this._maxQuickAccessBarIcons = 26;
   this._currentPhotoIndex = -1; // keeps track of the current photo being shown
   this._clearImage = "../resources/Clear.gif";
   // attach tooltips
@@ -96,7 +97,8 @@ view.MainView = function(model){
   this._photoCaption = document.getElementById('caption_div');
   
   this._loadingDiv = document.getElementById('loading_div');
-  
+
+  this._quickAccessBar = document.getElementById('quick_access_bar');  
 }
 
 // TODO: We should probably move this to a common area
@@ -135,6 +137,21 @@ view.MainView.prototype.updateView = view.MainView.errorFn;
  *  handles different key presses
  */
 view.MainView.prototype.handleKeyPress = view.MainView.errorFn;
+
+//------------------------------------------------------------------------
+//Functions for Quick Access Bar
+//------------------------------------------------------------------------
+
+/** view.MainView.quickAccessBarUpdate()
+ * updates the quickAccessBar based on childIconNodes
+ */
+view.MainView.prototype.quickAccessBarViewUpdate = view.MainView.errorFn;
+
+/** view.MainView.quickAccessBarClickHandler(page_num: number)
+ * call back for a button on quick Acccess Bar
+ * jumps to the clicked page
+ */
+view.MainView.prototype.quickAccessBarViewClickHandler = view.MainView.errorFn;
  
 //--------------------------------------------------------------------------
 // Functions for NavbarView
