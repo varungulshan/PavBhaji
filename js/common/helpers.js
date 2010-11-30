@@ -10,6 +10,10 @@ common.helpers.isArray = function(x){
   }else{return false;}
 };
 
+common.helpers.isEmptyString = function(str){
+  return (str==='');
+};
+
 common.helpers.getElementByTagAndClassName = function(tagName, className) {
   var elements = document.getElementsByTagName(tagName);
   var myclass = new RegExp('\\b'+className+'\\b');

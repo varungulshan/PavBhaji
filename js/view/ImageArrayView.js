@@ -39,7 +39,8 @@ view.MainViewImpl.prototype.imageArrayViewAddImageHolder =
   imgelement.src = this._childIconNodes[idx].iconImgUrl;
   var pelement = document.createElement("p");
   common.helpers.setText(pelement, this._childIconNodes[idx].iconText);
-  //var tip = new goog.ui.ToolTip(divelement, this._childIconNodes[idx].);
+  var tip = new goog.ui.Tooltip(divelement, 
+    this._childIconNodes[idx].toolTipText);
   divelement.appendChild(imgelement);
   divelement.appendChild(pelement);
   divelement.onclick =  function(value) {
