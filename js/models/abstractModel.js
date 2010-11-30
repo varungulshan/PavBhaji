@@ -12,11 +12,12 @@ models.AbstractModel = function(){
   this.fb = {};
   this._openFolderEvent = new common.Event(this);
   this._openPhotoEvent = new common.Event(this);
+  this._addCommentEvent = new common.Event(this);
 };
 
 models.AbstractModel.errorFn = common.helpers.virtualErrorFn;
 
-// model.initialize(FB,userId);
+// model.initialize(FB,userId); [async]
 models.AbstractModel.prototype.initialize = models.AbstractModel.errorFn;
 
 /**
@@ -35,6 +36,15 @@ models.AbstractModel.prototype.attachToOpenFolderEvent =
  * instead, the event handler should make suitable api calls to get data
  */ 
 models.AbstractModel.prototype.attachToOpenPhotoEvent =
+    models.AbstractModel.errorFn;
+
+/**
+ * model.attachToAddCommentEvent(eventHandlerFn :function)
+ * Causes eventHandlerFn to be called whenever a notification happens
+ * on the _addCommentEvent. No parameters are passed to the eventHandlerFn
+ * instead, the event handler should make suitable api calls to get data
+ */ 
+models.AbstractModel.prototype.attachToAddCommentEvent =
     models.AbstractModel.errorFn;
 
 /**
@@ -72,12 +82,21 @@ models.AbstractModel.prototype.getCurrentIcons = models.AbstractModel.errorFn;
 models.AbstractModel.prototype.getCurrentPhoto = models.AbstractModel.errorFn;
 
 /**
+ * model.addComment(message :string) [async]
+ * Adds a comment to the currently open photo (errors if not viewing
+ * a photo). This function raises the commentAddedEvent
+ * TODO: If comment adding was not successful, somehow need to inform
+ * of that also.
+ */
+models.AbstractModel.prototype.addComment = models.AbstractModel.errorFn;
+
+/**
  * Function to close the photo, will not raise any open folder event
  */
 models.AbstractModel.prototype.closeCurrentPhoto = models.AbstractModel.errorFn;
 
 /**
- * model.gotoIcon(targetIcon :common.IconNode)
+ * model.gotoIcon(targetIcon :common.IconNode) [async]
  * This api call causes model to open a particular icon. Depending on the
  * status of the icon (whether leaf or directory), this can either cause a
  * _openFolderEvent, or a _openPhotoEvent to be notified.

@@ -156,6 +156,11 @@ models.Model1.prototype.raiseOpenPhotoEvent = function(){
   this.busy=false;
 };
 
+models.Model1.prototype.raiseCommentAddedEvent = function(){
+  this._addCommentEvent.notify();
+  this.busy=false;
+};
+
 models.Model1.prototype.raiseOpenFolderEvent = function(){
   goog.asserts.assert(this._openNodeList[this._openNodeIdx].isOpen(),
       'Expected node to be opened on the openFolder notification');
@@ -175,6 +180,39 @@ models.Model1.prototype.attachToOpenPhotoEvent = function(eventHandler){
   this._openPhotoEvent.attach(eventHandler);
 };
 
+models.Model1.prototype.attachToAddCommentEvent = function(eventHandler){
+  goog.asserts.assert(typeof eventHandler === 'function',
+      'Event handler expected to be a function');
+  this._addCommentEvent.attach(eventHandler);
+};
+
+models.Model1.prototype.addComment = function(message){
+  if(this.busy){
+    return -1; // Means request not processed
+  }
+  this.busy=true;
+  if(this.currentState!=models.Model1.State.photoView){
+    throw Error(
+        'Expected model to be in photo view state on model.addComment');
+  }
+  var photoNode=this._openNodeList[this._openNodeIdx];
+  goog.asserts.assert(photoNode instanceof models.Model1.PhotoNode);
+  var photoIcon=photoNode.iconNode;
+  var photoId=photoIcon.fbId;
+  var fbObj=this.fb;
+  var _model=this;
+  var commentAddedCB = function(apiResp){
+    // TODO: correct error handling if comment cant be added
+    if(!apiResp || apiResp['error']){
+      alert('Comment could not be added');
+    }
+    photoNode.addComment(apiResp['id'],_model); // will add this
+        // comment to the comments list and raise the model event
+  };
+  fbObj.api('/'+photoId+'/comments','post',{'message': message},
+      commentAddedCB);
+};
+
 models.Model1.prototype.getCurrentPhoto = function(){
   if(this.currentState!=models.Model1.State.photoView){
     throw Error(
@@ -185,7 +223,7 @@ models.Model1.prototype.getCurrentPhoto = function(){
   var photoIcon=photoNode.iconNode;
   var photoObj = new common.PhotoObj(photoIcon.fullImgUrl,
       photoIcon.photoCaption,photoNode.comments,photoIcon.width,
-      photoIcon.height,photoNode.likes);
+      photoIcon.height,photoNode.likes,photoNode.tags);
 
   return photoObj;
 };
@@ -555,7 +593,7 @@ models.Model1.PersonNode.prototype.exploreNode = function(model){
   var curIcon=this.iconNode;
   var fbSession=model.fb.getSession();
   var photoOfPersonIcon = new common.PhotosOfPersonIcon('Photos of '+
-      common.helpers.getFirstName(curIcon.name),
+      common.helpers.getFirstName(curIcon.name).toLowerCase(),
       models.Model1.getProfilePicUrl(curIcon.fbId,fbSession),0,0,
       curIcon.name,curIcon.fbId);
   var photoOfPersonNode = new models.Model1.PhotosOfPersonNode(
@@ -720,6 +758,7 @@ models.Model1.PhotoNode = function(iconNode){
       // in an album, and user will go back and forth
   this.comments=[]; // Not storing this in the icon yet
   this.likes=[];
+  this.tags=[];
 };
 goog.inherits(models.Model1.PhotoNode,models.Model1.TreeNode);
 
@@ -734,63 +773,92 @@ models.Model1.PhotoNode.prototype.exploreNode = function(model){
   var fbObj=model.fb;
   var _node=this;
   var fbId=curIcon.fbId;
-  var callBacksRemaining=0;
  
-  var fbGetCommentsCB = function(apiResp){
-    _node.addCommentsFromFBresponse(apiResp);
-    callBacksRemaining--;
-    if(callBacksRemaining===0){
-      _node.callBacksCompleted(model);
-    }
+  var commentsQuery=fbObj.Data.query(
+      'SELECT fromid,time,text FROM comment WHERE object_id="'+
+      fbId+'"');
+
+  var likesQuery=fbObj.Data.query(
+      'SELECT uid,name FROM user WHERE uid IN '+
+      '(SELECT user_id FROM like WHERE object_id="'+fbId+'")'
+      );
+
+  var tagsQuery=fbObj.Data.query(
+      'SELECT subject,xcoord,ycoord,text FROM photo_tag WHERE pid IN '+
+      '(SELECT pid FROM photo WHERE object_id="'+fbId+'")'
+      );
+
+  var namesQuery=fbObj.Data.query(
+      'SELECT uid,name FROM user WHERE '+
+      'uid IN (SELECT fromid FROM {0})',
+      commentsQuery);
+
+  // Leave the query below commented, it explains an interesting
+  // use in the WHERE clause
+  //var namesQuery=fbObj.Data.query(
+      //'SELECT uid,name FROM user WHERE '+
+      //'(uid IN (SELECT fromid FROM {0})) OR '+
+      //'(uid IN (SELECT subject FROM {1}))',
+      //commentsQuery,tagsQuery);
+
+  var fbMultiQueryCB = function(){
+    _node.processPhotoQueries(commentsQuery,likesQuery,tagsQuery,
+                              namesQuery);   
+    model.raiseOpenPhotoEvent();
   };
 
-  var fbGetLikesCB = function(apiResp){
-    _node.addLikesFromFBresponse(apiResp);
-    callBacksRemaining--;
-    if(callBacksRemaining===0){
-      _node.callBacksCompleted(model);
-    }
-  };
-
-  fbObj.api('/'+fbId+'/comments',fbGetCommentsCB);
-  callBacksRemaining++;
-  // TODO(varun): Implement paging when > 25 comments. Maybe paging is not
-  // needed for comments (as FB might return all in one go), but check that.
-
-  var queryString='SELECT uid,name FROM user WHERE uid IN '+
-    '(SELECT user_id FROM like WHERE object_id="'+fbId+'")';
-  fbObj.api({method: 'fql.query',query: queryString},fbGetLikesCB);
-  callBacksRemaining++;
+  fbObj.Data.waitOn([commentsQuery,likesQuery,tagsQuery,namesQuery],
+      fbMultiQueryCB);
 };
 
-models.Model1.PhotoNode.prototype.callBacksCompleted = function(model){
+models.Model1.PhotoNode.prototype.processPhotoQueries =
+function(commentQ,likesQ,tagsQ,namesQ){
+  // Process comments
+  this.comments=[];
+  var commentQ_resp=commentQ.value;
+  var namesQ_resp=namesQ.value;
+  if(commentQ_resp['length']!==undefined){
+    goog.asserts.assert(namesQ_resp['length']!==undefined);
+    var friendIdToName={};
+    for(var i=0;i<namesQ_resp.length;i++){
+      friendIdToName[namesQ_resp[i]['uid']]=namesQ_resp[i]['name'];
+    }
+    var numComments=commentQ_resp.length;
+    for(var i=0;i<numComments;i++){
+      var commentObj={};
+      commentObj['created_time']=commentQ_resp[i]['time'];
+      commentObj['message']=commentQ_resp[i]['text'];
+      var fromId=commentQ_resp[i]['fromid'];
+      commentObj['from']={'id': fromId,'name': friendIdToName[fromId]};
+      this.comments.push(commentObj);
+    }
+  }
+  // TODO: check this above for bugs, are all fields existing, size of arrays ok
+  // is it good to build the hash table, or should your query it directly
+
+  var likesQ_resp=likesQ.value;
+  this.likes=[];
+  if(likesQ_resp['length']!==undefined){
+    this.likes=likesQ_resp;
+  }
+  
+  var tagsQ_resp=tagsQ.value;
+  this.tags=[];
+  if(tagsQ_resp['length']!==undefined){
+    var numTags=tagsQ_resp.length;
+    for(var i=0;i<numTags;i++){
+      var tagObj={};
+      tagObj['xcoord']=tagsQ_resp[i]['xcoord'];
+      tagObj['ycoord']=tagsQ_resp[i]['ycoord'];
+      tagObj['id']=tagsQ_resp[i]['subject']; // Can be empty for non person
+          // tags
+      tagObj['name']=tagsQ_resp[i]['name'];
+      this.tags.push(tagObj);
+    }
+  }
+
   this._isOpen=true;
-  model.raiseOpenPhotoEvent();
 };
-
-models.Model1.PhotoNode.prototype.addLikesFromFBresponse = 
-function (apiResp){
-  var likesArray=[];
-  if(apiResp['length']!==undefined){likesArray=apiResp;}
-  this.likes=likesArray;
-  // Each element of likesArray is an object with the following fields:
-  // uid: User id of liker
-  // name: Full name of liker
-};
-
-models.Model1.PhotoNode.prototype.addCommentsFromFBresponse = 
-function (apiResp){
-  var commentArray=apiResp['data'];
-  goog.asserts.assert(common.helpers.isArray(commentArray),
-      'Expected comments to be in an array');
-  this.comments=commentArray;
-  // Each element of commentArray is an object with the following fields:
-  // created_time: time of post
-  //id: of the message, not of the person who posted
-  // message: this field is the string that has the comment.
-  // from={id,name} : the from field tells who posted the comment
-};
-
 
 /**
  * closeNode(), function to close a node, overriding default one
@@ -803,9 +871,29 @@ models.Model1.PhotoNode.prototype.closeNode = function(){
     this._isOpen=false;
     this.comments=[];
     this.likes=[];
+    this.tags=[];
   }
 };
 
+models.Model1.PhotoNode.prototype.addComment = function(commentId,model){
+  // TODO: probably should not make an API call to retrive the comment
+  // but just directly copy the comment into the photo comments
+
+  var _node=this;
+  var commentCB = function(apiResp){
+    var commentObj={};
+    commentObj['created_time']=apiResp['created_time']; // This is in a 
+        // different format currently than one you get when you retrieve
+        // comments using FQL (TODO)
+    commentObj['message']=apiResp['message'];
+    commentObj['from']=apiResp['from'];
+    _node.comments.push(commentObj);
+    model.raiseCommentAddedEvent();
+  }
+  var fbObj=model.fb;
+  fbObj.api('/'+commentId,commentCB);
+  
+};
 
 // --- End implementation of PhotoNode -------
 

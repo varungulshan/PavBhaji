@@ -96,7 +96,7 @@ common.PhotoIcon = function(iconText,iconImgUrl,fileDepth,fileIdx,
   this.photoCaption=photoCaption;
   this.width = width;
   this.height = height;
-  this.toolTipText = '';
+  this.toolTipText = photoCaption;
   this.pageJumpType=common.IconNode.IndexType.byIconNumber;
 };
 goog.inherits(common.PhotoIcon,common.IconNode);
@@ -105,11 +105,17 @@ common.PhotosOfPersonIcon = function(iconText,iconImgUrl,fileDepth,fileIdx,
                                      name,fbId){
   common.IconNode.call(this,iconText,iconImgUrl,fileDepth,fileIdx);
   this.name=name; // The name of the person who's photos these are
-  this.navText='Photos of '+common.helpers.getInitials(name);
   this.fbId=fbId; // fbId of the person who's photos need to be seen
-  this.toolTipText='View photos where '+common.helpers.getFirstName(name)
-                   +' is tagged';
   this.pageJumpType=common.IconNode.IndexType.byIconNumber;
+
+  if(name==='You'){
+    this.navText='Photos of you';
+    this.toolTipText='View photos where you are tagged'; 
+  }else{
+    this.navText='Photos of '+common.helpers.getInitials(name);
+    this.toolTipText='View photos where '+
+        common.helpers.getFirstName(name).toLowerCase() +' is tagged';
+  }
 };
 goog.inherits(common.PhotosOfPersonIcon,common.IconNode);
 
@@ -117,15 +123,15 @@ goog.inherits(common.PhotosOfPersonIcon,common.IconNode);
  * Class for representing a photo. Stores the photo url, comments, tags etc.
  * that are needed for displaying the photo
  */
-common.PhotoObj = function(imgUrl,caption,commentArray,width,height,likes){
+common.PhotoObj = function(imgUrl,caption,commentArray,width,height,
+                           likes,tags){
   this.imgUrl=imgUrl;
   this.caption=caption;
   this.commentArray=commentArray; 
   // commentArray is an array of objects, each object has the following fields:
   // [1] created_time: time of post
-  // [2] id: of the message, not of the person who posted
-  // [3] message: this field is the string that has the comment.
-  // [4] from={id,name} : the from field is an object itself, 
+  // [2] message: this field is the string that has the comment.
+  // [3] from={id,name} : the from field is an object itself, 
   //                      it tells who posted the comment
   // The above format is actually what FB returns on an API call
   // so just used the same format
@@ -133,6 +139,13 @@ common.PhotoObj = function(imgUrl,caption,commentArray,width,height,likes){
   // likes is an array of objects with following fields:
   // [1] uid: User id of liker
   // [2] name: Full name of liker
+  this.tags=tags; 
+  // tags is an array of objects with following fields:
+  // [1] xcoord
+  // [2] ycoord
+  // [3] id : facebook id of tagged person (can be empty for non-person tags)
+  // [4] name: text associated with tag (name of person if a person, else
+  //           the text with the tag)
 
   this.width = width;
   this.height = height;
