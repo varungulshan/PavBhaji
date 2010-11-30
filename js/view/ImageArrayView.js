@@ -17,9 +17,11 @@ view.MainViewImpl.prototype.imageArrayViewUpdate = function () {
 
 view.MainViewImpl.prototype.imageArrayViewUpdatePage = function () {
   this.imageArrayViewClear();
+  var divelement = document.createElement("div");
   for (var i = 0; i < this._childIconNodes.length; ++i) {
-    this.imageArrayViewAddImageHolder(i);
+    divelement.appendChild(this.imageArrayViewAddImageHolder(i));
   }
+  this._iconTable.appendChild(divelement);
 } 
 
 view.MainViewImpl.prototype.imageArrayViewClickHandler = function (idx) {
@@ -48,7 +50,7 @@ view.MainViewImpl.prototype.imageArrayViewAddImageHolder =
           view.imageArrayViewClickHandler(value);
         }
       }(idx);
-  this._iconTable.appendChild(divelement);
+  return divelement;
 }
 
 view.MainViewImpl.prototype.imageArrayViewClear = function () {

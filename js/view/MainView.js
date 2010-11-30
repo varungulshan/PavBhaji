@@ -166,7 +166,8 @@ view.MainView.prototype.imageArrayViewClickHandler = view.MainView.errorFn;
 
 /**
  * view.MainView.imageArrayViewAddImageHolder(idx)
- * Adds a new thumbnail holder corresponding to idx^th child
+ * Adds a new thumbnail holder corresponding to idx^th child. Returns
+ * that imageholder
  */
 view.MainView.prototype.imageArrayViewAddImageHolder = view.MainView.errorFn;
 
