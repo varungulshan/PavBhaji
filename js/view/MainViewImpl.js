@@ -18,8 +18,6 @@ goog.inherits(view.MainViewImpl,view.MainView);
 goog.exportSymbol('view.MainViewImpl',view.MainViewImpl);
 
 view.MainViewImpl.prototype.initialize = function() {
-  this._currentIconNode = this._model.getOpenIcon();
-  this.updateView(); 
 }
 //goog.exportProperty(view.MainViewImpl,'initialize',
     //view.MainViewImpl.prototype.initialize);
