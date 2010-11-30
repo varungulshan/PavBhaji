@@ -78,6 +78,8 @@ view.MainView = function(model){
   this._loadingDiv = document.getElementById('loading_div');
 
   this._iconTable = document.getElementById('icon_table');
+  
+  this._navBar = document.getElementById('navigation_bar');
 }
 
 // TODO: We should probably move this to a common area

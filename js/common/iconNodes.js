@@ -66,7 +66,8 @@ common.AlbumIcon = function(iconText,iconImgUrl,fileDepth,fileIdx,
       // is different from the fbId used for graph API queries
   this.fbId=fbId;
   this.caption=caption;
-  this.navText=common.helpers.shortenText(iconText,10);
+  //this.navText=common.helpers.shortenText(iconText,10);
+  this.navText=iconText;
   if(!common.helpers.isEmptyString(caption)){
     this.toolTipText='View photos in album: '+caption;
   }

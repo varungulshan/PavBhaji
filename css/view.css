@@ -30,7 +30,7 @@ div#tool_bar {
 div.navigation_button {
   background-color: #3B5998;
   color: #FFFFFF;
-  width: 23.5%;
+  /*max-width: 23.5%;*/
   height: 16px;
   margin: 1px 1px;
   padding: 1px;
@@ -39,6 +39,7 @@ div.navigation_button {
   font-size: 11px;
   font-weight: bold;
   text-align: center;
+  white-space: nowrap;
 }
 
 div#selected_navigation_button {

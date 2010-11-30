@@ -17,24 +17,31 @@ view.MainViewImpl.prototype.navbarViewUpdate = function() {
   var numButtons = 4; 
   var buttons = common.helpers.getElementByTagAndClassName('div',
                                                            'navigation_button');
+  var remainingWidth = this._navBar.clientWidth;
   var view = this;
   goog.asserts.assert(buttons.length == numButtons);  
   var currentNodes = this._model.getCurrentPathIcons();
+  var numVisibleButtons = 0;
   for(i = 0; i < numButtons; ++i) {
-    if ( i+1 == this._currentIconNode.fileDepth) {
-      // visible and selected
-      buttons[i].style.visibility = 'visible';
-      buttons[i].id = "selected_navigation_button";
-      common.helpers.setText(buttons[i],this._currentIconNode.navText);
-    } else if (i < currentNodes.length) {
+    if (i < currentNodes.length) {
       // visible but unselected
       buttons[i].style.visibility = 'visible';
       buttons[i].id = "";
-      buttons[i].onclick = function(value) {
+      buttons[i].style.width = "";
+      if ( i+1 == this._currentIconNode.fileDepth) {
+        // visible and selected
+        buttons[i].id = "selected_navigation_button";
+        common.helpers.setText(buttons[i],'>'+this._currentIconNode.navText);
+      } else { 
+        buttons[i].onclick = function(value) {
         return function() {
-          view.navbarViewClickHandler(value);
+        view.navbarViewClickHandler(value);
         }
       }(i);
+    }
+      buttons[i].style.width = (Math.min(buttons[i].clientWidth,
+        Math.floor(remainingWidth/(currentNodes.length-i)))).toString() + "px";
+      remainingWidth -= buttons[i].clientWidth;
     } else {
       // make invisible
       buttons[i].style.visibility = 'hidden';
