@@ -23,14 +23,22 @@ common.IconNode = function(iconText,iconImgUrl,fileDepth,fileIdx){
   this.toolTipText=''; // text to be used for showing tool tip, subclasses
                        // will fill it out appropriately
   this.curPageNum=0; // Should be used by view to keep track of which page is
-      // open
-  //this.nextAvailable=false;
+                     // open
+  this.pageJumpType=common.IconNode.IndexType.byIconNumber; // This field is of
+      // type enum, and indicates how the children of this icon
+      // should be indexed by when used in jumping pages
+      // It is set appropriately by subclasses
 };
+
+// --- Static values of common.IconNode ---------
+common.IconNode.IndexType={'byIconText': 0,'byIconNumber': 1};
+// --- End static values of common.IconNode -----
 
 common.RecentPhotosIcon = function(iconImgUrl,fileDepth,fileIdx){
   common.IconNode.call(this,'Recently Tagged',iconImgUrl,fileDepth,fileIdx);
   this.navText='Tagged';
   this.toolTipText='View photos of recently tagged friends';
+  this.pageJumpType=common.IconNode.IndexType.byIconNumber;
 };
 goog.inherits(common.RecentPhotosIcon,common.IconNode); // This call simulates
 // inheritance, and needs to be made after the class declaration.
@@ -39,6 +47,7 @@ common.RecentAlbumsIcon = function(iconImgUrl,fileDepth,fileIdx){
   common.IconNode.call(this,'Recent albums',iconImgUrl,fileDepth,fileIdx);
   this.navText='Rec. Albums';
   this.toolTipText='View recently added/updated albums by your friends';
+  this.pageJumpType=common.IconNode.IndexType.byIconNumber;
 };
 goog.inherits(common.RecentAlbumsIcon,common.IconNode); // This call simulates
 // inheritance, and needs to be made after the class declaration.
@@ -51,6 +60,7 @@ common.PersonIcon = function(iconText,iconImgUrl,fileDepth,fileIdx,
   this.name=name;
   this.navText=common.helpers.getFirstName(name);
   this.toolTipText='View albums and tagged photos of '+name;
+  this.pageJumpType=common.IconNode.IndexType.byIconNumber;
 };
 goog.inherits(common.PersonIcon,common.IconNode); // This call simulates
 // inheritance, and needs to be made after the class declaration.
@@ -69,6 +79,7 @@ common.AlbumIcon = function(iconText,iconImgUrl,fileDepth,fileIdx,
   else{
     this.toolTipText='View photos in this (unnamed) album';
   }
+  this.pageJumpType=common.IconNode.IndexType.byIconNumber;
 };
 goog.inherits(common.AlbumIcon,common.IconNode);
 
@@ -76,6 +87,7 @@ common.FriendsIcon = function(iconText,iconImgUrl,fileDepth,fileIdx){
   common.IconNode.call(this,iconText,iconImgUrl,fileDepth,fileIdx);
   this.navText='Friends';
   this.toolTipText='View your friends and their photos';
+  this.pageJumpType=common.IconNode.IndexType.byIconText;
 };
 goog.inherits(common.FriendsIcon,common.IconNode);
 
@@ -90,6 +102,7 @@ common.PhotoIcon = function(iconText,iconImgUrl,fileDepth,fileIdx,
   this.width = width;
   this.height = height;
   this.toolTipText = '';
+  this.pageJumpType=common.IconNode.IndexType.byIconNumber;
 };
 goog.inherits(common.PhotoIcon,common.IconNode);
 
@@ -101,6 +114,7 @@ common.PhotosOfPersonIcon = function(iconText,iconImgUrl,fileDepth,fileIdx,
   this.fbId=fbId; // fbId of the person who's photos need to be seen
   this.toolTipText='View photos where '+common.helpers.getFirstName(name)
                    +' is tagged';
+  this.pageJumpType=common.IconNode.IndexType.byIconNumber;
 };
 goog.inherits(common.PhotosOfPersonIcon,common.IconNode);
 
