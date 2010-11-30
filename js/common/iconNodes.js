@@ -20,8 +20,6 @@ common.IconNode = function(iconText,iconImgUrl,fileDepth,fileIdx){
   this.fileIdx=fileIdx;     // Used by model to locate node in tree
   this.navText=''; // text to be used in the navigation bar, the subclasses
                    // will fill this out appropriately
-  this.curPageNum=0; // Should be used by view to keep track of which page is
-      // open
   //this.nextAvailable=false;
 };
 

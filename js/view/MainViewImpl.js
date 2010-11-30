@@ -47,8 +47,6 @@ view.MainViewImpl.prototype.updateView = function() {
   // this.contextbarViewUpdate();
   // update image array
   this.imageArrayViewUpdate();
-  // update quick Access Bar
-  this.quickAccessBarViewUpdate();
 }
 
 view.MainViewImpl.prototype.handleKeyPress = function (e) {

@@ -27,20 +27,10 @@ view.MainView = function(model){
   this._currentIconNode = {};
   this._parentIconNodes = new Array(); // iconNodes leading to current IconNode
   this._childIconNodes = new Array(); // child nodes of curren node
-  this._imageArrayToolTips = new Array();
   this._maxImageWidth = 700;
   this._maxImageHeight = 540;
-  this._numImageHolders = 25;
-  this._maxQuickAccessBarIcons = 26;
   this._currentPhotoIndex = -1; // keeps track of the current photo being shown
   this._clearImage = "../resources/Clear.gif";
-  // attach tooltips
-  var imageHolders = common.helpers.getElementByTagAndClassName('div',
-                                                                'image_holder');
-  goog.asserts.assert( imageHolders.length == this._numImageHolders);
-  for(var i = 0; i < this._numImageHolders; ++i) {
-    this._imageArrayToolTips[i] = new goog.ui.Tooltip(imageHolders[i],'');
-  }
   // attach listeners
   var _view = this;
   var openFolderEventHandlerClosure = function () {
@@ -52,32 +42,21 @@ view.MainView = function(model){
   this._model.attachToOpenFolderEvent(openFolderEventHandlerClosure);
   this._model.attachToOpenPhotoEvent(openPhotoEventHandlerClosure);
   //attach click handlers
-  //TODO(Rahul): Implement these via closures
-  var imageArrayViewPrevClickHandlerClosure = function () {
-    _view.imageArrayViewPrevClickHandler(); 
-  }
-  var imageArrayViewNextClickHandlerClosure = function () {
-    _view.imageArrayViewNextClickHandler(); 
-  }
   var closePhotoButtonClickHandlerClosure = function () {
     _view.photoViewClosePhotoButtonClickHandler(); 
   }
-  var nextPhotoButtonClickHandlerClosure = function () {
-    _view.photoViewNextButtonClickHandler(); 
+  var nextButtonClickHandlerClosure = function () {
+    _view.photoViewNextPhotoButtonClickHandler(); 
   }
-  var prevPhotoButtonClickHandlerClosure = function () {
-    _view.photoViewPrevButtonClickHandler(); 
+  var prevButtonClickHandlerClosure = function () {
+    _view.photoViewPrevPhotoButtonClickHandler(); 
   }
-  document.getElementById('prev_button').onclick = 
-    imageArrayViewPrevClickHandlerClosure;
-  document.getElementById('next_button').onclick = 
-    imageArrayViewNextClickHandlerClosure;
   document.getElementById('fullres_photo_close_button').onclick =
     closePhotoButtonClickHandlerClosure;
   document.getElementById('fullres_photo_next_button').onclick =
-    nextPhotoButtonClickHandlerClosure;
+    nextButtonClickHandlerClosure;
   document.getElementById('fullres_photo_prev_button').onclick =
-    prevPhotoButtonClickHandlerClosure;
+    prevButtonClickHandlerClosure;
   //add console zippy
   this._consoleZippy = new goog.ui.AnimatedZippy('console_header_div',
                                                  'console_content_div');
@@ -98,7 +77,7 @@ view.MainView = function(model){
   
   this._loadingDiv = document.getElementById('loading_div');
 
-  this._quickAccessBar = document.getElementById('quick_access_bar');  
+  this._iconTable = document.getElementById('icon_table');
 }
 
 // TODO: We should probably move this to a common area
@@ -138,20 +117,6 @@ view.MainView.prototype.updateView = view.MainView.errorFn;
  */
 view.MainView.prototype.handleKeyPress = view.MainView.errorFn;
 
-//------------------------------------------------------------------------
-//Functions for Quick Access Bar
-//------------------------------------------------------------------------
-
-/** view.MainView.quickAccessBarUpdate()
- * updates the quickAccessBar based on childIconNodes
- */
-view.MainView.prototype.quickAccessBarViewUpdate = view.MainView.errorFn;
-
-/** view.MainView.quickAccessBarClickHandler(page_num: number)
- * call back for a button on quick Acccess Bar
- * jumps to the clicked page
- */
-view.MainView.prototype.quickAccessBarViewClickHandler = view.MainView.errorFn;
  
 //--------------------------------------------------------------------------
 // Functions for NavbarView
@@ -198,16 +163,16 @@ view.MainView.prototype.imageArrayViewUpdate = view.MainView.errorFn;
 view.MainView.prototype.imageArrayViewClickHandler = view.MainView.errorFn;
 
 /**
- * view.MainView.imageArrayViewNextClickHandler()
- * handles click on the next page button
+ * view.MainView.imageArrayViewAddImageHolder(idx)
+ * Adds a new thumbnail holder corresponding to idx^th child
  */
-view.MainView.prototype.imageArrayViewNextClickHandler = view.MainView.errorFn;
+view.MainView.prototype.imageArrayViewAddImageHolder = view.MainView.errorFn;
 
 /**
- * view.MainView.imageArrayViewPrevClickHandler()
- * handles click on the prevt page button
+ * view.MainView.imageArrayViewClear()
+ * Clears all holders and removes them
  */
-view.MainView.prototype.imageArrayViewPrevClickHandler = view.MainView.errorFn;
+view.MainView.prototype.imageArrayViewClear = view.MainView.errorFn;
 
 //--------------------------------------------------------------------------
 // Functions for ConsoleView

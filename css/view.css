@@ -126,19 +126,9 @@ div#quick_access_bar {
   z-index: 7;
 }
 
-div#quick_access_bar_button {
-  border: 1px solid black;
-}
-
-div#quick_access_bar_button:hover {
-  cursor: pointer;
-}
 
 div#icon_table {
   text-align: center;
-}
-
-#icon_table table {
   width: 98%;
   position: absolute;
   top: 34px;
@@ -147,53 +137,33 @@ div#icon_table {
 }
 
 
-#icon_table div.image_holder {
-  width: 130px;
-  height: 100px;
+#icon_table div#image_holder {
+  height: 95px;
+  max-width: 130px;
   text-align: center;
   padding: 2px 2px;
+  margin: 2px 2px;
   background-image: url('../resources/loading.gif');
   background-repeat: no-repeat;
   background-position: center center;
-  border-top: 1px solid;
-  border-bottom: 1px solid;
-  border-right: 1px solid;
-  border-left: 1px solid;
-  border-color: #ffffff;
+  border: 1px solid #fff;
   overflow: hidden;
+  float: left;
 }
 
-#icon_table div:hover {
+#icon_table div#image_holder:hover {
   cursor: pointer;
   border-color: #000000;
 }
 
-#icon_table div.image_holder img {
+#icon_table div#image_holder img {
   height: 70px;
 }
 
-#icon_table div.image_holder p {
+#icon_table div#image_holder p {
   font-size: 11px;
 }
 
-div#button_holder {
-  position: fixed;
-  top: 580px;
-  width: 100%;
-  text-align: center;
-}
-
-div#button_holder img:hover {
-  cursor: pointer;
-}
-
-img#prev_button {
-  visibility: hidden;
-}
-
-img#next_button {
-  visibility: hidden;
-}
 
 div#outer_photo_div {
   position: fixed;
