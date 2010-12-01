@@ -53,10 +53,10 @@ view.MainView = function(model){
     _view.photoViewClosePhotoButtonClickHandler(); 
   }
   var nextButtonClickHandlerClosure = function () {
-    _view.photoViewNextPhotoButtonClickHandler(); 
+    _view.photoViewNextButtonClickHandler(); 
   }
   var prevButtonClickHandlerClosure = function () {
-    _view.photoViewPrevPhotoButtonClickHandler(); 
+    _view.photoViewPrevButtonClickHandler(); 
   }
   document.getElementById('fullres_photo_close_button').onclick =
     closePhotoButtonClickHandlerClosure;
