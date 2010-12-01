@@ -108,6 +108,8 @@ common.PhotosOfPersonIcon = function(iconText,iconImgUrl,fileDepth,fileIdx,
   this.fbId=fbId; // fbId of the person who's photos need to be seen
   this.pageJumpType=common.IconNode.IndexType.byIconNumber;
 
+  // TODO: handle this better, this one could crash
+  // if a person is actually named you.
   if(name==='You'){
     this.navText='Photos of you';
     this.toolTipText='View photos where you are tagged'; 
