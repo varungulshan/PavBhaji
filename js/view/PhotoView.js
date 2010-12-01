@@ -36,24 +36,11 @@ view.MainViewImpl.prototype.photoViewDisplayPhoto = function(photoObj) {
   // set photo comments
   this.consoleViewUpdateNumComments(photoObj.commentArray.length);
   // first create a map from commenter names to ids;
-  var id = 2;
-  var maxId = this._commenterColors.length;
-  var hashMap = [];
-  for (var i = 0; i < photoObj.commentArray.length; ++i) {
-    if (hashMap[photoObj.commentArray[i].from.name] == undefined) {
-      hashMap[photoObj.commentArray[i].from.name] = id;
-      id = (id + 1)%maxId;
-    }
-  }
-  for (var i = 0; i < photoObj.commentArray.length; ++i) {
-    var HTMLstring = 
-      '<span class="commenter_name" style="color:'+ 
-      this._commenterColors[hashMap[photoObj.commentArray[i].from.name]]+'">' 
-      + photoObj.commentArray[i].from.name + 
-      '</span>: ' + photoObj.commentArray[i].message;
-    this.consoleViewAdd(HTMLstring);
-  }
+  this.consoleViewBuildHash(photoObj.commentArray);
   this.consoleViewAddCommentArea();
+  for (var i = 0; i < photoObj.commentArray.length; ++i) {
+    this.consoleViewRenderComment(photoObj.commentArray[i]);
+  }
 
 }
 

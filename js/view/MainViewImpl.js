@@ -36,6 +36,22 @@ view.MainViewImpl.prototype.openPhotoEventHandler = function() {
   this.photoViewDisplayPhoto(photoObj);
 }
 
+view.MainViewImpl.prototype.addCommentEventHandler = function() {
+  var comment_area = document.getElementById('comment_area');  
+  var comment = comment_area.value;
+  comment_area.value = '';
+  // we create a partial comment object
+  // TODO(Rahul): Fix this partial thing
+  var commentObj = new Object();
+  commentObj.message = comment;
+  commentObj.from = new Object();
+  //TODO(Rahul): Query model to get user name instead of Me
+  commentObj.from.name = 'Me'; 
+  comment_area.readOnly = false;
+  this.consoleViewRenderComment(commentObj);
+  this.consoleViewUpdateNumComments(this._consoleContent.children.length - 1);
+}
+
 view.MainViewImpl.prototype.updateView = function() {
   this.consoleViewClose();
   this.consoleViewClear();

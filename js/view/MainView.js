@@ -31,6 +31,7 @@ view.MainView = function(model){
   this._maxImageHeight = 540;
   this._currentPhotoIndex = -1; // keeps track of the current photo being shown
   this._clearImage = "../resources/Clear.gif";
+  this._hashMap = [];
   // attach listeners
   var _view = this;
   var openFolderEventHandlerClosure = function () {
@@ -39,8 +40,12 @@ view.MainView = function(model){
   var openPhotoEventHandlerClosure = function () {
     _view.openPhotoEventHandler();
   }
+  var addCommentEventHandlerClosure = function () {
+    _view.addCommentEventHandler();
+  }
   this._model.attachToOpenFolderEvent(openFolderEventHandlerClosure);
   this._model.attachToOpenPhotoEvent(openPhotoEventHandlerClosure);
+  this._model.attachToAddCommentEvent(addCommentEventHandlerClosure);
   //attach click handlers
   var closePhotoButtonClickHandlerClosure = function () {
     _view.photoViewClosePhotoButtonClickHandler(); 
@@ -104,6 +109,12 @@ view.MainView.prototype.openFolderEventHandler =
  */ 
 view.MainView.prototype.openPhotoEventHandler =
     view.MainView.errorFn;
+
+/**
+ * view.addCommentEventHandler()
+ * Invoked when the comment addition is successful
+ */
+view.MainView.prototype.addCommentEventHandler = view.MainView.errorFn;
 
 
 /**
@@ -207,6 +218,25 @@ view.MainView.prototype.consoleViewAddCommentArea = view.MainView.errorFn;
  * show the number of comments on the photo
  */
 view.MainView.prototype.consoleViewUpdateNumComments = view.MainView.errorFn;
+
+/**
+ * view.MainView.consoleViewAddCommentClickHandler
+ * adds the comment if it is not empty
+ */
+view.MainView.prototype.consoleViewAddCommentClickHandler = 
+    view.MainView.errorFn;
+
+/**
+ * view.MainView.consoleViewBuildHash(commentArray)
+ * learn mapping from commenters to colors
+ */
+view.MainView.prototype.consoleViewBuildHash = view.MainView.errorFn;
+
+/**
+ * view.MainView.consoleViewRenderComment(comment: commentObj)
+ * render a comment obj
+ */
+view.MainView.prototype.consoleViewRenderComment = view.MainView.errorFn;
 
 //--------------------------------------------------------------------------
 // Functions for PhotoView

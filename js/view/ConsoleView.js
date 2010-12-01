@@ -23,10 +23,11 @@ view.MainViewImpl.prototype.consoleViewAdd = function (str) {
   var divelement = document.createElement("div");
   divelement.id = "comment_div";
   divelement.innerHTML = str;
-  this._consoleContent.appendChild(divelement);
+  this._consoleContent.insertBefore(divelement, this._consoleContent.lastChild);
 }
 
 view.MainViewImpl.prototype.consoleViewAddCommentArea = function () {
+  var view = this;
   var divelement = document.createElement("div");
   divelement.id = "comment_div";
   var textarea_element = document.createElement("textarea");
@@ -35,6 +36,9 @@ view.MainViewImpl.prototype.consoleViewAddCommentArea = function () {
   var comment_button = document.createElement("div");
   common.helpers.setText(comment_button,"Comment");
   comment_button.setAttribute("class","fb_button");
+  comment_button.onclick = function () {
+    view.consoleViewAddCommentClickHandler();
+  }
   divelement.appendChild(textarea_element);
   divelement.appendChild(comment_button);
   this._consoleContent.appendChild(divelement);
@@ -43,4 +47,40 @@ view.MainViewImpl.prototype.consoleViewAddCommentArea = function () {
 view.MainViewImpl.prototype.consoleViewUpdateNumComments = function (num) {
   var headerString = "Comments("+num.toString()+")";
   common.helpers.setText(this._consoleHeader, headerString);
+}
+
+view.MainViewImpl.prototype.consoleViewAddCommentClickHandler = function () {
+  var comment_area = document.getElementById('comment_area');  
+  var comment = comment_area.value;
+  if (comment.length == 0 || comment_area.readOnly == true)
+    return;
+  comment_area.readOnly = true;
+  this._model.addComment(comment); 
+}
+
+view.MainViewImpl.prototype.consoleViewBuildHash = function(commentArray) {
+  var id = 2;
+  var maxId = this._commenterColors.length;
+  this._hashMap = [];
+  for (var i = 0; i < commentArray.length; ++i) {
+    if (this._hashMap[commentArray[i].from.name] == undefined) {
+      this._hashMap[commentArray[i].from.name] = id;
+      id = (id + 1)%maxId;
+    }
+  }
+}
+
+view.MainViewImpl.prototype.consoleViewRenderComment = function(comment) {
+    //The only case when the color is nor found in the hash map is when
+    //this is author's first comment on the photo. In that case, we simply
+    //assign the last color, that correspnds to id 1
+    if (this._hashMap[comment.from.name] == undefined)
+      this._hashMap[comment.from.name] = 1;
+    var HTMLstring = 
+      '<span class="commenter_name" style="color:'+ 
+      this._commenterColors[this._hashMap[comment.from.name]]+
+      '">'+ comment.from.name + 
+      '</span>: ' + comment.message;
+    this.consoleViewAdd(HTMLstring);
+
 }
