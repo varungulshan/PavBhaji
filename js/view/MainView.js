@@ -16,6 +16,8 @@ goog.provide('view.MainView');
 goog.require('models.AbstractModel');
 goog.require('common.IconNode');
 goog.require('goog.ui.AnimatedZippy');
+goog.require('goog.ui.Zippy');
+goog.require('goog.ui.ZippyEvent');
 goog.require('goog.events.KeyHandler');
 goog.require('goog.ui.Tooltip');
 
@@ -69,6 +71,13 @@ view.MainView = function(model){
   this._consoleHeader = document.getElementById("console_header_div");
   this._commenterColors = new Array("brown","darkblue","darkred",
                                "teal","olive");
+  // add comment area
+  this.consoleViewAddCommentArea();
+  // bring the comment area in focus when the zippy is toggled
+  goog.events.listen(this._consoleZippy, goog.ui.Zippy.Events.TOGGLE,
+                     function () {
+                      document.getElementById('comment_area').focus();
+                     });
   // set up key handling
   this._keyHandler = new goog.events.KeyHandler(document);
   var handleKeyPressClosure = function(e) {

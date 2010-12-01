@@ -15,7 +15,7 @@ view.MainViewImpl.prototype.consoleViewClose = function () {
 }
 
 view.MainViewImpl.prototype.consoleViewClear = function () {
-  while(this._consoleContent.hasChildNodes())
+  while(this._consoleContent.children.length > 1)
     this._consoleContent.removeChild(this._consoleContent.firstChild);
 }
 
@@ -50,6 +50,10 @@ view.MainViewImpl.prototype.consoleViewUpdateNumComments = function (num) {
 }
 
 view.MainViewImpl.prototype.consoleViewAddCommentClickHandler = function () {
+  if (!this.photoViewIsOpen())
+    return;
+  // TODO(Rahul): Handle above gracefully, ideally the user should not
+  // see the comment area in such a case
   var comment_area = document.getElementById('comment_area');  
   var comment = comment_area.value;
   if (comment.length == 0 || comment_area.readOnly == true)

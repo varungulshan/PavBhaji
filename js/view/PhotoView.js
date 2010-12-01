@@ -37,7 +37,6 @@ view.MainViewImpl.prototype.photoViewDisplayPhoto = function(photoObj) {
   this.consoleViewUpdateNumComments(photoObj.commentArray.length);
   // first create a map from commenter names to ids;
   this.consoleViewBuildHash(photoObj.commentArray);
-  this.consoleViewAddCommentArea();
   for (var i = 0; i < photoObj.commentArray.length; ++i) {
     this.consoleViewRenderComment(photoObj.commentArray[i]);
   }
