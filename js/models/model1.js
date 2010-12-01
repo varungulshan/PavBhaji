@@ -19,16 +19,17 @@ goog.require('goog.date');
 // ---- Begin implementation of Model1 ---------
 models.Model1 = function(){
   models.AbstractModel.call(this);
-  this.userId='';
   this._openNodeList=[];
   this._openNodeIdx=-1;
-  this.currentState=models.Model1.State.folderView;
+  this._currentState=models.Model1.State.folderView;
   this.userNode=null;
   this.friendsNode=null;
   this.friendIds=[]; // Array of friend Ids
   this.friendNameById={}; // Map between friend Id and name
       // friendNameById['id']='friend name';
-  this.busy=false;
+  this._userName='';
+  this._userId='';
+  this._busy=false;
 };
 goog.inherits(models.Model1,models.AbstractModel);
 goog.exportSymbol('models.Model1',models.Model1);
@@ -50,13 +51,57 @@ models.Model1.prototype.initialize = function(fbObj,userId){
 
   this._openNodeList=[rootNode]; //Array of open nodes, each node should be open
   this._openNodeIdx=0; // Index of currently open node
-  this.currentState=models.Model1.State.folderView;
-  this.gotoIcon(homeIcon);
+  this._currentState=models.Model1.State.folderView;
+  this.gotoIcon(homeIcon); // All the async initialization of model happens here
 };
 //goog.exportProperty(models.Model1,'initialize',
     //models.Model1.prototype.initialize);
 goog.exportSymbol('models.Model1.prototype.initialize',
     models.Model1.prototype.initialize);
+
+models.Model1.prototype.asyncInitialization = function(){
+  // Need to load friend list, user name in async initialization
+  var fbObj=this.fb;
+
+  var friendsQuery=fbObj.Data.query(
+      'SELECT uid,name FROM user WHERE uid IN '+
+      '(SELECT uid2 FROM friend WHERE uid1=me())');
+
+  var userNameQuery=fbObj.Data.query(
+      'SELECT uid,name FROM user WHERE uid=me()');
+
+  var _model=this;
+
+  var fbNamesQueryCB = function(){
+    var friends=friendsQuery.value;
+    if(friends['length']===undefined){
+      friends=[];
+    }
+    for(var i=0;i<friends.length;i++){
+      var friendObj=friends[i];
+      var friendId=friendObj['uid'];
+      _model.friendIds.push(friendId);
+      _model.friendNameById[friendId]=friendObj['name'];
+    }
+
+    var you=userNameQuery.value;
+    goog.asserts.assert(you['length']===1,
+        'User name query should return only one results');
+    _model._userName=you[0]['name'];
+    _model._userId=you[0]['uid'];
+    _model.raiseOpenFolderEvent();
+  };
+
+  fbObj.Data.waitOn([friendsQuery,userNameQuery],fbNamesQueryCB);
+};
+
+models.Model1.prototype.getUserName = function(){
+  return this._userName;
+};
+
+models.Model1.prototype.getUserId = function(){
+  return this._userId;
+};
 
 models.Model1.prototype.getOpenIcon = function(){
   goog.asserts.assert(this._openNodeList.length>0); // to make sure model has
@@ -66,7 +111,7 @@ models.Model1.prototype.getOpenIcon = function(){
 };
 
 models.Model1.prototype.closeCurrentPhoto = function(){
-  if(this.currentState!=models.Model1.State.photoView){
+  if(this._currentState!=models.Model1.State.photoView){
     throw Error(
         'Expected model to be in photo view state on model.closeCurrentPhoto');
   }
@@ -74,7 +119,7 @@ models.Model1.prototype.closeCurrentPhoto = function(){
   this._openNodeList[this._openNodeIdx].closeNode();
   this._openNodeList=this._openNodeList.slice(0,this._openNodeIdx);
   this._openNodeIdx--;
-  this.currentState=models.Model1.State.folderView;
+  this._currentState=models.Model1.State.folderView;
 };
 
 models.Model1.prototype.getCurrentPathIcons = function(){
@@ -83,7 +128,7 @@ models.Model1.prototype.getCurrentPathIcons = function(){
   var pathIcons=[];
   var openNodeList=this._openNodeList;
   var lastEntry=openNodeList.length;
-  if(this.currentState===models.Model1.State.photoView){
+  if(this._currentState===models.Model1.State.photoView){
     lastEntry--;
     // when in photoView state, do not include the photoIcon in the
     // list of icons in the path
@@ -95,10 +140,10 @@ models.Model1.prototype.getCurrentPathIcons = function(){
 };
 
 models.Model1.prototype.gotoIcon = function(targetIcon){
-  if(this.busy){
+  if(this._busy){
     return -1; // Means request not processed
   }
-  this.busy=true;
+  this._busy=true;
   goog.asserts.assert(targetIcon instanceof common.IconNode);
   var parentIconDepth=targetIcon.fileDepth-1;
   var iconChildIdx=targetIcon.fileIdx;
@@ -111,9 +156,9 @@ models.Model1.prototype.gotoIcon = function(targetIcon){
 
   this._openNode(nodeToOpen);
   if(nodeToOpen.isLeaf){
-    this.currentState=models.Model1.State.photoView;
+    this._currentState=models.Model1.State.photoView;
   }else{
-    this.currentState=models.Model1.State.folderView;
+    this._currentState=models.Model1.State.folderView;
   }
   return 0; // Means processed successfully
 };
@@ -153,19 +198,19 @@ models.Model1.prototype._openNode = function(nodeToOpen){
 
 models.Model1.prototype.raiseOpenPhotoEvent = function(){
   this._openPhotoEvent.notify();
-  this.busy=false;
+  this._busy=false;
 };
 
 models.Model1.prototype.raiseCommentAddedEvent = function(){
   this._addCommentEvent.notify();
-  this.busy=false;
+  this._busy=false;
 };
 
 models.Model1.prototype.raiseOpenFolderEvent = function(){
   goog.asserts.assert(this._openNodeList[this._openNodeIdx].isOpen(),
       'Expected node to be opened on the openFolder notification');
   this._openFolderEvent.notify();
-  this.busy=false;
+  this._busy=false;
 };
 
 models.Model1.prototype.attachToOpenFolderEvent = function(eventHandler){
@@ -186,12 +231,27 @@ models.Model1.prototype.attachToAddCommentEvent = function(eventHandler){
   this._addCommentEvent.attach(eventHandler);
 };
 
+models.Model1.prototype.getLastPostedComment = function(){
+  if(this._currentState!=models.Model1.State.photoView){
+    throw Error(
+        'Expected model to be in photo view state on getLastPostedComment');
+  }
+  var photoNode=this._openNodeList[this._openNodeIdx];
+  goog.asserts.assert(photoNode instanceof models.Model1.PhotoNode);
+  var numComments=photoNode.comments.length;
+  var commentObj=[];
+  if(numComments>0){
+    commentObj=photoNode.comments[numComments-1];
+  }
+  return commentObj;
+};
+
 models.Model1.prototype.addComment = function(message){
-  if(this.busy){
+  if(this._busy){
     return -1; // Means request not processed
   }
-  this.busy=true;
-  if(this.currentState!=models.Model1.State.photoView){
+  this._busy=true;
+  if(this._currentState!=models.Model1.State.photoView){
     throw Error(
         'Expected model to be in photo view state on model.addComment');
   }
@@ -206,7 +266,8 @@ models.Model1.prototype.addComment = function(message){
     if(!apiResp || apiResp['error']){
       alert('Comment could not be added');
     }
-    photoNode.addComment(apiResp['id'],_model); // will add this
+    //photoNode.addComment(apiResp['id'],_model); 
+    photoNode.addComment(message,_model); // will add this
         // comment to the comments list and raise the model event
   };
   fbObj.api('/'+photoId+'/comments','post',{'message': message},
@@ -214,7 +275,7 @@ models.Model1.prototype.addComment = function(message){
 };
 
 models.Model1.prototype.getCurrentPhoto = function(){
-  if(this.currentState!=models.Model1.State.photoView){
+  if(this._currentState!=models.Model1.State.photoView){
     throw Error(
         'Expected model to be in photo view state on model.getCurrentPhoto');
   }
@@ -229,7 +290,7 @@ models.Model1.prototype.getCurrentPhoto = function(){
 };
 
 models.Model1.prototype.getCurrentIcons = function(){
-  if(this.currentState!==models.Model1.State.folderView){
+  if(this._currentState!==models.Model1.State.folderView){
     throw Error(
         'Expected model to be in folder view state on model.getCurrentIcons()'
         );
@@ -396,30 +457,12 @@ models.Model1.HomeNode.prototype.exploreNode = function(model){
   
   this.addChildren([userNode,friendsNode,recentAlbumsNode,recentPhotosNode]);
 
-  this.loadFriends(model);
+  this._isOpen=true;
+  model.asyncInitialization();
+  //this.loadFriends(model);
   //this._isOpen=true;
   //model.raiseOpenFolderEvent();
 
-};
-
-models.Model1.HomeNode.prototype.loadFriends = function(model){
-  var fbObj=model.fb;
-  var _node=this;
-  var fbOpenFriendsCB = function(apiResp){
-    var friends=apiResp['data'];
-    goog.asserts.assert(common.helpers.isArray(friends),
-        'Expected API call for friend list to return array');
-    for(var i=0;i<friends.length;i++){
-      var friendObj=friends[i];
-      var friendId=friendObj['id'];
-      model.friendIds.push(friendId);
-      model.friendNameById[friendId]=friendObj['name'];
-    }
-    _node._isOpen=true;
-    model.raiseOpenFolderEvent();
-    // this raise event is hacky, need to make an initialize event
-  };
-  fbObj.api('/me/friends',fbOpenFriendsCB);
 };
 
 // ---- End implementation of HomeNode ------
@@ -833,8 +876,6 @@ function(commentQ,likesQ,tagsQ,namesQ){
       this.comments.push(commentObj);
     }
   }
-  // TODO: check this above for bugs, are all fields existing, size of arrays ok
-  // is it good to build the hash table, or should your query it directly
 
   var likesQ_resp=likesQ.value;
   this.likes=[];
@@ -875,24 +916,15 @@ models.Model1.PhotoNode.prototype.closeNode = function(){
   }
 };
 
-models.Model1.PhotoNode.prototype.addComment = function(commentId,model){
-  // TODO: probably should not make an API call to retrive the comment
-  // but just directly copy the comment into the photo comments
-
-  var _node=this;
-  var commentCB = function(apiResp){
-    var commentObj={};
-    commentObj['created_time']=apiResp['created_time']; // This is in a 
-        // different format currently than one you get when you retrieve
-        // comments using FQL (TODO)
-    commentObj['message']=apiResp['message'];
-    commentObj['from']=apiResp['from'];
-    _node.comments.push(commentObj);
-    model.raiseCommentAddedEvent();
-  }
-  var fbObj=model.fb;
-  fbObj.api('/'+commentId,commentCB);
-  
+models.Model1.PhotoNode.prototype.addComment = function(message,model){
+  var commentObj={};
+  var curTime=new goog.date.Date();
+  commentObj['created_time']=curTime.getTime()/1000; // TODO: this time might
+      // be in a different representation that the one returned by FQL
+  commentObj['message']=message;
+  commentObj['from']={'id':model.getUserId(),'name': model.getUserName()};
+  this.comments.push(commentObj);
+  model.raiseCommentAddedEvent();
 };
 
 // --- End implementation of PhotoNode -------
