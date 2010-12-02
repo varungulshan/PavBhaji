@@ -19,16 +19,16 @@ goog.require('goog.date');
 // ---- Begin implementation of Model1 ---------
 models.Model1 = function(){
   models.AbstractModel.call(this);
+  this.userId='';
   this._openNodeList=[];
   this._openNodeIdx=-1;
   this._currentState=models.Model1.State.folderView;
   this.userNode=null;
   this.friendsNode=null;
-  this.friendIds=[]; // Array of friend Ids
+  this.friendsInfo=[]; // Array of objects of type {id,picUrl,name}
   this.friendNameById={}; // Map between friend Id and name
       // friendNameById['id']='friend name';
-  this._userName='';
-  this._userId='';
+  this._userInfo={}; // Object of type {id,picUrl,name}
   this._busy=false;
 };
 goog.inherits(models.Model1,models.AbstractModel);
@@ -64,11 +64,11 @@ models.Model1.prototype.asyncInitialization = function(){
   var fbObj=this.fb;
 
   var friendsQuery=fbObj.Data.query(
-      'SELECT uid,name FROM user WHERE uid IN '+
+      'SELECT uid,name,pic FROM user WHERE uid IN '+
       '(SELECT uid2 FROM friend WHERE uid1=me())');
 
   var userNameQuery=fbObj.Data.query(
-      'SELECT uid,name FROM user WHERE uid=me()');
+      'SELECT uid,name,pic FROM user WHERE uid=me()');
 
   var _model=this;
 
@@ -80,15 +80,18 @@ models.Model1.prototype.asyncInitialization = function(){
     for(var i=0;i<friends.length;i++){
       var friendObj=friends[i];
       var friendId=friendObj['uid'];
-      _model.friendIds.push(friendId);
+      var picUrl=friendObj['pic'];
+      _model.friendsInfo.push(
+          {'id':friendId,'picUrl':picUrl,'name': friendObj['name']});
       _model.friendNameById[friendId]=friendObj['name'];
     }
 
     var you=userNameQuery.value;
     goog.asserts.assert(you['length']===1,
         'User name query should return only one results');
-    _model._userName=you[0]['name'];
-    _model._userId=you[0]['uid'];
+    _model._userInfo={'name': you[0]['name'],'id': you[0]['uid'],
+        'picUrl': you[0]['pic']};
+    _model.userNode.iconNode.iconImgUrl=_model._userInfo['picUrl'];
     _model.raiseOpenFolderEvent();
   };
 
@@ -96,11 +99,11 @@ models.Model1.prototype.asyncInitialization = function(){
 };
 
 models.Model1.prototype.getUserName = function(){
-  return this._userName;
+  return this._userInfo['name'];
 };
 
 models.Model1.prototype.getUserId = function(){
-  return this._userId;
+  return this._userInfo['id'];
 };
 
 models.Model1.prototype.getOpenIcon = function(){
@@ -482,16 +485,16 @@ models.Model1.FriendsNode.prototype.exploreNode = function(model){
   }
 
   var fbObj=model.fb;
-  var friendIds=model.friendIds;
+  var friendsInfo=model.friendsInfo;
   var friendNameById=model.friendNameById;
   var fbSession=fbObj.getSession();
 
-  for(var i=0;i<friendIds.length;i++){
-    var currentId=friendIds[i];
+  for(var i=0;i<friendsInfo.length;i++){
+    var currentId=friendsInfo[i]['id'];
+    var picUrl=friendsInfo[i]['picUrl'];
     var currentName=friendNameById[currentId];
     var friendIcon = new common.PersonIcon(currentName,
-        models.Model1.getProfilePicUrl(currentId,fbSession),
-        0,0,currentId,currentName);
+        picUrl,0,0,currentId,currentName);
     var friendNode = new models.Model1.PersonNode(friendIcon);
     this.addChildren(friendNode);
   }
@@ -637,7 +640,7 @@ models.Model1.PersonNode.prototype.exploreNode = function(model){
   var fbSession=model.fb.getSession();
   var photoOfPersonIcon = new common.PhotosOfPersonIcon('Photos of '+
       common.helpers.getFirstName(curIcon.name).toLowerCase(),
-      models.Model1.getProfilePicUrl(curIcon.fbId,fbSession),0,0,
+      curIcon.iconImgUrl,0,0,
       curIcon.name,curIcon.fbId);
   var photoOfPersonNode = new models.Model1.PhotosOfPersonNode(
       photoOfPersonIcon);
