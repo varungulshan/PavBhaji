@@ -91,6 +91,20 @@ models.AbstractModel.prototype.getCurrentPhoto = models.AbstractModel.errorFn;
 models.AbstractModel.prototype.addComment = models.AbstractModel.errorFn;
 
 /**
+ * commentObj=model.getLastPostedComment() 
+ * Returns the last comment on the photo. Is useful when a comment has
+ * just been added and needs to be retrieved.
+ */
+models.AbstractModel.prototype.getLastPostedComment =
+    models.AbstractModel.errorFn;
+
+/**
+ * userName=model.getUserName()
+ * Returns full name of current user 
+ */
+models.AbstractModel.prototype.getUserName = models.AbstractModel.errorFn;
+
+/**
  * Function to close the photo, will not raise any open folder event
  */
 models.AbstractModel.prototype.closeCurrentPhoto = models.AbstractModel.errorFn;
