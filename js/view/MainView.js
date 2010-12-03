@@ -257,6 +257,20 @@ view.MainView.prototype.consoleViewRenderComment = view.MainView.errorFn;
  */
 view.MainView.prototype.photoViewDisplayPhoto = view.MainView.errorFn;
 
+/** view.photoViewGetTaggedHTML(tags: Array of tags objects)
+ * get HTML corresponding to tags in the photo
+ * it's an empty string if there are no tags
+ */
+view.MainView.prototype.photoViewGetTaggedHTML = view.MainView.errorFn;
+
+/** view.photoViewGetLikesHTML(likes: Array of like object,
+ *                             my_uid: user id of the current user)
+ *  gives HTML corresponding to likes in the photo, including the like/unlike
+ *  button
+ */
+view.MainView.prototype.photoViewGetLikesHTML = view.MainView.errorFn;
+
+
 /**
  * view.photoViewClosePhotoButtonClickHandler
  * Invoked when a user closes an open photo

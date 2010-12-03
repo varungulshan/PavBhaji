@@ -42,7 +42,7 @@ view.MainViewImpl.prototype.navbarViewUpdate = function() {
       var width_str = (Math.min(buttons[i].clientWidth,
         Math.floor(-16+(remainingWidth/(currentNodes.length-i))))).toString() 
         + "px";
-        buttons[i].style.width = width_str;
+      buttons[i].style.width = width_str;
       remainingWidth -= buttons[i].clientWidth;
     } else {
       // make invisible

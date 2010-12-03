@@ -259,3 +259,25 @@ div#caption_div {
 textarea#comment_area {
   width: 98%;
 }
+
+div.tag_rect {
+  position: absolute;
+  border: 3px solid #fff;
+  width: 40px;
+  height: 40px;
+  z-index: 9;
+  visibility: hidden;
+}
+
+div#caption_wrapper {
+  clear: left;
+  width: 100%;
+}
+
+div.tag_text:hover {
+  cursor: pointer;
+}
+
+div.tag_text {
+  float: left;
+}
