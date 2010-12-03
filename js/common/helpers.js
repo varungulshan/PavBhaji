@@ -74,3 +74,27 @@ common.helpers.setText = function (element,text) {
         element.textContent = text;
       }
 }
+
+/**
+ * Remove all children of an element
+ */
+
+common.helpers.clearChildren = function (element) {
+  while(element.hasChildNodes())
+    element.removeChild(element.firstChild);
+}
+
+/**
+ * Get Random string
+ */
+
+common.helpers.randomString = function () {
+  var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
+  var string_length = 8;
+  var randomstring = '';
+  for (var i=0; i<string_length; i++) {
+    var rnum = Math.floor(Math.random() * chars.length);
+    randomstring += chars.substring(rnum,rnum+1);
+  }
+  return randomstring;
+}
