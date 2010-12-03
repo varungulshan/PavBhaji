@@ -9,6 +9,8 @@ goog.provide('common.PhotoIcon');
 goog.provide('common.PhotosOfPersonIcon');
 goog.provide('common.PhotoObj');
 
+goog.require('common.contextBarObj');
+
 /**
  * Class for representing icon objects, they can be sub-classed into different
  * types depending on the need.
@@ -22,6 +24,13 @@ common.IconNode = function(iconText,iconImgUrl,fileDepth,fileIdx){
                    // will fill this out appropriately
   this.toolTipText=''; // text to be used for showing tool tip, subclasses
                        // will fill it out appropriately
+  this._contextBarObject= new common.contextBarObj();
+};
+
+common.IconNode.prototype.getContextBarObject = function(){
+  return this._contextBarObject;
+  // This function can be overridden by sub-classes if needed, but 
+  // probably wont be needed
 };
 
 // --- Static values of common.IconNode ---------
@@ -130,24 +139,11 @@ common.PhotoObj = function(imgUrl,caption,commentArray,width,height,
   this.imgUrl=imgUrl;
   this.caption=caption;
   this.commentArray=commentArray; 
-  // commentArray is an array of objects, each object has the following fields:
-  // [1] created_time: time of post
-  // [2] message: this field is the string that has the comment.
-  // [3] from={id,name} : the from field is an object itself, 
-  //                      it tells who posted the comment
-  // The above format is actually what FB returns on an API call
-  // so just used the same format
+  // commentArray is an array of objects of type common.commentObj
   this.likes=likes; 
-  // likes is an array of objects with following fields:
-  // [1] uid: User id of liker
-  // [2] name: Full name of liker
+  // likes is an array of objects of type common.likeObj
   this.tags=tags; 
-  // tags is an array of objects with following fields:
-  // [1] xcoord
-  // [2] ycoord
-  // [3] id : facebook id of tagged person (can be empty for non-person tags)
-  // [4] name: text associated with tag (name of person if a person, else
-  //           the text with the tag)
+  // tags is an array of objects of type common.tagObj
 
   this.width = width;
   this.height = height;

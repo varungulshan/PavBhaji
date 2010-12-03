@@ -25,6 +25,8 @@
     <script type="text/javascript" 
             src="../js/common/Event.js"></script>
     <script type="text/javascript" 
+            src="../js/common/miscObjects.js"></script>
+    <script type="text/javascript" 
             src="../js/common/iconNodes.js"></script>
     <script type="text/javascript" 
             src="../js/models/abstractModel.js"></script>

@@ -24,7 +24,7 @@ common.helpers.getElementByTagAndClassName = function(tagName, className) {
       retnode.push(elements[i]);
   }
   return retnode;
-}
+};
 
 /**
  * Returns the initials, given the full name of a person
@@ -64,6 +64,13 @@ common.helpers.shortenText = function(text,maxLen){
 };
 
 /**
+ * Return profile url given a facebook id
+ */
+common.helpers.getProfileUrl = function(id){
+  return ('http://www.facebook.com/'+id);
+};
+
+/**
  * Sets the text of DOM element in browser independent way
  */
 
@@ -73,7 +80,7 @@ common.helpers.setText = function (element,text) {
       } else {
         element.textContent = text;
       }
-}
+};
 
 /**
  * Remove all children of an element
@@ -82,7 +89,7 @@ common.helpers.setText = function (element,text) {
 common.helpers.clearChildren = function (element) {
   while(element.hasChildNodes())
     element.removeChild(element.firstChild);
-}
+};
 
 /**
  * Get Random string
@@ -97,4 +104,4 @@ common.helpers.randomString = function () {
     randomstring += chars.substring(rnum,rnum+1);
   }
   return randomstring;
-}
+};

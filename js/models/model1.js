@@ -5,6 +5,9 @@
 
 goog.provide('models.Model1');
 
+goog.require('common.commentObj');
+goog.require('common.likeObj');
+goog.require('common.tagObj');
 goog.require('common.helpers');
 goog.require('common.IconNode');
 goog.require('common.PersonIcon');
@@ -242,7 +245,7 @@ models.Model1.prototype.getLastPostedComment = function(){
   var photoNode=this._openNodeList[this._openNodeIdx];
   goog.asserts.assert(photoNode instanceof models.Model1.PhotoNode);
   var numComments=photoNode.comments.length;
-  var commentObj=[];
+  var commentObj={};
   if(numComments>0){
     commentObj=photoNode.comments[numComments-1];
   }
@@ -878,15 +881,15 @@ function(commentQ,likesQ,tagsQ,namesQ){
     }
     var numComments=commentQ_resp.length;
     for(var i=0;i<numComments;i++){
-      var commentObj={};
-      commentObj['created_time']=commentQ_resp[i]['time'];
-      commentObj['message']=commentQ_resp[i]['text'];
       var fromId=commentQ_resp[i]['fromid'];
       var fromName=friendIdToName[fromId];
       if(fromName===undefined){fromName='Anony user';} // This happens when 
       // some users have disabled platform apps, so their user name is not
       // available to apps
-      commentObj['from']={'id': fromId,'name': fromName};
+
+      var commentObj = new common.commentObj(commentQ_resp[i]['time'],
+                                             commentQ_resp[i]['text'],
+                                             fromId,fromName);          
       this.comments.push(commentObj);
     }
   }
@@ -894,7 +897,11 @@ function(commentQ,likesQ,tagsQ,namesQ){
   var likesQ_resp=likesQ.value;
   this.likes=[];
   if(likesQ_resp['length']!==undefined){
-    this.likes=likesQ_resp;
+    for(var i=0;i<likesQ_resp.length;i++){
+      var iLikeResp = likesQ_resp[i];
+      var likeObj = new common.likeObj(iLikeResp['uid'],iLikeResp['name']);
+      this.likes.push(likeObj);
+    }
   }
   
   var tagsQ_resp=tagsQ.value;
@@ -902,12 +909,11 @@ function(commentQ,likesQ,tagsQ,namesQ){
   if(tagsQ_resp['length']!==undefined){
     var numTags=tagsQ_resp.length;
     for(var i=0;i<numTags;i++){
-      var tagObj={};
-      tagObj['xcoord']=tagsQ_resp[i]['xcoord'];
-      tagObj['ycoord']=tagsQ_resp[i]['ycoord'];
-      tagObj['id']=tagsQ_resp[i]['subject']; // Can be empty for non person
-          // tags
-      tagObj['name']=tagsQ_resp[i]['text'];
+      var tagRespI = tagsQ_resp[i];
+      var tagObj = new common.tagObj(tagRespI['xcoord'],
+                                     tagRespI['ycoord'],
+                                     tagRespI['subject'],
+                                     tagRespI['text']);
       this.tags.push(tagObj);
     }
   }
@@ -931,12 +937,12 @@ models.Model1.PhotoNode.prototype.closeNode = function(){
 };
 
 models.Model1.PhotoNode.prototype.addComment = function(message,model){
-  var commentObj={};
-  var curTime=new goog.date.Date();
-  commentObj['created_time']=curTime.getTime()/1000; // TODO: this time might
+  var curTime=(new goog.date.Date()).getTime()/1000; // TODO: this time might
       // be in a different representation that the one returned by FQL
-  commentObj['message']=message;
-  commentObj['from']={'id':model.getUserId(),'name': model.getUserName()};
+  curTime=curTime.toString();
+
+  var commentObj=new common.commentObj(curTime,message,model.getUserId(),
+                                       model.getUserName());
   this.comments.push(commentObj);
   model.raiseCommentAddedEvent();
 };
