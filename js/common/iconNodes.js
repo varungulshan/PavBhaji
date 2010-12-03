@@ -9,7 +9,7 @@ goog.provide('common.PhotoIcon');
 goog.provide('common.PhotosOfPersonIcon');
 goog.provide('common.PhotoObj');
 
-goog.require('common.contextBarObj');
+goog.require('common.IconMetaInfo');
 
 /**
  * Class for representing icon objects, they can be sub-classed into different
@@ -24,11 +24,11 @@ common.IconNode = function(iconText,iconImgUrl,fileDepth,fileIdx){
                    // will fill this out appropriately
   this.toolTipText=''; // text to be used for showing tool tip, subclasses
                        // will fill it out appropriately
-  this._contextBarObject= new common.contextBarObj();
+  this._metaInfo= new common.IconMetaInfo();
 };
 
-common.IconNode.prototype.getContextBarObject = function(){
-  return this._contextBarObject;
+common.IconNode.prototype.getMetaInfo = function(){
+  return this._metaInfo;
   // This function can be overridden by sub-classes if needed, but 
   // probably wont be needed
 };

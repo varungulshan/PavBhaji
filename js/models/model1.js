@@ -5,9 +5,9 @@
 
 goog.provide('models.Model1');
 
-goog.require('common.commentObj');
-goog.require('common.likeObj');
-goog.require('common.tagObj');
+goog.require('common.CommentObj');
+goog.require('common.LikeObj');
+goog.require('common.TagObj');
 goog.require('common.helpers');
 goog.require('common.IconNode');
 goog.require('common.PersonIcon');
@@ -887,7 +887,7 @@ function(commentQ,likesQ,tagsQ,namesQ){
       // some users have disabled platform apps, so their user name is not
       // available to apps
 
-      var commentObj = new common.commentObj(commentQ_resp[i]['time'],
+      var commentObj = new common.CommentObj(commentQ_resp[i]['time'],
                                              commentQ_resp[i]['text'],
                                              fromId,fromName);          
       this.comments.push(commentObj);
@@ -899,7 +899,7 @@ function(commentQ,likesQ,tagsQ,namesQ){
   if(likesQ_resp['length']!==undefined){
     for(var i=0;i<likesQ_resp.length;i++){
       var iLikeResp = likesQ_resp[i];
-      var likeObj = new common.likeObj(iLikeResp['uid'],iLikeResp['name']);
+      var likeObj = new common.LikeObj(iLikeResp['uid'],iLikeResp['name']);
       this.likes.push(likeObj);
     }
   }
@@ -910,7 +910,7 @@ function(commentQ,likesQ,tagsQ,namesQ){
     var numTags=tagsQ_resp.length;
     for(var i=0;i<numTags;i++){
       var tagRespI = tagsQ_resp[i];
-      var tagObj = new common.tagObj(tagRespI['xcoord'],
+      var tagObj = new common.TagObj(tagRespI['xcoord'],
                                      tagRespI['ycoord'],
                                      tagRespI['subject'],
                                      tagRespI['text']);
@@ -941,7 +941,7 @@ models.Model1.PhotoNode.prototype.addComment = function(message,model){
       // be in a different representation that the one returned by FQL
   curTime=curTime.toString();
 
-  var commentObj=new common.commentObj(curTime,message,model.getUserId(),
+  var commentObj=new common.CommentObj(curTime,message,model.getUserId(),
                                        model.getUserName());
   this.comments.push(commentObj);
   model.raiseCommentAddedEvent();

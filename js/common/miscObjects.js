@@ -1,17 +1,17 @@
 // This file contains a misc collection of helper objects, mainly used
 // for interaction between view and icons (and sometimes model)
 
-goog.provide('common.contextBarObj');
-goog.provide('common.commentObj');
-goog.provide('common.likeObj');
-goog.provide('common.tagObj');
+goog.provide('common.IconMetaInfo');
+goog.provide('common.CommentObj');
+goog.provide('common.LikeObj');
+goog.provide('common.TagObj');
 
 /**
- * Class to store information to be shown in context bar.
+ * Class to store extra information in icon, mostly useful for context bar
  * Has following fields:
  *  isLikeable: Denotes whether a like button should be shown
  *              in the context bar when the icon is open.
- *  displayText: The text that should be shown in the context bar
+ *  contextBarText: The text that should be shown in the context bar
  *      when the icon is open. Might need to be more generic than just text
  *      (could be html), will fix that later
  *  likesArray: Array of objects of type common.likeObj
@@ -19,9 +19,9 @@ goog.provide('common.tagObj');
  *      this array will be empty.
  *  commentsArray: Array of objects of type common.commentObj
  */
-common.contextBarObj = function(){
+common.IconMetaInfo = function(){
   this.isLikeable = false;
-  this.displayText = ''; 
+  this.contextBarText = ''; 
   this.likesArray = []; 
   this.commentsArray = []; 
 };
@@ -29,7 +29,7 @@ common.contextBarObj = function(){
 /**
  * Class to store information about a comment
  */
-common.commentObj = function(time,message,fromId,fromName){
+common.CommentObj = function(time,message,fromId,fromName){
   this.created_time=time;
   this.message=message; // The text of the comment
   var profileUrl = common.helpers.getProfileUrl(fromId);
@@ -42,7 +42,7 @@ common.commentObj = function(time,message,fromId,fromName){
 /**
  * Class to store information about a like
  */
-common.likeObj =  function(id,name){
+common.LikeObj =  function(id,name){
   this.id=id; // id of person liking
   this.name=name; // name of person liking
   this.profileUrl = common.helpers.getProfileUrl(id);
@@ -51,7 +51,7 @@ common.likeObj =  function(id,name){
 /**
  * Class to store information about a tag
  */
-common.tagObj =  function(xcoord,ycoord,id,name){
+common.TagObj =  function(xcoord,ycoord,id,name){
   this.xcoord=xcoord;
   this.ycoord=ycoord;
   this.id=id; // facebook id of tagged person (can be empty for non-person tags)
