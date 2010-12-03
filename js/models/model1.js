@@ -896,7 +896,7 @@ function(commentQ,likesQ,tagsQ,namesQ){
       tagObj['ycoord']=tagsQ_resp[i]['ycoord'];
       tagObj['id']=tagsQ_resp[i]['subject']; // Can be empty for non person
           // tags
-      tagObj['name']=tagsQ_resp[i]['name'];
+      tagObj['name']=tagsQ_resp[i]['text'];
       this.tags.push(tagObj);
     }
   }
