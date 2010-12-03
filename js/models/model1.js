@@ -864,7 +864,14 @@ function(commentQ,likesQ,tagsQ,namesQ){
   var commentQ_resp=commentQ.value;
   var namesQ_resp=namesQ.value;
   if(commentQ_resp['length']!==undefined){
-    goog.asserts.assert(namesQ_resp['length']!==undefined);
+    //goog.asserts.assert(namesQ_resp['length']!==undefined);
+    if(namesQ_resp['length']===undefined){
+      namesQ_resp=[];
+      // It can happen that this is undefined (even though there are comments
+      // on the photo because some people have disabled platform apps 
+      // So it is not possible to recover any names for such users. 
+      // TODO: Check if this can happen else where also
+    }
     var friendIdToName={};
     for(var i=0;i<namesQ_resp.length;i++){
       friendIdToName[namesQ_resp[i]['uid']]=namesQ_resp[i]['name'];
@@ -875,7 +882,11 @@ function(commentQ,likesQ,tagsQ,namesQ){
       commentObj['created_time']=commentQ_resp[i]['time'];
       commentObj['message']=commentQ_resp[i]['text'];
       var fromId=commentQ_resp[i]['fromid'];
-      commentObj['from']={'id': fromId,'name': friendIdToName[fromId]};
+      var fromName=friendIdToName[fromId];
+      if(fromName===undefined){fromName='Anony user';} // This happens when 
+      // some users have disabled platform apps, so their user name is not
+      // available to apps
+      commentObj['from']={'id': fromId,'name': fromName};
       this.comments.push(commentObj);
     }
   }
