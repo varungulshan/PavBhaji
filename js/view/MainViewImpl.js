@@ -79,3 +79,19 @@ view.MainViewImpl.prototype.handleKeyPress = function (e) {
   }
 }
 
+
+view.MainViewImpl.prototype.getLikeDiv = function(likeObjArray) {
+  var divelement = document.createElement("div");
+  if (likeObjArray.length == 0)
+    return divelement;
+  var id_str = 'div_' + common.helpers.randomString();
+  divelement.id = id_str;
+  var tooltip = new goog.ui.Tooltip(divelement);
+  tooltip.className = 'like_tooltip';
+  var HTMLstr = "";
+  for ( var i = 0;i < likeObjArray.length; ++i)
+    HTMLstr += (likeObjArray[i].name + "<br>");
+  tooltip.setHtml(HTMLstr);
+  common.helpers.setText(divelement,likeObjArray.length.toString() + ' likes');
+  return divelement; 
+}

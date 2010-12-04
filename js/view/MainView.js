@@ -139,6 +139,12 @@ view.MainView.prototype.updateView = view.MainView.errorFn;
  */
 view.MainView.prototype.handleKeyPress = view.MainView.errorFn;
 
+/**
+ * view.MainView.getLikeDiv(likeObjArray)
+ * Given a like object array, it returns the corresponding div
+ */
+view.MainView.prototype.getLikeDiv = view.MainView.errorFn;
+
  
 //--------------------------------------------------------------------------
 // Functions for NavbarView

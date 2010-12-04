@@ -244,6 +244,15 @@ div#caption_div {
       z-index: 10;
 }
 
+.like_tooltip {
+      background: #C0C0FF;
+      color: infotext;
+      border: 1px solid infotext;
+      padding: 1px;
+      font: menu;
+      z-index: 10;
+}
+
 .fb_button {
         background-color: #3b5998;
         border-color: #d8dfea rgb(14,31,91) rgb(14,31,91) rgb(216,223,234);
