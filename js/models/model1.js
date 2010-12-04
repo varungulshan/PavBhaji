@@ -883,7 +883,7 @@ function(commentQ,likesQ,tagsQ,namesQ){
     for(var i=0;i<numComments;i++){
       var fromId=commentQ_resp[i]['fromid'];
       var fromName=friendIdToName[fromId];
-      if(fromName===undefined){fromName='Anony user';} // This happens when 
+      if(fromName===undefined){fromName='Anonymous';} // This happens when 
       // some users have disabled platform apps, so their user name is not
       // available to apps
 
