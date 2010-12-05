@@ -71,6 +71,24 @@ common.helpers.getProfileUrl = function(id){
 };
 
 /**
+ * allFields and countFields are arrays of objects, and
+ * they both have the field idxField. The idxField in countFields
+ * should be a subset of the idxFields of allFields
+ * Returns a hash map hMap, where hMap[idxField] counts how many
+ * times idxField occurs in countFields array.
+ */
+common.helpers.buildCountHash = function(idxField,allFields,countFields){
+  var hMap={};
+  for(var i=0;i<allFields.length;i++){
+    hMap[allFields[i][idxField]] = 0;
+  }
+  for(var i=0;i<countFields.length;i++){
+    hMap[countFields[i][idxField]]++;
+  }
+  return hMap;
+};
+
+/**
  * Sets the text of DOM element in browser independent way
  */
 

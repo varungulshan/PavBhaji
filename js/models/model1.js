@@ -26,6 +26,7 @@ models.Model1 = function(){
   this._openNodeList=[];
   this._openNodeIdx=-1;
   this._currentState=models.Model1.State.folderView;
+  this._homeNode=null;
   this.userNode=null;
   this.friendsNode=null;
   this.friendsInfo=[]; // Array of objects of type {id,picUrl,name}
@@ -52,6 +53,7 @@ models.Model1.prototype.initialize = function(fbObj,userId){
   rootNode.addChildren(homeNode);
   rootNode._isOpen=true; // Need this hacky private member access once!
 
+  this._homeNode=homeNode;
   this._openNodeList=[rootNode]; //Array of open nodes, each node should be open
   this._openNodeIdx=0; // Index of currently open node
   this._currentState=models.Model1.State.folderView;
@@ -95,6 +97,11 @@ models.Model1.prototype.asyncInitialization = function(){
     _model._userInfo={'name': you[0]['name'],'id': you[0]['uid'],
         'picUrl': you[0]['pic']};
     _model.userNode.iconNode.iconImgUrl=_model._userInfo['picUrl'];
+
+    var numFriends = friends.length;
+    var homeMetaInfo = _model._homeNode.iconNode.getMetaInfo();
+    homeMetaInfo.contextBarText = 'You have '+numFriends.toString()+
+        ' friends and some photos';
     _model.raiseOpenFolderEvent();
   };
 
@@ -501,6 +508,9 @@ models.Model1.FriendsNode.prototype.exploreNode = function(model){
     var friendNode = new models.Model1.PersonNode(friendIcon);
     this.addChildren(friendNode);
   }
+  var numFriends = friendsInfo.length;
+  var metaInfo = this.iconNode.getMetaInfo();
+  metaInfo.contextBarText = 'Showing '+numFriends.toString()+' friends';
   this._isOpen=true;
   model.raiseOpenFolderEvent();
 };
@@ -537,6 +547,7 @@ models.Model1.RecentPhotosNode.prototype.exploreNode = function(model){
       ')';
   fbObj.api({method: 'fql.query',query: queryString},fbOpenRecentPhotosCB);
   // TODO: check if the above call can be made simpler/faster
+  // also set the numComments and numIcons of the child nodes
 };
 
 // This function is exact copy from AlbumNode function
@@ -557,10 +568,12 @@ function(apiResp){
     var photoNode = new models.Model1.PhotoNode(photoIcon);
     this.addChildren(photoNode);
   }
+  var metaInfo = this.iconNode.getMetaInfo();
+  metaInfo.contextBarText = 'Recently tagged friends';
   this._isOpen=true;
 };
 
-// --- End implementation of FriendsNode ---------
+// --- End implementation of RecentPhotosNode ---------
 
 
 
@@ -597,6 +610,7 @@ models.Model1.RecentAlbumsNode.prototype.exploreNode = function(model){
   fbObj.api({method: 'fql.query',query: queryString},fbOpenRecentAlbumsCB);
   // TODO: check if the above call can be made simpler/faster
   // seems like the time threshold doesnt affect anything
+  // Also add query for numComments and numLikes
 };
 
 models.Model1.RecentAlbumsNode.prototype.addAlbumsFromFBresponse = 
@@ -619,6 +633,8 @@ function(apiResp,fbObj,friendNameById){
     var albumNode = new models.Model1.AlbumNode(albumIcon);
     this.addChildren(albumNode);
   }
+  var metaInfo=this.iconNode.getMetaInfo();
+  metaInfo.contextBarText = 'Recently updated albums by friends';
   this._isOpen=true;
 };
 
@@ -654,33 +670,81 @@ models.Model1.PersonNode.prototype.exploreNode = function(model){
   var fbId=curIcon.fbId;
   var fbObj=model.fb;
   var _node=this;
-  var fbGetAlbumsCB = function(apiResp){
-    _node.addAlbumsFromFBresponse(apiResp,fbObj);
+
+  var albumsQuery=fbObj.Data.query(
+      'SELECT aid,name,object_id,cover_pid,type FROM album WHERE owner='+fbId);
+
+  var albumCoverQuery=fbObj.Data.query(
+      'SELECT src,pid FROM photo WHERE pid IN (SELECT cover_pid FROM {0})'
+      ,albumsQuery);
+
+  var numCommentsQuery=fbObj.Data.query(
+      'SELECT time,object_id FROM comment WHERE ' +
+      'object_id IN (SELECT object_id FROM {0} WHERE type <> "profile")',
+      albumsQuery);
+  // TODO: is it possible to directly obtain the count instead of 
+  // having return the fields and count them. Because if the count is huge
+  // (like 5000 comments on a photo, then the query will be truncated to 4500!)
+
+  var numLikesQuery=fbObj.Data.query(
+      'SELECT user_id,object_id FROM like WHERE '+
+      'object_id IN (SELECT object_id FROM {0} WHERE type <> "profile")',
+      albumsQuery);
+  // Note: the type <> profile constraint is needed, because FB somehow treats
+  // certain profile pic albums separately, and those cause this FQL
+  // query to crash (i.e no callback is ever called, causing app to hang!)
+
+  var fbMultiQueryCB = function(){
+    _node.addAlbumsFromFBresponse(albumsQuery,albumCoverQuery,numCommentsQuery,
+                                  numLikesQuery);
     model.raiseOpenFolderEvent();
   };
-  //fbObj.api('/'+fbId+'/albums',fbGetAlbumsCB);
-  var queryString='SELECT aid,name,object_id FROM album WHERE owner="'+fbId+'"';
-  fbObj.api({method: 'fql.query',query: queryString},fbGetAlbumsCB);
+
+  fbObj.Data.waitOn([albumsQuery,albumCoverQuery,numCommentsQuery,numLikesQuery]
+                    ,fbMultiQueryCB);
+  //fbObj.api({method: 'fql.query',query: queryString},fbGetAlbumsCB);
 };
 
 models.Model1.PersonNode.prototype.addAlbumsFromFBresponse = 
-function(apiResp,fbObj){
-  var albums=apiResp;
-  if(apiResp['length']===undefined){albums=[];} // this happens when user
+function(albumsQ,coverQ,commentsQ,likesQ){
+  var albumsResp=albumsQ['value'];
+  if(albumsResp['length']===undefined){albumsResp=[];} // this happens when user
       // has no albums
-  var fbSession=fbObj.getSession();
-  //goog.asserts.assert(common.helpers.isArray(albums),
-      //'Expected API call for albums to return array');
-  for(var i=0;i<albums.length;i++){
-    var albumObj=albums[i];
+  var coverResp=coverQ['value'];
+  if(coverResp['length']===undefined){coverResp=[];}
+  goog.asserts.assert(coverResp.length===albumsResp.length,
+      'Did not retrive same number of albums and album covers!');
+
+  var likesResp=likesQ['value'];
+  if(likesResp['length']===undefined){likesResp=[];}
+  var commentsResp=commentsQ['value'];
+  if(commentsResp['length']===undefined){commentsResp=[];}
+
+  var numLikesHash = common.helpers.buildCountHash('object_id',albumsResp,
+                     likesResp);
+  var numCommentsHash = common.helpers.buildCountHash('object_id',albumsResp,
+                       commentsResp);
+
+  var numAlbums=0;
+  for(var i=0;i<albumsResp.length;i++){
+    var albumObj=albumsResp[i];
     var albumName='';
     if(albumObj['name']){albumName=albumObj['name'];}
-    var albumIcon = new common.AlbumIcon(albumName,
-        models.Model1.getAlbumPicUrl(albumObj['object_id'],fbSession),
-        0,0,albumObj['aid'],albumObj['object_id'],albumName);
-    var albumNode = new models.Model1.AlbumNode(albumIcon);
-    this.addChildren(albumNode);
+    var albumId = albumObj['object_id'];
+    if(albumId!=='0'){ 
+      // Some profile pic albums get an id of 0, and are not accessible
+      // via apps, so have to check that specially here, inelegant FB :(
+      var albumIcon = new common.AlbumIcon(albumName,
+          coverResp[i]['src'],0,0,albumObj['aid'],albumId,albumName);
+      albumIcon.numComments = numCommentsHash[albumId];
+      albumIcon.numLikes = numLikesHash[albumId];
+      var albumNode = new models.Model1.AlbumNode(albumIcon);
+      this.addChildren(albumNode);
+      numAlbums++;
+    }
   }
+  var metaInfo = this.iconNode.getMetaInfo();
+  metaInfo.contextBarText = 'Showing '+numAlbums.toString()+ ' albums';
   this._isOpen=true;
 };
 
@@ -704,36 +768,109 @@ models.Model1.AlbumNode.prototype.exploreNode = function(model){
   var fbObj=model.fb;
   var _node=this;
   var fqlId=curIcon.fqlId;
+  var fbId=curIcon.fbId;
+  
+  var photosQuery = fbObj.Data.query(
+      'SELECT caption,src,src_big,src_big_height,src_big_width,object_id '+
+      'FROM photo WHERE aid="'+fqlId+'"');
+
+  var albumCommentsQ = fbObj.Data.query(
+      'SELECT fromid,time,text FROM comment WHERE object_id='+fbId);
+
+  var albumLikesQ = fbObj.Data.query(
+      'SELECT uid,name FROM user WHERE uid IN '+
+      '(SELECT user_id FROM like WHERE object_id='+fbId+')'
+      );
+
+  var namesQuery=fbObj.Data.query(
+      'SELECT uid,name FROM user WHERE '+
+      'uid IN (SELECT fromid FROM {0})',
+      albumCommentsQ);
+
+  var photoLikesQ=fbObj.Data.query(
+      'SELECT user_id,object_id FROM like WHERE object_id IN '+
+      '(SELECT object_id FROM {0})',photosQuery);
+
+  var photoCommentsQ=fbObj.Data.query(
+      'SELECT time,object_id FROM comment WHERE object_id IN '+
+      '(SELECT object_id FROM {0})',photosQuery);
  
-  var fbGetPhotosCB = function(apiResp){
-    _node.addPhotosFromFBresponse(apiResp);
+  var fbMultiQueryCB = function(){
+    _node.addPhotosFromFBresponse(albumCommentsQ,albumLikesQ,namesQuery,
+        photosQuery,photoLikesQ,photoCommentsQ);
     model.raiseOpenFolderEvent();
   };
-  //fbObj.api('/'+fbId+'/photos',fbGetPhotosCB);
-  var queryString=
-      'SELECT caption,src,src_big,src_big_height,src_big_width,object_id '+
-      'FROM photo WHERE aid="'+fqlId+'"';
-  fbObj.api({method: 'fql.query',query: queryString},fbGetPhotosCB);
+
+  fbObj.Data.waitOn([albumCommentsQ,albumLikesQ,namesQuery,photosQuery,
+                     photoLikesQ,photoCommentsQ],fbMultiQueryCB);
+  //fbObj.api({method: 'fql.query',query: queryString},fbGetPhotosCB);
 
 };
 
 models.Model1.AlbumNode.prototype.addPhotosFromFBresponse =
-function(apiResp){
-  var photos=apiResp;
+function(albumCommentsQ,albumLikesQ,namesQ,photosQ,photoLikesQ,photoCommentsQ){
+  var photos=photosQ['value'];
   if(photos['length']===undefined){photos=[];} // This happens when album
       // has no photos
-  //goog.asserts.assert(common.helpers.isArray(photos));
+  var photoLikes=photoLikesQ['value'];
+  if(photoLikes['length']===undefined){photoLikes=[];}
+  var photoComments=photoCommentsQ['value'];
+  if(photoComments['length']===undefined){photoComments=[];}
+
+  var numLikesHash = common.helpers.buildCountHash('object_id',photos,
+                                                   photoLikes);
+  var numCommentsHash = common.helpers.buildCountHash('object_id',photos,
+                                                      photoComments);
   for(var i=0;i<photos.length;i++){
     var photoObj=photos[i];
+    var photoId = photoObj['object_id'];
     var photoCaption='';
     if(photoObj['caption']){photoCaption=photoObj['caption'];}
     var photoIcon = new common.PhotoIcon(photoCaption,photoObj['src'],0,0,
-        photoObj['object_id'],photoObj['src_big'],photoCaption,
+        photoId,photoObj['src_big'],photoCaption,
         photoObj['src_big_width'],photoObj['src_big_height']);
-
+    photoIcon.numComments = numCommentsHash[photoId];
+    photoIcon.numLikes = numLikesHash[photoId];
     var photoNode = new models.Model1.PhotoNode(photoIcon);
     this.addChildren(photoNode);
   }
+
+  // Setup the meta info for the album
+  var numPhotos = photos.length;
+  var metaInfo = this.iconNode.getMetaInfo();
+  metaInfo.contextBarText = 'Showing '+numPhotos.toString()+' photos';
+  metaInfo.commentsArray = [];
+  metaInfo.likesArray = [];
+  
+  var albumComments=albumCommentsQ['value'];
+  if(albumComments['length']===undefined){albumComments=[];}
+  var albumLikes=albumLikesQ['value'];
+  if(albumLikes['length']===undefined){albumLikes=[];}
+  var names=namesQ['value'];
+  if(names['length']===undefined){names=[];}
+
+  // Process comments on album first
+  var friendIdToName={};
+  for(var i=0;i<names.length;i++){
+    friendIdToName[names[i]['uid']]=names[i]['name'];
+  }
+  for(var i=0;i<albumComments.length;i++){
+    var fromId=albumComments[i]['fromid'];
+    var fromName=friendIdToName[fromId];
+    if(fromName===undefined){fromName='Anonymous';}
+    var commentObj = new common.CommentObj(albumComments[i]['time'],
+                                           albumComments[i]['text'],
+                                           fromId,fromName);
+    metaInfo.commentsArray.push(commentObj);
+  }
+
+  // Process likes on album
+  for(var i=0;i<albumLikes.length;i++){
+    var likeObj = new common.LikeObj(albumLikes[i]['uid'],
+                                     albumLikes[i]['name']);
+    metaInfo.likesArray.push(likeObj);
+  }
+
   this._isOpen=true;
 };
 
@@ -769,6 +906,9 @@ models.Model1.PhotosOfPersonNode.prototype.exploreNode = function(model){
       'FROM photo WHERE pid IN '+
       '(SELECT pid FROM photo_tag WHERE subject="'+fbId+'")';
   fbObj.api({method: 'fql.query',query: queryString},fbGetPhotosCB);
+  // TODO: get num likes and comments (might be very expensive, so perhaps
+  // better to not get them (unless you figure out a more efficient FQL
+  // query for directly finding the counts)
   //fbObj.api('/'+fbId+'/photos',fbGetPhotosCB);
 
 };
@@ -793,6 +933,9 @@ function(apiResp){
     var photoNode = new models.Model1.PhotoNode(photoIcon);
     this.addChildren(photoNode);
   }
+  var numPhotos=photos.length;
+  var metaInfo = this.iconNode.getMetaInfo();
+  metaInfo.contextBarText = 'Showing '+numPhotos.toString()+ ' photos';
   this._isOpen=true;
 };
 
@@ -917,7 +1060,9 @@ function(commentQ,likesQ,tagsQ,namesQ){
       this.tags.push(tagObj);
     }
   }
-
+  var metaInfo=this.iconNode.getMetaInfo();
+  metaInfo.commentsArray=this.comments;
+  metaInfo.likesArray=this.likes;
   this._isOpen=true;
 };
 

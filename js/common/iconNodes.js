@@ -24,13 +24,20 @@ common.IconNode = function(iconText,iconImgUrl,fileDepth,fileIdx){
                    // will fill this out appropriately
   this.toolTipText=''; // text to be used for showing tool tip, subclasses
                        // will fill it out appropriately
-  this._metaInfo= new common.IconMetaInfo();
+  this.numComments=0; // Use this field to display information on icon thumbnail
+  this.numLikes=0;    // Use this field to display information on icon thumbnail
+  this._metaInfo= new common.IconMetaInfo(); // The fields in this are only
+  // set when the icon has been opened, they are all empty before that
+
+  // Note, the numComments and numLikes might not be in sync with 
+  // _metaInfo.commentsArray.length and _metaInfo.likesArray.length 
+  // (because it is possible somebody commented while icon had not been opened)
+  // But its not a problem because use cases for these fields are different
 };
 
+// This will return useful information only for icons that have been opened
 common.IconNode.prototype.getMetaInfo = function(){
   return this._metaInfo;
-  // This function can be overridden by sub-classes if needed, but 
-  // probably wont be needed
 };
 
 // --- Static values of common.IconNode ---------
@@ -84,6 +91,7 @@ common.AlbumIcon = function(iconText,iconImgUrl,fileDepth,fileIdx,
     this.toolTipText='View photos in this (unnamed) album';
   }
   this.pageJumpType=common.IconNode.IndexType.byIconNumber;
+  this._metaInfo.isLikeable=true;
 };
 goog.inherits(common.AlbumIcon,common.IconNode);
 
@@ -107,6 +115,7 @@ common.PhotoIcon = function(iconText,iconImgUrl,fileDepth,fileIdx,
   this.height = height;
   this.toolTipText = photoCaption;
   this.pageJumpType=common.IconNode.IndexType.byIconNumber;
+  this._metaInfo.isLikeable=true;
 };
 goog.inherits(common.PhotoIcon,common.IconNode);
 
