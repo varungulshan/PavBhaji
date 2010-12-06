@@ -139,6 +139,7 @@ div#icon_table {
 
 
 #icon_table div#image_holder {
+  position: relative;
   height: 95px;
   max-width: 110px;
   text-align: center;
@@ -165,6 +166,27 @@ div#icon_table {
   font-size: 11px;
 }
 
+#icon_table div#small_comment_like_div {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 1px;
+  color: white; 
+  background-image: url('../resources/translucent.png');
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+  -moz-box-shadow: 3px 3px 8px #fff;
+  -webkit-box-shadow: 3px 3px 8px #fff;
+  box-shadow: 3px 3px 8px #fff;
+}
+
+
+#icon_table img#small_comment_img {
+  width: 15px;
+  max-height: 13px;
+}
 
 div#outer_photo_div {
   position: fixed;

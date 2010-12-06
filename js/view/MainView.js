@@ -94,6 +94,11 @@ view.MainView = function(model){
   this._iconTable = document.getElementById('icon_table');
   
   this._navBar = document.getElementById('navigation_bar');
+
+  this._commentIconImg = '../resources/Comments_Icon.png';
+  this._likeIconImg = '../resources/Like_Icon.png';
+  this._smallCommentDivId = 'small_comment_like_div';
+  this._smallCommentImgId = 'small_comment_img';
 }
 
 // TODO: We should probably move this to a common area
