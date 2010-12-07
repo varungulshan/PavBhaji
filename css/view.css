@@ -276,6 +276,15 @@ div#caption_div {
       z-index: 10;
 }
 
+.name_tag_tooltip {
+      background-image: url('../resources/translucent.png');
+      padding: 1px;
+      font-size: 10px;
+      font-weight: bold;
+      color: white;
+      z-index: 10;
+}
+
 .fb_button {
         background-color: #3b5998;
         border-color: #d8dfea rgb(14,31,91) rgb(14,31,91) rgb(216,223,234);
@@ -295,10 +304,18 @@ textarea#comment_area {
 div.tag_rect {
   position: absolute;
   border: 3px solid #fff;
-  width: 40px;
-  height: 40px;
+  width: 80px;
+  height: 80px;
   z-index: 9;
   visibility: hidden;
+}
+
+/* for showing the name on mouseover*/
+div.tag_rect_dummy {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  z-index: 9;
 }
 
 div#caption_wrapper {

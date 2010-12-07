@@ -51,7 +51,8 @@ view.MainViewImpl.prototype.photoViewDisplayPhoto = function(photoObj) {
 
 view.MainViewImpl.prototype.photoViewRemoveTagRects = function () {
   for (var i = 0; i < this._photoDiv.childNodes.length; ++i) {
-    if (this._photoDiv.childNodes[i].className == "tag_rect") {
+    if (this._photoDiv.childNodes[i].className == "tag_rect" || 
+        this._photoDiv.childNodes[i].className == "tag_rect_dummy") {
       this._photoDiv.removeChild(this._photoDiv.childNodes[i]);
       --i;
     }
@@ -69,15 +70,24 @@ view.MainViewImpl.prototype.photoViewGetTaggedHTML = function(tags, width,
   divArray.push(header_div);
   for (var i = 0; i < tags.length; ++i) {
     var divelement = document.createElement("div");
+    var divelement_dummy = document.createElement("div");
     // create a unique id
     divelement.setAttribute("class","tag_rect");
+    divelement_dummy.setAttribute("class","tag_rect_dummy");
     var id_str = "tag_rectangle_" + common.helpers.randomString();
     divelement.id = id_str;
     divelement.style.top = 
-      (Math.floor(0.01*height*tags[i].ycoord) - 20).toString() + "px"; 
+      (Math.floor(0.01*height*tags[i].ycoord) - 40).toString() + "px"; 
     divelement.style.left = 
-      (Math.floor(0.01*width*tags[i].xcoord) - 20).toString() + "px"; 
+      (Math.floor(0.01*width*tags[i].xcoord) - 40).toString() + "px"; 
+    divelement_dummy.style.top = divelement.style.top;
+    divelement_dummy.style.left = divelement.style.left;
+    // attach name to this div
+    var tooltip = new goog.ui.Tooltip(divelement_dummy, tags[i].name);
+    tooltip.className = this._nameTagTooltipClass;
+    tooltip.setShowDelayMs(0);
     this._photoDiv.appendChild(divelement);
+    this._photoDiv.appendChild(divelement_dummy);
     var textdivelement = document.createElement("div");
     textdivelement.setAttribute("class","tag_text");
     textdivelement.onmouseover = new Function(

@@ -100,6 +100,9 @@ view.MainView = function(model){
   this._likeIconImg = '../resources/Like_Icon.png';
   this._smallCommentDivId = 'small_comment_like_div';
   this._smallCommentImgId = 'small_comment_img';
+
+  this._nameTagTooltipClass = 'name_tag_tooltip';
+  this._likeTooltipClass = 'like_tooltip';
 }
 
 // TODO: We should probably move this to a common area
