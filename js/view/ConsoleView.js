@@ -1,5 +1,5 @@
 /** 
- * This file implements the Navbar related function as mentioned in the
+ * This file implements the conSole related function as mentioned in the
  * interface view.MainView
  */
 

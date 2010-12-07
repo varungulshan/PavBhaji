@@ -52,7 +52,7 @@ view.MainViewImpl.prototype.updateView = function() {
   // update navigation bar
   this.navbarViewUpdate();
   // update contextbar
-  // this.contextbarViewUpdate();
+  this.contextbarViewUpdate();
   // update image array
   this.imageArrayViewUpdate();
 }

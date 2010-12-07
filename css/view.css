@@ -164,6 +164,7 @@ div#icon_table {
 
 #icon_table div#image_holder p {
   font-size: 11px;
+  font-weight: bold;
 }
 
 #icon_table div#small_comment_like_div {

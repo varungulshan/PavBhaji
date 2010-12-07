@@ -94,6 +94,7 @@ view.MainView = function(model){
   this._iconTable = document.getElementById('icon_table');
   
   this._navBar = document.getElementById('navigation_bar');
+  this._contextBar = document.getElementById('tool_bar');
 
   this._commentIconImg = '../resources/Comments_Icon.png';
   this._likeIconImg = '../resources/Like_Icon.png';
