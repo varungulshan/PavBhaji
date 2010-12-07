@@ -50,10 +50,8 @@ view.MainViewImpl.prototype.consoleViewUpdateNumComments = function (num) {
 }
 
 view.MainViewImpl.prototype.consoleViewAddCommentClickHandler = function () {
-  if (!this.photoViewIsOpen())
-    return;
-  // TODO(Rahul): Handle above gracefully, ideally the user should not
-  // see the comment area in such a case
+  //TODO(Rahul): We should only allow posting comments for albums and photos
+  // and then there are special cases like tagged photos of me
   var comment_area = document.getElementById('comment_area');  
   var comment = comment_area.value;
   if (comment.length == 0 || comment_area.readOnly == true)
