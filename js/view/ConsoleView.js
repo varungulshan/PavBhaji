@@ -88,3 +88,14 @@ view.MainViewImpl.prototype.consoleViewRenderComment = function(comment) {
     this.consoleViewAdd(HTMLstring);
 
 }
+
+view.MainViewImpl.prototype.consoleViewInit = function(commentArray) {
+  this.consoleViewClear();
+  // set photo comments
+  this.consoleViewUpdateNumComments(commentArray.length);
+  // first create a map from commenter names to ids;
+  this.consoleViewBuildHash(commentArray);
+  for (var i = 0; i < commentArray.length; ++i) {
+    this.consoleViewRenderComment(commentArray[i]);
+  }
+}

@@ -259,6 +259,12 @@ view.MainView.prototype.consoleViewBuildHash = view.MainView.errorFn;
  */
 view.MainView.prototype.consoleViewRenderComment = view.MainView.errorFn;
 
+/**
+ * view.MainView.consoleViewInit(commentArray)
+ * initialize comment console using a bunch of comments 
+ */
+view.MainView.prototype.consoleViewInit = view.MainView.errorFn;
+
 //--------------------------------------------------------------------------
 // Functions for PhotoView
 // -------------------------------------------------------------------------

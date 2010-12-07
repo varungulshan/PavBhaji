@@ -12,4 +12,5 @@ goog.require('goog.asserts');
 view.MainViewImpl.prototype.contextbarViewUpdate = function () {
   var metaInfo = this._currentIconNode.getMetaInfo();
   common.helpers.setText(this._contextBar, metaInfo.contextBarText);
+  this.consoleViewInit(metaInfo.commentsArray);
 }

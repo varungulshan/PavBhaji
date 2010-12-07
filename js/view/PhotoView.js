@@ -46,13 +46,7 @@ view.MainViewImpl.prototype.photoViewDisplayPhoto = function(photoObj) {
       photoCaption.appendChild(taggedDivArray[i]);
     photoCaption.appendChild(captionContainer);
   } 
-  // set photo comments
-  this.consoleViewUpdateNumComments(photoObj.commentArray.length);
-  // first create a map from commenter names to ids;
-  this.consoleViewBuildHash(photoObj.commentArray);
-  for (var i = 0; i < photoObj.commentArray.length; ++i) {
-    this.consoleViewRenderComment(photoObj.commentArray[i]);
-  }
+  this.consoleViewInit(photoObj.commentArray);
 }
 
 view.MainViewImpl.prototype.photoViewRemoveTagRects = function () {
@@ -139,7 +133,8 @@ view.MainViewImpl.prototype.photoViewClosePhoto = function () {
   this._photoCaption.style.visibility = 'hidden';
   this._photoImg.src = this._clearImage;
   this.consoleViewClose();
-  this.consoleViewClear();
-  this.consoleViewUpdateNumComments(0);
+  // switch back to album comments
+  var metaInfo = this._currentIconNode.getMetaInfo();
+  this.consoleViewInit(metaInfo.commentsArray);
 }
 
