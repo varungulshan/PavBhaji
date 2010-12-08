@@ -80,18 +80,38 @@ view.MainViewImpl.prototype.handleKeyPress = function (e) {
 }
 
 
-view.MainViewImpl.prototype.getLikeDiv = function(likeObjArray) {
+view.MainViewImpl.prototype.getLikeDiv = function(likeObjArray ,numVisible) {
   var divelement = document.createElement("div");
   if (likeObjArray.length == 0)
     return divelement;
   var id_str = 'div_' + common.helpers.randomString();
   divelement.id = id_str;
-  var tooltip = new goog.ui.Tooltip(divelement);
-  tooltip.className = this._likeTooltipClass;
+  var divstr="";
   var HTMLstr = "";
-  for ( var i = 0;i < likeObjArray.length; ++i)
-    HTMLstr += (likeObjArray[i].name + "<br>");
-  tooltip.setHtml(HTMLstr);
-  common.helpers.setText(divelement,likeObjArray.length.toString() + ' likes');
-  return divelement; 
+  numVisible = Math.min(numVisible, likeObjArray.length);
+  for (var i =0; i < numVisible; ++i) {
+    if (i == 0)
+      divstr += likeObjArray[i].name;
+    else if (i+1 == numVisible && numVisible == likeObjArray.length)
+      divstr += (' and '+likeObjArray[i].name); 
+    else 
+      divstr += (', '+likeObjArray[i].name); 
+  }
+  if (numVisible == likeObjArray.length) {
+    if (numVisible == 1)
+      divstr += " likes this";
+    else
+      divstr += " like this";
+    common.helpers.setText(divelement, divstr);
+  } else {
+    var tooltip = new goog.ui.Tooltip(divelement);
+    tooltip.className = this._likeTooltipClass;
+    for ( var i = numVisible;i < likeObjArray.length; ++i)
+      HTMLstr += (likeObjArray[i].name + "<br>");
+    tooltip.setHtml(HTMLstr);
+    divstr += (' and ' + (likeObjArray.length - numVisible).toString() + 
+              ' others like this');
+    common.helpers.setText(divelement,divstr);
+  }
+  return divelement;
 }

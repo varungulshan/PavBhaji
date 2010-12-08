@@ -31,7 +31,7 @@ view.MainViewImpl.prototype.photoViewDisplayPhoto = function(photoObj) {
   this.photoViewRemoveTagRects();
   var taggedDivArray = this.photoViewGetTaggedHTML(photoObj.tags, scaledWidth,
                                                                   scaledHeight);
-  var likeDiv = this.getLikeDiv(photoObj.likes);
+  var likeDiv = this.getLikeDiv(photoObj.likes, 3);
   var captionContainer = document.createElement("div");
   captionContainer.id = "caption_wrapper";
   common.helpers.setText(captionContainer, photoObj.caption);
