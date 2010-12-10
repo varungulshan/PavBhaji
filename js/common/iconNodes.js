@@ -92,6 +92,7 @@ common.AlbumIcon = function(iconText,iconImgUrl,fileDepth,fileIdx,
   }
   this.pageJumpType=common.IconNode.IndexType.byIconNumber;
   this._metaInfo.isLikeable=true;
+  this._metaInfo.isCommentable=true;
 };
 goog.inherits(common.AlbumIcon,common.IconNode);
 
@@ -116,6 +117,7 @@ common.PhotoIcon = function(iconText,iconImgUrl,fileDepth,fileIdx,
   this.toolTipText = photoCaption;
   this.pageJumpType=common.IconNode.IndexType.byIconNumber;
   this._metaInfo.isLikeable=true;
+  this._metaInfo.isCommentable=true;
 };
 goog.inherits(common.PhotoIcon,common.IconNode);
 

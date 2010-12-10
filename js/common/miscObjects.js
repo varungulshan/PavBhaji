@@ -20,6 +20,7 @@ goog.provide('common.TagObj');
  *  commentsArray: Array of objects of type common.commentObj
  */
 common.IconMetaInfo = function(){
+  this.isCommentable = false;
   this.isLikeable = false;
   this.contextBarText = ''; 
   this.likesArray = []; 

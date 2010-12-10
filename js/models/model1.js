@@ -34,6 +34,7 @@ models.Model1 = function(){
       // friendNameById['id']='friend name';
   this._userInfo={}; // Object of type {id,picUrl,name}
   this._busy=false;
+  this._lastComment = {};
 };
 goog.inherits(models.Model1,models.AbstractModel);
 goog.exportSymbol('models.Model1',models.Model1);
@@ -245,18 +246,7 @@ models.Model1.prototype.attachToAddCommentEvent = function(eventHandler){
 };
 
 models.Model1.prototype.getLastPostedComment = function(){
-  if(this._currentState!=models.Model1.State.photoView){
-    throw Error(
-        'Expected model to be in photo view state on getLastPostedComment');
-  }
-  var photoNode=this._openNodeList[this._openNodeIdx];
-  goog.asserts.assert(photoNode instanceof models.Model1.PhotoNode);
-  var numComments=photoNode.comments.length;
-  var commentObj={};
-  if(numComments>0){
-    commentObj=photoNode.comments[numComments-1];
-  }
-  return commentObj;
+  return this._lastComment;
 };
 
 models.Model1.prototype.addComment = function(message){
@@ -264,26 +254,25 @@ models.Model1.prototype.addComment = function(message){
     return -1; // Means request not processed
   }
   this._busy=true;
-  if(this._currentState!=models.Model1.State.photoView){
-    throw Error(
-        'Expected model to be in photo view state on model.addComment');
-  }
-  var photoNode=this._openNodeList[this._openNodeIdx];
-  goog.asserts.assert(photoNode instanceof models.Model1.PhotoNode);
-  var photoIcon=photoNode.iconNode;
-  var photoId=photoIcon.fbId;
+  var curNode=this._openNodeList[this._openNodeIdx];
+  var curIcon=curNode.iconNode;
+  var metaInfo=curIcon.getMetaInfo();
+  goog.asserts.assert(metaInfo.isCommentable,'Node not commentable!');
+  goog.asserts.assert(curIcon['fbId'],'fbId field does not exist!');
+
+  var fbId=curIcon.fbId;
   var fbObj=this.fb;
   var _model=this;
+
   var commentAddedCB = function(apiResp){
     // TODO: correct error handling if comment cant be added
     if(!apiResp || apiResp['error']){
       alert('Comment could not be added');
     }
-    //photoNode.addComment(apiResp['id'],_model); 
-    photoNode.addComment(message,_model); // will add this
+    curNode.addComment(message,_model); // will add this
         // comment to the comments list and raise the model event
   };
-  fbObj.api('/'+photoId+'/comments','post',{'message': message},
+  fbObj.api('/'+fbId+'/comments','post',{'message': message},
       commentAddedCB);
 };
 
@@ -295,9 +284,10 @@ models.Model1.prototype.getCurrentPhoto = function(){
   var photoNode=this._openNodeList[this._openNodeIdx];
   goog.asserts.assert(photoNode instanceof models.Model1.PhotoNode);
   var photoIcon=photoNode.iconNode;
+  var metaInfo=photoIcon.getMetaInfo();
   var photoObj = new common.PhotoObj(photoIcon.fullImgUrl,
-      photoIcon.photoCaption,photoNode.comments,photoIcon.width,
-      photoIcon.height,photoNode.likes,photoNode.tags);
+      photoIcon.photoCaption,metaInfo.commentsArray,photoIcon.width,
+      photoIcon.height,metaInfo.likesArray,photoNode.tags);
 
   return photoObj;
 };
@@ -431,6 +421,22 @@ models.Model1.TreeNode.prototype.getChild= function(childIdx){
 models.Model1.TreeNode.prototype.isOpen = function(){
   return this._isOpen;
 };
+
+models.Model1.TreeNode.prototype.addComment = function(message,model){
+  var curTime=(new goog.date.Date()).getTime()/1000; // TODO: this time might
+      // be in a different representation that the one returned by FQL
+  curTime=curTime.toString();
+
+  var commentObj=new common.CommentObj(curTime,message,model.getUserId(),
+                                       model.getUserName());
+  var metaInfo=this.iconNode.getMetaInfo();
+  goog.asserts.assert(metaInfo.isCommentable,
+      'addComment is only valid for commentable nodes');
+  metaInfo.commentsArray.push(commentObj);
+  model.raiseCommentAddedEvent();
+  model._lastComment=commentObj;
+};
+
 
 // ---- Begin implementation of HomeNode ---
 models.Model1.HomeNode = function(iconNode){
@@ -948,8 +954,6 @@ models.Model1.PhotoNode = function(iconNode){
   models.Model1.TreeNode.call(this,iconNode,true);
   this._alwaysCache=true; // is useful because often a photo will be viewed
       // in an album, and user will go back and forth
-  this.comments=[]; // Not storing this in the icon yet
-  this.likes=[];
   this.tags=[];
 };
 goog.inherits(models.Model1.PhotoNode,models.Model1.TreeNode);
@@ -1006,7 +1010,12 @@ models.Model1.PhotoNode.prototype.exploreNode = function(model){
 models.Model1.PhotoNode.prototype.processPhotoQueries =
 function(commentQ,likesQ,tagsQ,namesQ){
   // Process comments
-  this.comments=[];
+  var metaInfo=this.iconNode.getMetaInfo();
+  metaInfo.commentsArray=[];
+  metaInfo.likesArray=[];
+  var comments=metaInfo.commentsArray; 
+  var likes=metaInfo.likesArray; 
+
   var commentQ_resp=commentQ.value;
   var namesQ_resp=namesQ.value;
   if(commentQ_resp['length']!==undefined){
@@ -1033,17 +1042,16 @@ function(commentQ,likesQ,tagsQ,namesQ){
       var commentObj = new common.CommentObj(commentQ_resp[i]['time'],
                                              commentQ_resp[i]['text'],
                                              fromId,fromName);          
-      this.comments.push(commentObj);
+      comments.push(commentObj);
     }
   }
 
   var likesQ_resp=likesQ.value;
-  this.likes=[];
   if(likesQ_resp['length']!==undefined){
     for(var i=0;i<likesQ_resp.length;i++){
       var iLikeResp = likesQ_resp[i];
       var likeObj = new common.LikeObj(iLikeResp['uid'],iLikeResp['name']);
-      this.likes.push(likeObj);
+      likes.push(likeObj);
     }
   }
   
@@ -1060,9 +1068,6 @@ function(commentQ,likesQ,tagsQ,namesQ){
       this.tags.push(tagObj);
     }
   }
-  var metaInfo=this.iconNode.getMetaInfo();
-  metaInfo.commentsArray=this.comments;
-  metaInfo.likesArray=this.likes;
   this._isOpen=true;
 };
 
@@ -1075,23 +1080,12 @@ models.Model1.PhotoNode.prototype.closeNode = function(){
     goog.asserts.assert(this._children.length===0,
         'Photo node should not have any children');        
     this._isOpen=false;
-    this.comments=[];
-    this.likes=[];
+    var metaInfo=this.iconNode.getMetaInfo();
+    metaInfo.commentsArray=[];
+    metaInfo.likesArray=[];
     this.tags=[];
   }
 };
-
-models.Model1.PhotoNode.prototype.addComment = function(message,model){
-  var curTime=(new goog.date.Date()).getTime()/1000; // TODO: this time might
-      // be in a different representation that the one returned by FQL
-  curTime=curTime.toString();
-
-  var commentObj=new common.CommentObj(curTime,message,model.getUserId(),
-                                       model.getUserName());
-  this.comments.push(commentObj);
-  model.raiseCommentAddedEvent();
-};
-
 // --- End implementation of PhotoNode -------
 
 
