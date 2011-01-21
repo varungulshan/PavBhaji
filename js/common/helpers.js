@@ -67,7 +67,7 @@ common.helpers.shortenText = function(text,maxLen){
  * Return profile url given a facebook id
  */
 common.helpers.getProfileUrl = function(id){
-  return ('http://www.facebook.com/'+id);
+  return ('http://www.facebook.com/profile.php?id='+id);
 };
 
 /**
