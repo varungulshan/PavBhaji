@@ -105,6 +105,13 @@ models.AbstractModel.prototype.getLastPostedComment =
 models.AbstractModel.prototype.getUserName = models.AbstractModel.errorFn;
 
 /**
+ * userId=model.getUserId()
+ * Returns fb id of current user 
+ */
+models.AbstractModel.prototype.getUserId = models.AbstractModel.errorFn;
+
+
+/**
  * Function to close the photo, will not raise any open folder event
  */
 models.AbstractModel.prototype.closeCurrentPhoto = models.AbstractModel.errorFn;
