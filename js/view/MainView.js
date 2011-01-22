@@ -149,7 +149,7 @@ view.MainView.prototype.updateView = view.MainView.errorFn;
 view.MainView.prototype.handleKeyPress = view.MainView.errorFn;
 
 /**
- * view.MainView.getLikeDiv(likeObjArray, numvisible)
+ * view.MainView.getLikeDiv(userId, likeObjArray, numvisible)
  * Given a like object array, it returns the corresponding div
  * numVisible selected likes are shown explicitly
  */

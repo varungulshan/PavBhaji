@@ -31,21 +31,16 @@ view.MainViewImpl.prototype.photoViewDisplayPhoto = function(photoObj) {
   this.photoViewRemoveTagRects();
   var taggedDivArray = this.photoViewGetTaggedHTML(photoObj.tags, scaledWidth,
                                                                   scaledHeight);
-  var likeDiv = this.getLikeDiv(photoObj.likes, 3);
+  var likeDiv = this.getLikeDiv(this._model.getUserId(), photoObj.likes, 3);
   var captionContainer = document.createElement("div");
   captionContainer.id = "caption_wrapper";
   common.helpers.setText(captionContainer, photoObj.caption);
-  if (taggedDivArray.length == 0 && photoObj.caption == '' &&
-      photoObj.likes.length == 0) {
-    photoCaption.style.visibility = 'hidden';
-  } else {
-    photoCaption.style.visibility = 'visible';
-    // TODO(Rahul): adding one by one is inefficient
-    photoCaption.appendChild(likeDiv);
-    for(var i = 0; i < taggedDivArray.length ; ++i)
-      photoCaption.appendChild(taggedDivArray[i]);
-    photoCaption.appendChild(captionContainer);
-  } 
+  photoCaption.style.visibility = 'visible';
+  // TODO(Rahul): adding one by one is inefficient
+  photoCaption.appendChild(likeDiv);
+  for(var i = 0; i < taggedDivArray.length ; ++i)
+    photoCaption.appendChild(taggedDivArray[i]);
+  photoCaption.appendChild(captionContainer);
   this.consoleViewInit(photoObj.commentArray);
 }
 

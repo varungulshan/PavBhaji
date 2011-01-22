@@ -80,13 +80,28 @@ view.MainViewImpl.prototype.handleKeyPress = function (e) {
 }
 
 
-view.MainViewImpl.prototype.getLikeDiv = function(likeObjArray ,numVisible) {
+view.MainViewImpl.prototype.getLikeDiv = function(userId, 
+                                                  likeObjArray ,numVisible) {
   var divelement = document.createElement("div");
-  if (likeObjArray.length == 0)
+  // check if the user has already liked this
+  var already_liked = false;
+  var divstr="";
+  for(var i=0;i<likeObjArray.length;++i) {
+    if (likeObjArray[i].id == userId) {
+      already_liked = true;
+      break;
+    }
+  }
+  if (!already_liked) {
+   divstr+= '<div>Like<img src="' +
+            this._likeIconImg + '"></div>' 
+  }
+  if (likeObjArray.length == 0) {
+    divelement.innerHTML = divstr;
     return divelement;
+  }
   var id_str = 'div_' + common.helpers.randomString();
   divelement.id = id_str;
-  var divstr="";
   var HTMLstr = "";
   numVisible = Math.min(numVisible, likeObjArray.length);
   for (var i =0; i < numVisible; ++i) {
