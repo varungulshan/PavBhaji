@@ -79,10 +79,13 @@ view.MainViewImpl.prototype.consoleViewRenderComment = function(comment) {
     if (this._hashMap[comment.from.name] == undefined)
       this._hashMap[comment.from.name] = 1;
     var HTMLstring = 
-      '<span class="commenter_name" style="color:'+ 
+      '<a href="' + comment.from.profileUrl + 
+      '" target="_blank"><div style="float:left">' +
+      '<span class="commenter_name"style="color:'+ 
       this._commenterColors[this._hashMap[comment.from.name]]+
-      '">'+ comment.from.name + 
-      '</span>: ' + comment.message;
+      '">' + 
+      comment.from.name + 
+      '</span></div></a>: ' + comment.message;
     this.consoleViewAdd(HTMLstring);
 
 }

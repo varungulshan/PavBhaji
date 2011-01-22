@@ -90,28 +90,32 @@ view.MainViewImpl.prototype.getLikeDiv = function(likeObjArray ,numVisible) {
   var HTMLstr = "";
   numVisible = Math.min(numVisible, likeObjArray.length);
   for (var i =0; i < numVisible; ++i) {
+    var nameStr = '<a href="'+likeObjArray[i].profileUrl+'" target="_blank">' + 
+                  '<span style="color:white">' +
+                  likeObjArray[i].name + '</span></a>';
     if (i == 0)
-      divstr += likeObjArray[i].name;
+      divstr += nameStr;
     else if (i+1 == numVisible && numVisible == likeObjArray.length)
-      divstr += (' and '+likeObjArray[i].name); 
+      divstr += (' and '+ nameStr); 
     else 
-      divstr += (', '+likeObjArray[i].name); 
+      divstr += (', '+nameStr); 
   }
   if (numVisible == likeObjArray.length) {
     if (numVisible == 1)
-      divstr += " likes this";
+      divstr += ' likes this';
     else
-      divstr += " like this";
-    common.helpers.setText(divelement, divstr);
+      divstr += ' like this';
+    divelement.innerHTML = divstr;
   } else {
     var tooltip = new goog.ui.Tooltip(divelement);
     tooltip.className = this._likeTooltipClass;
     for ( var i = numVisible;i < likeObjArray.length; ++i)
       HTMLstr += (likeObjArray[i].name + "<br>");
     tooltip.setHtml(HTMLstr);
-    divstr += (' and ' + (likeObjArray.length - numVisible).toString() + 
-              ' others like this');
-    common.helpers.setText(divelement,divstr);
+    divstr += (' and ' + 
+               (likeObjArray.length - numVisible).toString() + 
+               ' others like this');
+    divelement.innerHTML = divstr;
   }
   return divelement;
 }

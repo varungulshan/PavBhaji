@@ -94,7 +94,9 @@ view.MainViewImpl.prototype.photoViewGetTaggedHTML = function(tags, width,
       'document.getElementById("'+id_str+'").style.visibility = "visible"');
     textdivelement.onmouseout = new Function(
       'document.getElementById("'+id_str+'").style.visibility = "hidden"');
-    textdivelement.innerHTML = tags[i].name + ", ";
+    textdivelement.innerHTML = '<a href="' + tags[i].profileUrl + 
+                     '" target="_blank"><span style="color:white">' + 
+                     tags[i].name + ', </span></a>';
     divArray.push(textdivelement);
   } 
   return divArray;
