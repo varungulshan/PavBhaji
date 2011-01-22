@@ -83,6 +83,8 @@ models.Model1.prototype.asyncInitialization = function(){
     if(friends['length']===undefined){
       friends=[];
     }
+    friends.sort(
+      function(a,b) {if (a['name']<b['name']) return -1; else return 1;});
     for(var i=0;i<friends.length;i++){
       var friendObj=friends[i];
       var friendId=friendObj['uid'];
