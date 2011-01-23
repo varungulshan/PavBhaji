@@ -13,6 +13,7 @@ models.AbstractModel = function(){
   this._openFolderEvent = new common.Event(this);
   this._openPhotoEvent = new common.Event(this);
   this._addCommentEvent = new common.Event(this);
+  this._addLikeEvent = new common.Event(this);
 };
 
 models.AbstractModel.errorFn = common.helpers.virtualErrorFn;
@@ -45,6 +46,15 @@ models.AbstractModel.prototype.attachToOpenPhotoEvent =
  * instead, the event handler should make suitable api calls to get data
  */ 
 models.AbstractModel.prototype.attachToAddCommentEvent =
+    models.AbstractModel.errorFn;
+
+/**
+ * model.attachToAddLikeEvent(eventHandlerFn :function)
+ * Causes eventHandlerFn to be called whenever a notification happens
+ * on the _addLikeEvent. No parameters are passed to the eventHandlerFn
+ * instead, the event handler should make suitable api calls to get data
+ */ 
+models.AbstractModel.prototype.attachToAddLikeEvent =
     models.AbstractModel.errorFn;
 
 /**
@@ -83,12 +93,23 @@ models.AbstractModel.prototype.getCurrentPhoto = models.AbstractModel.errorFn;
 
 /**
  * model.addComment(message :string) [async]
- * Adds a comment to the currently open photo (errors if not viewing
- * a photo). This function raises the commentAddedEvent
+ * Adds a comment to the currently open commentable node (can be album/photo)
+ * (errors if not node is not commentable).
+ * This function raises the commentAddedEvent
  * TODO: If comment adding was not successful, somehow need to inform
  * of that also.
  */
 models.AbstractModel.prototype.addComment = models.AbstractModel.errorFn;
+
+/**
+ * model.addLike() [async]
+ * Adds a like to the currently open node (can be photo/album)
+ * This function raises the likeAddedEvent
+ * TODO: If like adding was not successful, somehow need to inform
+ * of that also.
+ */
+models.AbstractModel.prototype.addLike = models.AbstractModel.errorFn;
+
 
 /**
  * commentObj=model.getLastPostedComment() 

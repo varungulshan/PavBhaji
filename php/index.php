@@ -38,6 +38,8 @@ if ($session) {
   // In the above, the canvas => 1 option might not be supported later on
   // in that case, if the session exists you just need to play with the next
   // parameter and do some redirections 
+  // We might need publish_stream permission to like stuff, but the liking
+  // doesnt work at the moment
 }
 
 ?>

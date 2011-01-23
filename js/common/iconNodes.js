@@ -6,6 +6,7 @@ goog.provide('common.PersonIcon');
 goog.provide('common.AlbumIcon');
 goog.provide('common.FriendsIcon');
 goog.provide('common.PhotoIcon');
+goog.provide('common.NoEntriesIcon');
 goog.provide('common.PhotosOfPersonIcon');
 goog.provide('common.PhotoObj');
 
@@ -48,7 +49,6 @@ common.RecentPhotosIcon = function(iconImgUrl,fileDepth,fileIdx){
   common.IconNode.call(this,'Recently Tagged',iconImgUrl,fileDepth,fileIdx);
   this.navText='Tagged';
   this.toolTipText='View photos of recently tagged friends';
-  this.pageJumpType=common.IconNode.IndexType.byIconNumber;
 };
 goog.inherits(common.RecentPhotosIcon,common.IconNode); // This call simulates
 // inheritance, and needs to be made after the class declaration.
@@ -57,7 +57,6 @@ common.RecentAlbumsIcon = function(iconImgUrl,fileDepth,fileIdx){
   common.IconNode.call(this,'Recent albums',iconImgUrl,fileDepth,fileIdx);
   this.navText='Rec. Albums';
   this.toolTipText='View recently added/updated albums by your friends';
-  this.pageJumpType=common.IconNode.IndexType.byIconNumber;
 };
 goog.inherits(common.RecentAlbumsIcon,common.IconNode); // This call simulates
 // inheritance, and needs to be made after the class declaration.
@@ -70,9 +69,17 @@ common.PersonIcon = function(iconText,iconImgUrl,fileDepth,fileIdx,
   this.name=name;
   this.navText=common.helpers.getFirstName(name);
   this.toolTipText='View albums and tagged photos of '+name;
-  this.pageJumpType=common.IconNode.IndexType.byIconNumber;
 };
 goog.inherits(common.PersonIcon,common.IconNode); // This call simulates
+// inheritance, and needs to be made after the class declaration.
+
+// This icon is used when no albums/photos of person are found
+common.NoEntriesIcon = function(iconText,iconImgUrl,fileDepth,fileIdx){
+  common.IconNode.call(this,iconText,iconImgUrl,fileDepth,fileIdx);
+  this.navText='Empty';
+  this.toolTipText=iconText;
+};
+goog.inherits(common.NoEntriesIcon,common.IconNode); // This call simulates
 // inheritance, and needs to be made after the class declaration.
 
 common.AlbumIcon = function(iconText,iconImgUrl,fileDepth,fileIdx,
@@ -90,7 +97,6 @@ common.AlbumIcon = function(iconText,iconImgUrl,fileDepth,fileIdx,
   else{
     this.toolTipText='View photos in this (unnamed) album';
   }
-  this.pageJumpType=common.IconNode.IndexType.byIconNumber;
   this._metaInfo.isLikeable=true;
   this._metaInfo.isCommentable=true;
 };
@@ -100,7 +106,6 @@ common.FriendsIcon = function(iconText,iconImgUrl,fileDepth,fileIdx){
   common.IconNode.call(this,iconText,iconImgUrl,fileDepth,fileIdx);
   this.navText='Friends';
   this.toolTipText='View your friends and their photos';
-  this.pageJumpType=common.IconNode.IndexType.byIconText;
 };
 goog.inherits(common.FriendsIcon,common.IconNode);
 
@@ -115,7 +120,6 @@ common.PhotoIcon = function(iconText,iconImgUrl,fileDepth,fileIdx,
   this.width = width;
   this.height = height;
   this.toolTipText = photoCaption;
-  this.pageJumpType=common.IconNode.IndexType.byIconNumber;
   this._metaInfo.isLikeable=true;
   this._metaInfo.isCommentable=true;
 };
@@ -126,7 +130,6 @@ common.PhotosOfPersonIcon = function(iconText,iconImgUrl,fileDepth,fileIdx,
   common.IconNode.call(this,iconText,iconImgUrl,fileDepth,fileIdx);
   this.name=name; // The name of the person who's photos these are
   this.fbId=fbId; // fbId of the person who's photos need to be seen
-  this.pageJumpType=common.IconNode.IndexType.byIconNumber;
 
   // TODO: handle this better, this one could crash
   // if a person is actually named you.

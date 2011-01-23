@@ -11,6 +11,7 @@ goog.require('common.TagObj');
 goog.require('common.helpers');
 goog.require('common.IconNode');
 goog.require('common.PersonIcon');
+goog.require('common.NoEntriesIcon');
 goog.require('common.AlbumIcon');
 goog.require('common.FriendsIcon');
 goog.require('common.PhotoIcon');
@@ -103,8 +104,9 @@ models.Model1.prototype.asyncInitialization = function(){
 
     var numFriends = friends.length;
     var homeMetaInfo = _model._homeNode.iconNode.getMetaInfo();
-    homeMetaInfo.contextBarText = 'You have '+numFriends.toString()+
-        ' friends and some photos';
+    //homeMetaInfo.contextBarText = 'You have '+numFriends.toString()+
+    //    ' friends and some photos';
+    homeMetaInfo.contextBarText = 'Choose an icon below to view photos';
     _model.raiseOpenFolderEvent();
   };
 
@@ -222,6 +224,11 @@ models.Model1.prototype.raiseCommentAddedEvent = function(){
   this._busy=false;
 };
 
+models.Model1.prototype.raiseLikeAddedEvent = function(){
+  this._addLikeEvent.notify();
+  this._busy=false;
+};
+
 models.Model1.prototype.raiseOpenFolderEvent = function(){
   goog.asserts.assert(this._openNodeList[this._openNodeIdx].isOpen(),
       'Expected node to be opened on the openFolder notification');
@@ -246,6 +253,13 @@ models.Model1.prototype.attachToAddCommentEvent = function(eventHandler){
       'Event handler expected to be a function');
   this._addCommentEvent.attach(eventHandler);
 };
+
+models.Model1.prototype.attachToAddLikeEvent = function(eventHandler){
+  goog.asserts.assert(typeof eventHandler === 'function',
+      'Event handler expected to be a function');
+  this._addLikeEvent.attach(eventHandler);
+};
+
 
 models.Model1.prototype.getLastPostedComment = function(){
   return this._lastComment;
@@ -277,6 +291,34 @@ models.Model1.prototype.addComment = function(message){
   fbObj.api('/'+fbId+'/comments','post',{'message': message},
       commentAddedCB);
 };
+
+models.Model1.prototype.addLike = function(){
+  if(this._busy){
+    return -1; // Means request not processed
+  }
+  this._busy=true;
+  var curNode=this._openNodeList[this._openNodeIdx];
+  var curIcon=curNode.iconNode;
+  var metaInfo=curIcon.getMetaInfo();
+  goog.asserts.assert(metaInfo.isLikeable,'Node not likeable!');
+  goog.asserts.assert(curIcon['fbId'],'fbId field does not exist!');
+
+  var fbId=curIcon.fbId;
+  var fbObj=this.fb;
+  var _model=this;
+
+  var likeAddedCB = function(apiResp){
+    // TODO: correct error handling if like cant be added
+    if(!apiResp || apiResp['error']){
+      alert('Like could not be added');
+    }
+    curNode.addLike(_model); // will add this
+        // like to the likes list and raise the model event
+  };
+  fbObj.api('/'+fbId+'/likes','post',{},likeAddedCB);
+};
+
+
 
 models.Model1.prototype.getCurrentPhoto = function(){
   if(this._currentState!=models.Model1.State.photoView){
@@ -439,6 +481,14 @@ models.Model1.TreeNode.prototype.addComment = function(message,model){
   model._lastComment=commentObj;
 };
 
+models.Model1.TreeNode.prototype.addLike = function(model){
+  var likeObj=new common.LikeObj(model.getUserId(),model.getUserName());
+  var metaInfo=this.iconNode.getMetaInfo();
+  goog.asserts.assert(metaInfo.isLikeable,
+      'addLike is only valid for likeable nodes');
+  metaInfo.likesArray.push(likeObj);
+  model.raiseLikeAddedEvent();
+};
 
 // ---- Begin implementation of HomeNode ---
 models.Model1.HomeNode = function(iconNode){
@@ -525,6 +575,24 @@ models.Model1.FriendsNode.prototype.exploreNode = function(model){
 
 // --- End implementation of FriendsNode ---------
 
+// --- Being implementation of NoEntriesNode -----
+models.Model1.NoEntriesNode = function(iconNode){
+  goog.asserts.assert(iconNode instanceof common.NoEntriesIcon);
+  models.Model1.TreeNode.call(this,iconNode,false);
+  this._alwaysCache=false;
+};
+goog.inherits(models.Model1.NoEntriesNode,models.Model1.TreeNode);
+
+models.Model1.NoEntriesNode.prototype.exploreNode = function(model){
+  // Do nothing!
+  model.raiseOpenFolderEvent();
+  this._isOpen=true;
+};
+
+// --- End implementation of RecentPhotosNode ---------
+
+
+
 // --- Being implementation of RecentPhotosNode -----
 models.Model1.RecentPhotosNode = function(iconNode){
   goog.asserts.assert(iconNode instanceof common.RecentPhotosIcon);
@@ -551,7 +619,7 @@ models.Model1.RecentPhotosNode.prototype.exploreNode = function(model){
       'FROM photo WHERE pid IN'+
       '(SELECT pid FROM photo_tag WHERE subject IN'+
       '(SELECT uid2 FROM friend WHERE uid1 = me()) '+
-      'order by created desc limit '+models.Model1.numRecentPhotos.toString()+
+      'ORDER BY created DESC LIMIT '+models.Model1.numRecentPhotos.toString()+
       ')';
   fbObj.api({method: 'fql.query',query: queryString},fbOpenRecentPhotosCB);
   // TODO: check if the above call can be made simpler/faster
@@ -607,17 +675,12 @@ models.Model1.RecentAlbumsNode.prototype.exploreNode = function(model){
     model.raiseOpenFolderEvent();
   };
 
-  var timeThresh = new goog.date.Date();
-  var monthInterval = new goog.date.Interval(0,0,-7); 
-      // 0 years, 0 months, -7 days
-  timeThresh.add(monthInterval);
   var queryString='SELECT aid,name,object_id,owner FROM album WHERE '+
-      'modified > '+(timeThresh.getTime()/1000).toString()+
-      ' AND owner IN (SELECT uid2 FROM friend WHERE uid1 = me()) '+
-      ' order by modified desc limit '+models.Model1.numRecentAlbums.toString();
+      ' owner IN (SELECT uid2 FROM friend WHERE uid1 = me()) '+
+      ' AND type<>"profile"'+
+      ' ORDER BY modified DESC LIMIT '+models.Model1.numRecentAlbums.toString();
   fbObj.api({method: 'fql.query',query: queryString},fbOpenRecentAlbumsCB);
   // TODO: check if the above call can be made simpler/faster
-  // seems like the time threshold doesnt affect anything
   // Also add query for numComments and numLikes
 };
 
@@ -752,7 +815,16 @@ function(albumsQ,coverQ,commentsQ,likesQ){
     }
   }
   var metaInfo = this.iconNode.getMetaInfo();
-  metaInfo.contextBarText = 'Showing '+numAlbums.toString()+ ' albums';
+  if(numAlbums>0){
+    metaInfo.contextBarText = 'Showing '+numAlbums.toString()+ ' albums';
+  }else{
+    var noEntryImg = models.Model1.resourceDir+'noentries.gif';
+    var noEntryIcon = new common.NoEntriesIcon('No albums available',
+        noEntryImg,0,0);
+    var noEntryNode = new models.Model1.NoEntriesNode(noEntryIcon);
+    this.addChildren(noEntryNode);
+    metaInfo.contextBarText = 'No albums available';
+  }
   this._isOpen=true;
 };
 
@@ -930,20 +1002,29 @@ function(apiResp){
       // for some reason
   //goog.asserts.assert(common.helpers.isArray(photos),
       //'Expect FB api call for photos of person to return an array');
-  for(var i=0;i<photos.length;i++){
-    var photoObj=photos[i];
-    var photoCaption='';
-    if(photoObj['caption']){photoCaption=photoObj['caption'];}
-    var photoIcon = new common.PhotoIcon(photoCaption,photoObj['src'],0,0,
-        photoObj['object_id'],photoObj['src_big'],photoCaption,
-        photoObj['src_big_width'],photoObj['src_big_height']);
-
-    var photoNode = new models.Model1.PhotoNode(photoIcon);
-    this.addChildren(photoNode);
-  }
   var numPhotos=photos.length;
   var metaInfo = this.iconNode.getMetaInfo();
-  metaInfo.contextBarText = 'Showing '+numPhotos.toString()+ ' photos';
+  if(numPhotos > 0){
+    for(var i=0;i<photos.length;i++){
+      var photoObj=photos[i];
+      var photoCaption='';
+      if(photoObj['caption']){photoCaption=photoObj['caption'];}
+      var photoIcon = new common.PhotoIcon(photoCaption,photoObj['src'],0,0,
+          photoObj['object_id'],photoObj['src_big'],photoCaption,
+          photoObj['src_big_width'],photoObj['src_big_height']);
+
+      var photoNode = new models.Model1.PhotoNode(photoIcon);
+      this.addChildren(photoNode);
+    }
+    metaInfo.contextBarText = 'Showing '+numPhotos.toString()+ ' photos';
+  }else{
+    var noEntryImg = models.Model1.resourceDir+'noentries.gif';
+    var noEntryIcon = new common.NoEntriesIcon('No tagged photos available',
+        noEntryImg,0,0);
+    var noEntryNode = new models.Model1.NoEntriesNode(noEntryIcon);
+    this.addChildren(noEntryNode);
+    metaInfo.contextBarText = 'No tagged photos available';
+  }
   this._isOpen=true;
 };
 
