@@ -45,7 +45,7 @@ view.MainViewImpl.prototype.consoleViewAddCommentArea = function () {
 }
 
 view.MainViewImpl.prototype.consoleViewUpdateNumComments = function (num) {
-  var headerString = "Comments("+num.toString()+")";
+  var headerString = "(F12) Comments("+num.toString()+")";
   common.helpers.setText(this._consoleHeader, headerString);
   if (num!=0) 
     this._consoleHeader.setAttribute("class","boldify");

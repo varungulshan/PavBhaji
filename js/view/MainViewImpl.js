@@ -60,7 +60,7 @@ view.MainViewImpl.prototype.updateView = function() {
 
 view.MainViewImpl.prototype.handleKeyPress = function (e) {
   switch(e.keyCode) {
-    case goog.events.KeyCodes.CTRL:
+    case goog.events.KeyCodes.F12:
       this._consoleZippy.toggle();
       break;
     case goog.events.KeyCodes.RIGHT:
