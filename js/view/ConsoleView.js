@@ -100,3 +100,8 @@ view.MainViewImpl.prototype.consoleViewInit = function(commentArray) {
     this.consoleViewRenderComment(commentArray[i]);
   }
 }
+
+view.MainViewImpl.prototype.commentAreaIsEmpty = function () {
+  var comment_area = document.getElementById('comment_area');  
+  return (comment_area.value.length == 0);
+}

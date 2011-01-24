@@ -269,6 +269,13 @@ view.MainView.prototype.consoleViewRenderComment = view.MainView.errorFn;
  */
 view.MainView.prototype.consoleViewInit = view.MainView.errorFn;
 
+/**
+ * view.MainView.commentAreaIsEmpty()
+ * returns true if the comment area is empty
+ */
+view.MainView.prototype.commentAreaIsEmpty = view.MainView.errorFn;
+
+
 //--------------------------------------------------------------------------
 // Functions for PhotoView
 // -------------------------------------------------------------------------

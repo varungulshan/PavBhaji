@@ -63,11 +63,11 @@ view.MainViewImpl.prototype.handleKeyPress = function (e) {
       this._consoleZippy.toggle();
       break;
     case goog.events.KeyCodes.RIGHT:
-      if (this.photoViewIsOpen())
+      if (this.photoViewIsOpen() && this.commentAreaIsEmpty())
         this.photoViewNextButtonClickHandler();
       break;
     case goog.events.KeyCodes.LEFT:
-      if (this.photoViewIsOpen())
+      if (this.photoViewIsOpen() && this.commentAreaIsEmpty())
         this.photoViewPrevButtonClickHandler();
       break;
     case goog.events.KeyCodes.ESC:
