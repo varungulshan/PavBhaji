@@ -91,6 +91,9 @@ div#console_header_div {
   margin-right:auto;
   background-color: #627AAD;
   color: white;
+}
+
+div.boldify {
   font-weight: bold;
 }
 
