@@ -83,19 +83,20 @@ view.MainViewImpl.prototype.handleKeyPress = function (e) {
 view.MainViewImpl.prototype.getLikeDiv = function(userId, 
                                                   likeObjArray ,numVisible) {
   var divelement = document.createElement("div");
-  // check if the user has already liked this
-  var already_liked = false;
   var divstr="";
-  for(var i=0;i<likeObjArray.length;++i) {
-    if (likeObjArray[i].id == userId) {
-      already_liked = true;
-      break;
-    }
-  }
-  if (!already_liked) {
-   divstr+= '<div>Like<img src="' +
-            this._likeIconImg + '"></div>' 
-  }
+  // comment out the following code to add a like button
+  // check if the user has already liked this
+  //var already_liked = false;
+  //for(var i=0;i<likeObjArray.length;++i) {
+  //  if (likeObjArray[i].id == userId) {
+  //    already_liked = true;
+  //    break;
+  //  }
+  //}
+  //if (!already_liked) {
+  // divstr+= '<div>Like<img src="' +
+  //          this._likeIconImg + '"></div>' 
+  //}
   if (likeObjArray.length == 0) {
     divelement.innerHTML = divstr;
     return divelement;
