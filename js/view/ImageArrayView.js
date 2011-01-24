@@ -39,7 +39,7 @@ view.MainViewImpl.prototype.imageArrayViewAddImageHolder =
   divelement.id = "image_holder";
   var imgelement = document.createElement("img");
   imgelement.src = this._childIconNodes[idx].iconImgUrl;
-  var pelement = document.createElement("p");
+  var pelement = document.createElement("div");
   common.helpers.setText(pelement, this._childIconNodes[idx].iconText);
   var tip = new goog.ui.Tooltip(divelement, 
     this._childIconNodes[idx].toolTipText);

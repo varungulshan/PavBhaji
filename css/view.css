@@ -144,11 +144,11 @@ div#icon_table {
 
 #icon_table div#image_holder {
   position: relative;
-  height: 95px;
-  max-width: 110px;
+  height: 112px;
+  max-width: 140px;
   text-align: center;
-  padding: 2px 2px;
-  margin: 2px 2px;
+  padding: 1px 1px;
+  margin: 1px 1px;
   background-image: url('../resources/loading.gif');
   background-repeat: no-repeat;
   background-position: center center;
@@ -163,10 +163,10 @@ div#icon_table {
 }
 
 #icon_table div#image_holder img {
-  height: 70px;
+  height: 95px;
 }
 
-#icon_table div#image_holder p {
+#icon_table div#image_holder div {
   font-size: 11px;
   font-weight: bold;
   text-overflow: ellipsis;
