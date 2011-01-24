@@ -55,6 +55,7 @@ view.MainViewImpl.prototype.updateView = function() {
   this.contextbarViewUpdate();
   // update image array
   this.imageArrayViewUpdate();
+  scroll(0,0);
 }
 
 view.MainViewImpl.prototype.handleKeyPress = function (e) {
