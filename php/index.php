@@ -6,7 +6,8 @@ require '../../php-sdk/src/facebook.php';
 // Create an Application instance.
 $appId='';
 $appSecret='';
-switch($_SERVER['SERVER_NAME']){
+$hostName=$_SERVER['SERVER_NAME'];
+switch($hostName){
   case 'abstract.cs.washington.edu':
     $appId='126766050701493';
     $appSecret='31da91932ffb565e48af20f898f4829e';
@@ -15,12 +16,13 @@ switch($_SERVER['SERVER_NAME']){
     $appId='145449078803458';
     $appSecret='1034642f5d087b0272bb56ba18ffd1a7';
     break;
-  case 'domU-12-31-39-02-28-09': // Amazon test server
+  case 'ec2-67-202-51-182.compute-1.amazonaws.com': // Amazon test server
     $appId='168117493234676';
     $appSecret='d14b76e07fb36ad1116117c4ee72ba09';
     break;
   default:
-    die('Unknown host!\n'); 
+    $errMsg='Unknown host:'.$hostName;
+    die($errMsg);
 }
 
 $facebook = new Facebook(array(
