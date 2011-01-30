@@ -15,6 +15,10 @@ switch($_SERVER['SERVER_NAME']){
     $appId='145449078803458';
     $appSecret='1034642f5d087b0272bb56ba18ffd1a7';
     break;
+  case 'domU-12-31-39-02-28-09': // Amazon test server
+    $appId='168117493234676';
+    $appSecret='d14b76e07fb36ad1116117c4ee72ba09';
+    break;
   default:
     die('Unknown host!\n'); 
 }
