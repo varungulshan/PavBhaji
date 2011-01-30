@@ -29,7 +29,7 @@ all: simpleCompile
 # This target build with simple optimizations enabled
 simpleCompile:
 	$(BUILDER_FILE_) $(ROOT_FLAGS_) $(NAMESPACE_FLAGS) $(COMPILE_SIMPLE_FLAGS) \
-      $(COMPILER_FLAGS_) --output_file $(OUTDIR)/all-compiled.js
+      $(COMPILER_FLAGS_) --output_file $(OUTDIR)/all_compiled.js
 
 # This target only combines all js into a single file, closure
 # compiler is not used
@@ -41,7 +41,7 @@ noCompile:
 # aggresive optimization from the closure compiler
 optiCompile:
 	$(BUILDER_FILE_) $(ROOT_FLAGS_) $(NAMESPACE_FLAGS) $(COMPILE_OPTI_FLAGS) \
-      $(COMPILER_FLAGS_) --output_file $(OUTDIR)/all-compiledOpti.js 
+      $(COMPILER_FLAGS_) --output_file $(OUTDIR)/all_compiledOpti.js 
 
 # This target only shows the dependency calculation output, to make
 # sure all files you expect are being included
@@ -50,5 +50,5 @@ showDeps:
 
 clean:
 	-rm  $(OUTDIR)/all.js
-	-rm  $(OUTDIR)/all-compiled.js
-	-rm  $(OUTDIR)/all-compiledOpti.js
+	-rm  $(OUTDIR)/all_compiled.js
+	-rm  $(OUTDIR)/all_compiledOpti.js

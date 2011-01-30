@@ -8,7 +8,21 @@
   // 'closureOptimized': same as 'closureBuilt', but also compiled with advanced
   //                     optimizations of the closure compiler
 
-  $scriptMethod='manual';
+  // set the $PHP_ENV variable in .bashrc to change the environment
+  // This is not working right now, as PHP_ENV needs to be created
+  // in the environment in which apache runs. So currently
+  // need to keep this file dirty (change the default case below)
+  switch(getenv("PHP_ENV")){
+    case "production":
+      $scriptMethod='closureCompiled';
+      break;
+    case "development":
+      $scriptMethod='manual';
+      break;
+    default:
+      $scriptMethod='closureCompiled';
+  }
+  //$scriptMethod='manual';
   //$scriptMethod='closureBuilt';
   //$scriptMethod='closureCompiled';
   //$scriptMethod='closureOptimized';
@@ -56,10 +70,10 @@
     <script type="text/javascript" 
             src="http://connect.facebook.net/en_US/all.js"></script>
     <script type="text/javascript" 
-            src="./js-compiled/all-compiled.js"></script>
+            src="./js-compiled/all_compiled.js"></script>
 <?php elseif($scriptMethod==='closureOptimized'): ?>
     <script type="text/javascript" 
             src="http://connect.facebook.net/en_US/all.js"></script>
     <script type="text/javascript" 
-            src="./js-compiled/all-compiledOpti.js"></script>
+            src="./js-compiled/all_compiledOpti.js"></script>
 <?php endif ?>
